@@ -80,6 +80,29 @@ def init_db():
             )
         ''')
 
+        # 6. Testimonials Table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS testimonials (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                role TEXT,
+                review_text TEXT,
+                rating INTEGER,
+                image_url TEXT
+            )
+        ''')
+
+        # 7. Blog Posts Table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS posts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                content TEXT,
+                image_url TEXT,
+                date_posted TEXT DEFAULT CURRENT_DATE
+            )
+        ''')
+
         # Seed default settings if not exist
         defaults = {
             "announcement_text": "Welcome to my official portfolio!",
@@ -280,6 +303,54 @@ def manage_settings():
             db.execute('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', (key, val_str))
         db.commit()
         return jsonify({"success": True, "message": "Settings updated"})
+
+
+# 🌟 TESTIMONIALS
+@app.route('/api/testimonials', methods=['GET', 'POST', 'DELETE'])
+def manage_testimonials():
+    db = get_db()
+    
+    if request.method == 'GET':
+        cursor = db.execute('SELECT * FROM testimonials ORDER BY id DESC')
+        return jsonify([dict(row) for row in cursor.fetchall()])
+
+    if request.method == 'POST':
+        data = request.json
+        db.execute('INSERT INTO testimonials (name, role, review_text, rating, image_url) VALUES (?,?,?,?,?)',
+                   (data.get('name'), data.get('role'), data.get('review_text'), data.get('rating'), data.get('image_url')))
+        db.commit()
+        return jsonify({"success": True})
+
+    if request.method == 'DELETE':
+        db.execute('DELETE FROM testimonials WHERE id = ?', (request.args.get('id'),))
+        db.commit()
+        return jsonify({"success": True})
+
+
+# 📝 BLOG POSTS
+@app.route('/api/posts', methods=['GET', 'POST', 'DELETE'])
+def manage_posts():
+    db = get_db()
+
+    if request.method == 'GET':
+        cursor = db.execute('SELECT * FROM posts ORDER BY id DESC')
+        return jsonify([dict(row) for row in cursor.fetchall()])
+
+    if request.method == 'POST':
+        data = request.json
+        import datetime
+        # If date is not provided, use current YYYY-MM-DD
+        date_posted = data.get('date_posted') or datetime.datetime.now().strftime("%Y-%m-%d")
+        
+        db.execute('INSERT INTO posts (title, content, image_url, date_posted) VALUES (?,?,?,?)',
+                   (data.get('title'), data.get('content'), data.get('image_url'), date_posted))
+        db.commit()
+        return jsonify({"success": True})
+
+    if request.method == 'DELETE':
+        db.execute('DELETE FROM posts WHERE id = ?', (request.args.get('id'),))
+        db.commit()
+        return jsonify({"success": True})
 
 
 if __name__ == '__main__':

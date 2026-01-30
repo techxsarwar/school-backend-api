@@ -504,6 +504,67 @@ document.addEventListener('DOMContentLoaded', () => {
     if (yearSpan) {
         yearSpan.textContent = new Date().getFullYear();
     }
+    // --- VISITOR CONTENT (Testimonials & Blog) ---
+    async function loadTestimonials() {
+        try {
+            const container = document.getElementById('testimonials-container');
+            if (!container) return;
+
+            const res = await fetch(`${API_BASE}/testimonials`);
+            const data = await res.json();
+
+            if (data.length === 0) {
+                container.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#666">No review yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = data.map(t => `
+                <div class="glass-card" style="padding:30px;border-radius:12px;" data-aos="fade-up">
+                    <div style="display:flex;align-items:center;margin-bottom:20px;gap:15px;">
+                        <img src="${t.image_url}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:1px solid #333;">
+                        <div>
+                            <h4 style="margin:0;color:white;">${t.name}</h4>
+                            <div style="font-size:0.8rem;color:#777;">${t.role}</div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:15px;color:#ffc107;">${"★".repeat(t.rating)}${"☆".repeat(5 - t.rating)}</div>
+                    <p style="color:#aaa;line-height:1.6;font-size:0.95rem;">"${t.review_text}"</p>
+                </div>
+            `).join('');
+        } catch (e) { console.error("Err loadTestimonials", e); }
+    }
+
+    async function loadBlog() {
+        try {
+            const container = document.getElementById('blog-container');
+            if (!container) return;
+
+            const res = await fetch(`${API_BASE}/posts`);
+            const data = await res.json();
+
+            if (data.length === 0) {
+                container.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#666">Coming soon.</p>`;
+                return;
+            }
+
+            container.innerHTML = data.map(p => `
+                <div class="glass-card" style="padding:0;border-radius:12px;overflow:hidden;height:100%;" data-aos="fade-up">
+                    <div style="height:200px;background:url('${p.image_url}') center/cover;"></div>
+                    <div style="padding:25px;">
+                        <div style="font-size:0.8rem;color:var(--primary-accent);margin-bottom:10px;">${p.date_posted}</div>
+                        <h3 style="margin-bottom:10px;font-size:1.2rem;color:white;">${p.title}</h3>
+                        <p style="color:#888;font-size:0.9rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${p.content}</p>
+                        <a href="blog.html?id=${p.id}" style="color:white;text-decoration:none;font-weight:600;margin-top:20px;display:inline-block;">Read More <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) { console.error("Err loadBlog", e); }
+    }
+
+    // Init Content
+    loadTestimonials();
+    loadBlog();
+
 });
 function toggleMenu() {
     const nav = document.getElementById('navLinks');
