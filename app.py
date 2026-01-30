@@ -102,6 +102,18 @@ def init_db():
                 date_posted TEXT DEFAULT CURRENT_DATE
             )
         ''')
+        
+        # 8. Projects Table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS projects (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                image_url TEXT,
+                link_url TEXT,
+                tags TEXT,
+                description TEXT
+            )
+        ''')
 
         # Seed default settings if not exist
         defaults = {
@@ -356,6 +368,28 @@ def manage_posts():
 
     if request.method == 'DELETE':
         db.execute('DELETE FROM posts WHERE id = ?', (request.args.get('id'),))
+        db.commit()
+        return jsonify({"success": True})
+
+
+# 🚀 PROJECTS
+@app.route('/api/projects', methods=['GET', 'POST', 'DELETE'])
+def manage_projects():
+    db = get_db()
+    
+    if request.method == 'GET':
+        cursor = db.execute('SELECT * FROM projects ORDER BY id DESC')
+        return jsonify([dict(row) for row in cursor.fetchall()])
+
+    if request.method == 'POST':
+        data = request.json
+        db.execute('INSERT INTO projects (title, image_url, link_url, tags, description) VALUES (?,?,?,?,?)',
+                   (data.get('title'), data.get('image_url'), data.get('link_url'), data.get('tags'), data.get('description')))
+        db.commit()
+        return jsonify({"success": True})
+
+    if request.method == 'DELETE':
+        db.execute('DELETE FROM projects WHERE id=?', (request.args.get('id'),))
         db.commit()
         return jsonify({"success": True})
 

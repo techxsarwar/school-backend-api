@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CMS Command Center | Sarwar Altaf</title>
-    <link rel='icon' type='image/svg+xml' href='favicon.svg'>
+    <title>CMS Master Control | Sarwar Altaf</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,109 +17,90 @@
             --accent: #eee;
             --accent-dim: #888;
             --border: #222;
-            --text-main: #ededed;
-            --text-muted: #777;
             --danger: #ff4747;
-            --success: #28a745;
+            --success: #27c93f;
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Space Grotesk', sans-serif;
-            outline: none;
         }
 
         body {
+            font-family: 'Space Grotesk', sans-serif;
             background: var(--bg-dark);
-            color: var(--text-main);
-            height: 100vh;
+            color: var(--accent);
             display: flex;
+            height: 100vh;
             overflow: hidden;
         }
 
-        /* --- SIDEBAR --- */
+        /* SIDEBAR */
         .sidebar {
-            width: 250px;
+            width: 260px;
             background: var(--bg-panel);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             padding: 20px;
-            transition: transform 0.3s ease;
+            transition: 0.3s;
         }
 
-        .brand {
-            font-size: 1.2rem;
+        .logo {
+            font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 40px;
+            color: white;
             display: flex;
             align-items: center;
             gap: 10px;
-            letter-spacing: -0.5px;
-        }
-
-        .brand i {
-            font-size: 1rem;
         }
 
         .nav-link {
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--accent-dim);
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 15px;
-            color: var(--text-muted);
-            text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 5px;
             transition: 0.2s;
-            cursor: pointer;
             font-weight: 500;
         }
 
         .nav-link:hover,
         .nav-link.active {
             background: var(--bg-hover);
-            color: var(--text-main);
+            color: white;
         }
 
         .nav-link.active {
-            border-left: 3px solid var(--text-main);
+            border-left: 3px solid white;
         }
 
-        .logout {
-            margin-top: auto;
-            color: var(--danger);
-        }
-
-        /* --- MAIN CONTENT --- */
+        /* MAIN */
         .main-content {
             flex: 1;
-            padding: 40px;
             overflow-y: auto;
+            padding: 30px;
+            position: relative;
         }
 
-        header {
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
-        h1 {
+        .page-title {
             font-size: 2rem;
-            font-weight: 600;
-            letter-spacing: -1px;
+            font-weight: 700;
         }
 
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 5px;
-        }
-
-        /* --- SECTIONS --- */
+        /* SECTIONS */
         .section {
             display: none;
             animation: fadeIn 0.3s ease;
@@ -142,101 +122,44 @@
             }
         }
 
-        /* --- DASHBOARD --- */
-        .stats-grid {
+        /* CARDS & GRID */
+        .grid-2 {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-bottom: 40px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
         }
 
         .card {
             background: var(--bg-panel);
             border: 1px solid var(--border);
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
-            position: relative;
+            margin-bottom: 20px;
         }
 
         .card h3 {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .card .value {
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-
-        .data-table th,
-        .data-table td {
-            text-align: left;
-            padding: 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .data-table th {
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            background: var(--bg-hover);
-            font-size: 0.8rem;
-        }
-
-        button.action-btn {
-            background: var(--bg-hover);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        button.action-btn:hover {
-            background: var(--accent);
-            color: black;
-        }
-
-        button.danger-btn {
-            background: rgba(255, 71, 71, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(255, 71, 71, 0.2);
-        }
-
-        button.danger-btn:hover {
-            background: var(--danger);
-            color: white;
-        }
-
-        /* --- MARKETING --- */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        .form-group {
             margin-bottom: 20px;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* FORMS */
+        .form-group {
+            margin-bottom: 15px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: var(--text-muted);
+            color: var(--accent-dim);
+            margin-bottom: 5px;
             font-size: 0.9rem;
         }
 
@@ -245,65 +168,47 @@
             padding: 12px;
             background: var(--bg-dark);
             border: 1px solid var(--border);
-            color: var(--text-main);
             border-radius: 6px;
+            color: white;
+            font-family: inherit;
         }
 
         .input-field:focus {
-            border-color: var(--accent);
+            outline: none;
+            border-color: #555;
         }
 
         .btn-primary {
-            background: var(--accent);
+            background: white;
             color: black;
             border: none;
             padding: 12px 24px;
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            width: 100%;
+            transition: 0.2s;
         }
 
-        .ad-preview {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
         }
 
-        .ad-card-item {
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
+        .btn-danger {
+            background: rgba(255, 71, 71, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255, 71, 71, 0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
         }
 
-        .ad-card-img {
-            height: 100px;
-            background: #222;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .ad-card-body {
-            padding: 10px;
-        }
-
-        /* --- SETTINGS --- */
-        .setting-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
+        /* TOGGLE SWITCH */
         .switch {
             position: relative;
             display: inline-block;
             width: 50px;
-            height: 24px;
+            height: 26px;
         }
 
         .switch input {
@@ -319,16 +224,16 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: var(--bg-hover);
+            background-color: #333;
             transition: .4s;
-            border-radius: 24px;
+            border-radius: 34px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
+            height: 20px;
+            width: 20px;
             left: 3px;
             bottom: 3px;
             background-color: white;
@@ -341,42 +246,38 @@
         }
 
         input:checked+.slider:before {
-            transform: translateX(26px);
+            transform: translateX(24px);
         }
 
         input.danger:checked+.slider {
             background-color: var(--danger);
         }
 
-        /* Mobile */
-        .mobile-toggle {
+        /* MOBILE */
+        .hamburger {
             display: none;
             font-size: 1.5rem;
             cursor: pointer;
         }
 
         @media(max-width: 768px) {
-            .mobile-toggle {
-                display: block;
-            }
-
             .sidebar {
                 position: fixed;
+                left: -100%;
                 height: 100%;
                 z-index: 1000;
-                transform: translateX(-100%);
             }
 
             .sidebar.active {
-                transform: translateX(0);
+                left: 0;
+            }
+
+            .hamburger {
+                display: block;
             }
 
             .grid-2 {
                 grid-template-columns: 1fr;
-            }
-
-            .main-content {
-                padding: 20px;
             }
         }
     </style>
@@ -384,404 +285,428 @@
 
 <body>
 
-    <aside class="sidebar" id="sidebar">
-        <div class="brand">
-            <i class="fas fa-cube"></i> CMS // SARWAR
-        </div>
-        <nav>
-            <div class="nav-link active" onclick="showSection('dashboard', this)">
-                <i class="fas fa-chart-line"></i> Dashboard
-            </div>
-            <div class="nav-link" onclick="showSection('inbox', this)">
-                <i class="fas fa-inbox"></i> Inbox
-            </div>
-            <div class="nav-link" onclick="showSection('marketing', this)">
-                <i class="fas fa-bullhorn"></i> Marketing
-            </div>
-            <div class="nav-link" onclick="showSection('settings', this)">
-                <i class="fas fa-sliders-h"></i> Site Control
-            </div>
-            <div class="nav-link logout" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </div>
-        </nav>
-    </aside>
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo"><i class="fas fa-layer-group"></i> CMS Control</div>
 
-    <div class="overlay" id="overlay" onclick="toggleSidebar()"
-        style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:900;display:none;">
+        <div class="nav-link active" onclick="nav('dashboard', this)">
+            <i class="fas fa-chart-pie"></i> Dashboard
+        </div>
+        <div class="nav-link" onclick="nav('inbox', this)">
+            <i class="fas fa-envelope"></i> Inbox
+        </div>
+        <div class="nav-link" onclick="nav('marketing', this)">
+            <i class="fas fa-bullhorn"></i> Marketing
+        </div>
+        <div class="nav-link" onclick="nav('portfolio', this)">
+            <i class="fas fa-briefcase"></i> Portfolio
+        </div>
+        <div class="nav-link" onclick="nav('content', this)">
+            <i class="fas fa-pen-nib"></i> Content
+        </div>
+        <div class="nav-link" onclick="nav('seo-profile', this)">
+            <i class="fas fa-search"></i> SEO & Profile
+        </div>
+        <div class="nav-link" onclick="nav('site-control', this)">
+            <i class="fas fa-sliders-h"></i> Site Control
+        </div>
     </div>
 
-    <main class="main-content">
-        <header>
-            <div>
-                <i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>
-                <h1>Command Center</h1>
-                <div class="subtitle">Welcome back, Admin. System is operational.</div>
+    <!-- MAIN -->
+    <div class="main-content">
+        <div class="header">
+            <div style="display:flex;align-items:center;gap:15px;">
+                <div class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('active')"><i
+                        class="fas fa-bars"></i></div>
+                <h1 class="page-title" id="page-title">Dashboard</h1>
             </div>
-            <div style="text-align: right;">
-                <div class="badge" style="background: var(--success); color: white;">Online</div>
-            </div>
-        </header>
+            <a href="index.html" target="_blank" class="btn-primary"
+                style="text-decoration:none; font-size:0.9rem;">View Site <i class="fas fa-external-link-alt"></i></a>
+        </div>
 
-        <!-- DASHBOARD -->
+        <!-- 1. DASHBOARD -->
         <section id="dashboard" class="section active">
-            <div class="stats-grid">
+            <div class="grid-3">
                 <div class="card">
                     <h3>Total Visits</h3>
-                    <div class="value" id="stats-visits">0</div>
+                    <h1 id="stat-visits">0</h1>
                 </div>
                 <div class="card">
-                    <h3>Unread Messages</h3>
-                    <div class="value" id="stats-msgs">0</div>
+                    <h3>Messages</h3>
+                    <h1 id="stat-msgs">0</h1>
                 </div>
                 <div class="card">
                     <h3>Active Ads</h3>
-                    <div class="value" id="stats-ads">0</div>
+                    <h1 id="stat-ads">0</h1>
                 </div>
             </div>
-
             <div class="card">
-                <h3 style="margin-bottom: 20px;">Recent Visitors</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Page</th>
-                            <th>Device</th>
-                        </tr>
-                    </thead>
-                    <tbody id="visitors-table">
-                        <!-- JS Injected -->
-                    </tbody>
-                </table>
+                <h3>Recent Visitors</h3>
+                <div id="recent-visitors">Looking for data...</div>
             </div>
         </section>
 
-        <!-- INBOX -->
+        <!-- 2. INBOX -->
         <section id="inbox" class="section">
             <div class="card">
-                <h3 style="margin-bottom: 20px;">Message Inbox</h3>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Message</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="messages-table">
-                        <!-- JS Injected -->
-                    </tbody>
-                </table>
+                <h3>Contact Messages</h3>
+                <div id="messages-list"></div>
             </div>
         </section>
 
-        <!-- MARKETING -->
+        <!-- 3. MARKETING (Ads & Coupons) -->
         <section id="marketing" class="section">
             <div class="grid-2">
-                <!-- Ad Manager -->
                 <div class="card">
-                    <h3>Create New Ad</h3>
-                    <div class="form-group">
-                        <label>Headline</label>
-                        <input type="text" id="ad-headline" class="input-field" placeholder="e.g. 50% Off Summer Sale">
-                    </div>
-                    <div class="form-group">
-                        <label>Image URL</label>
-                        <input type="text" id="ad-image" class="input-field" placeholder="https://...">
-                    </div>
-                    <div class="form-group">
-                        <label>Link URL</label>
-                        <input type="text" id="ad-link" class="input-field" placeholder="https://...">
-                    </div>
-                    <button class="btn-primary" onclick="createAd()">Launch Campaign</button>
-
-                    <div id="ad-list" class="ad-preview">
-                        <!-- Ads Here -->
-                    </div>
+                    <h3>Create Ad Campaign</h3>
+                    <div class="form-group"><label>Headline</label><input id="ad-title" class="input-field"></div>
+                    <div class="form-group"><label>Image URL</label><input id="ad-img" class="input-field"></div>
+                    <div class="form-group"><label>Target Link</label><input id="ad-link" class="input-field"></div>
+                    <button class="btn-primary" onclick="createAd()">Launch Ad</button>
+                    <div style="margin-top:20px;" id="ads-list"></div>
                 </div>
-
-                <!-- Coupon Generator -->
                 <div class="card">
                     <h3>Coupon Generator</h3>
-                    <div class="form-group">
-                        <label>Discount Amount</label>
-                        <input type="text" id="coupon-disc" class="input-field" placeholder="e.g. 20% OFF">
-                    </div>
-                    <button class="btn-primary" onclick="generateCoupon()">Generate Code</button>
-                    <div id="coupon-result"
-                        style="margin-top:20px; font-size: 1.5rem; text-align: center; font-weight: bold; color: var(--success);">
-                    </div>
+                    <div class="form-group"><label>Discount Value</label><input id="coup-val" class="input-field"
+                            placeholder="e.g. 50% OFF"></div>
+                    <button class="btn-primary" onclick="createCoupon()">Generate Code</button>
+                    <div style="margin-top:20px;" id="coupons-list"></div>
                 </div>
             </div>
         </section>
 
-        <!-- SETTINGS -->
-        <section id="settings" class="section">
+        <!-- 4. PORTFOLIO MANAGER -->
+        <section id="portfolio" class="section">
             <div class="grid-2">
-                <!-- Maintenance Control -->
                 <div class="card">
-                    <h3>Maintenance Mode</h3>
-                    <div class="setting-row">
-                        <div>
-                            <div style="font-weight: 600; color: var(--danger);">Activator</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Shut down public site</div>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" class="danger" id="toggle-maint">
-                            <span class="slider"></span>
-                        </label>
+                    <h3>Add Project</h3>
+                    <div class="form-group"><label>Project Title</label><input id="proj-title" class="input-field">
                     </div>
-                    <div class="form-group">
-                        <label>Expected Duration (Countdown)</label>
-                        <select id="maint-duration" class="input-field">
-                            <option value="indefinite">Indefinite (No Timer)</option>
-                            <option value="15">15 Minutes</option>
-                            <option value="60">1 Hour</option>
-                            <option value="360">6 Hours</option>
-                            <option value="1440">24 Hours</option>
-                        </select>
-                    </div>
+                    <div class="form-group"><label>Thumbnail URL</label><input id="proj-img" class="input-field"></div>
+                    <div class="form-group"><label>Live Link</label><input id="proj-link" class="input-field"></div>
+                    <div class="form-group"><label>Tech Stack (Comma sep)</label><input id="proj-tags"
+                            class="input-field"></div>
+                    <div class="form-group"><label>Description</label><textarea id="proj-desc" class="input-field"
+                            rows="3"></textarea></div>
+                    <button class="btn-primary" onclick="createProject()">Add to Portfolio</button>
                 </div>
-
-                <!-- Announcement Control -->
-                <div class="card">
-                    <h3>Advanced Announcement</h3>
-                    <div class="setting-row">
-                        <div>
-                            <div style="font-weight: 600;">Show Announcement</div>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="announce-toggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label>Message</label>
-                        <input type="text" id="announce-text" class="input-field" placeholder="Big News...">
-                    </div>
-                    <div class="grid-2" style="gap: 15px; margin-bottom: 0;">
-                        <div class="form-group">
-                            <label>Type</label>
-                            <select id="announce-type" class="input-field">
-                                <option value="bar">Top Bar</option>
-                                <option value="popup">Floating Popup</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Position</label>
-                            <select id="announce-pos" class="input-field">
-                                <option value="top">Top (Full Width)</option>
-                                <option value="bottom-right">Bottom Right</option>
-                                <option value="center">Center Screen</option>
-                                <option value="bottom-left">Bottom Left</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Accent Color</label>
-                        <div style="display:flex; gap:10px; align-items:center;">
-                            <input type="color" id="announce-color" value="#000000"
-                                style="height:40px; width:60px; border:none; background:none;">
-                            <span style="font-size:0.8rem; color:var(--text-muted);">Pick a color</span>
-                        </div>
-                    </div>
+                <div class="card" style="max-height:800px;overflow-y:auto;">
+                    <h3>Existing Projects</h3>
+                    <div id="projects-list"></div>
                 </div>
-            </div>
-
-            <div style="margin-top: 30px; text-align: right;">
-                <button class="btn-primary" style="width: auto; padding: 15px 40px;" onclick="saveSettings()">Save
-                    Configuration</button>
             </div>
         </section>
 
-    </main>
+        <!-- 5. CONTENT (Blog & Testimonials) -->
+        <section id="content" class="section">
+            <div class="grid-2">
+                <!-- Blog -->
+                <div class="card">
+                    <h3>Write Blog Post</h3>
+                    <div class="form-group"><label>Title</label><input id="post-title" class="input-field"></div>
+                    <div class="form-group"><label>Cover Image</label><input id="post-img" class="input-field"></div>
+                    <div class="form-group"><label>Content</label><textarea id="post-content" class="input-field"
+                            rows="6"></textarea></div>
+                    <button class="btn-primary" onclick="createPost()">Publish</button>
+                    <hr style="margin:20px 0; border:0; border-top:1px solid #333;">
+                    <div id="posts-list"></div>
+                </div>
+                <!-- Testimonials -->
+                <div class="card">
+                    <h3>Add Testimonial</h3>
+                    <div class="form-group"><label>Client Name</label><input id="test-name" class="input-field"></div>
+                    <div class="form-group"><label>Role</label><input id="test-role" class="input-field"
+                            placeholder="CEO at X"></div>
+                    <div class="form-group"><label>Rating</label><select id="test-rating" class="input-field">
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                        </select></div>
+                    <div class="form-group"><label>Review</label><textarea id="test-rev" class="input-field"
+                            rows="3"></textarea></div>
+                    <button class="btn-primary" onclick="createTestimonial()">Save Review</button>
+                    <hr style="margin:20px 0; border:0; border-top:1px solid #333;">
+                    <div id="testimonials-list"></div>
+                </div>
+            </div>
+        </section>
 
+        <!-- 6. SEO & PROFILE -->
+        <section id="seo-profile" class="section">
+            <div class="grid-2">
+                <!-- Profile -->
+                <div class="card">
+                    <h3>Personal Branding</h3>
+                    <div class="form-group"><label>Display Name</label><input id="prof-name" class="input-field"></div>
+                    <div class="form-group"><label>Headline</label><textarea id="prof-head" class="input-field"
+                            rows="3"></textarea></div>
+                    <div class="form-group"><label>About Me (Timeline)</label><textarea id="prof-about"
+                            class="input-field" rows="5"></textarea></div>
+                    <div class="form-group"><label>Resume URL</label><input id="prof-resume" class="input-field"></div>
+                    <button class="btn-primary" onclick="saveProfile()">Update Profile</button>
+                </div>
+                <!-- SEO -->
+                <div class="card">
+                    <h3>SEO Configuration</h3>
+                    <div class="form-group"><label>Site Title</label><input id="seo-title" class="input-field"></div>
+                    <div class="form-group"><label>Meta Description</label><textarea id="seo-desc" class="input-field"
+                            rows="3"></textarea></div>
+                    <div class="form-group"><label>Keywords</label><input id="seo-keys" class="input-field"></div>
+                    <button class="btn-primary" onclick="saveSEO()">Update SEO</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. SITE CONTROL -->
+        <section id="site-control" class="section">
+            <div class="card">
+                <h3>Global Announcement</h3>
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <div>Enable Announcement</div>
+                    <label class="switch"><input type="checkbox" id="ann-active"><span class="slider"></span></label>
+                </div>
+                <div class="form-group"><label>Message</label><input id="ann-text" class="input-field"></div>
+                <div class="grid-2">
+                    <div class="form-group"><label>Type</label><select id="ann-type" class="input-field">
+                            <option value="bar">Bar</option>
+                            <option value="popup">Popup</option>
+                        </select></div>
+                    <div class="form-group"><label>Color</label><input type="color" id="ann-color" class="input-field"
+                            style="height:45px;"></div>
+                </div>
+                <button class="btn-primary" onclick="saveSettings()">Save Configuration</button>
+            </div>
+
+            <div class="card">
+                <h3>Maintenance Mode</h3>
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <div style="color:var(--danger)">Activate Lockout</div>
+                    <label class="switch"><input type="checkbox" id="maint-active" class="danger"><span
+                            class="slider"></span></label>
+                </div>
+                <div class="form-group"><label>Expected Duration</label>
+                    <select id="maint-dur" class="input-field">
+                        <option value="indefinite">Indefinite</option>
+                        <option value="60">1 Hour</option>
+                        <option value="1440">24 Hours</option>
+                    </select>
+                </div>
+                <button class="btn-primary" onclick="saveSettings()">Activate Maintenance</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ADMIN LOGIC -->
     <script>
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? "http://127.0.0.1:5000/api"
-            : "https://school-backend-api-5hkh.onrender.com/api";
+        const API = window.location.hostname === 'localhost' ? "http://127.0.0.1:5000/api" : "/api";
 
-        // --- AUTH CHECK ---
-        // Basic token check (client side only, real auth on server)
-        // if(!localStorage.getItem("token")) window.location.href = "login.html";
-
-        function logout() {
-            localStorage.removeItem("token");
-            window.location.href = "login.html";
-        }
-
-        // --- NAVIGATION ---
-        function showSection(id, el) {
+        // Navigation
+        function nav(id, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
 
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
             if (el) el.classList.add('active');
 
-            // Auto close mobile sidebar
-            document.getElementById('sidebar').classList.remove('active');
-            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('page-title').innerText = el ? el.innerText.trim() : 'Dashboard';
 
+            // Lazy Load
             if (id === 'dashboard') loadStats();
-            if (id === 'inbox') loadMessages();
-            if (id === 'marketing') loadAds();
-            if (id === 'settings') loadSettings();
+            if (id === 'inbox') loadMsgs();
+            if (id === 'marketing') { loadAds(); loadCoupons(); }
+            if (id === 'portfolio') loadProjects();
+            if (id === 'content') { loadPosts(); loadTestimonials(); }
+            if (id === 'seo-profile') { loadProfile(); loadSEO(); }
+            if (id === 'site-control') loadSettings();
         }
 
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            sb.classList.toggle('active');
-            const ov = document.getElementById('overlay');
-            ov.style.display = sb.classList.contains('active') ? 'block' : 'none';
-        }
-
-        // --- API CALLS ---
-
+        // 1. Dashboard
         async function loadStats() {
-            try {
-                const res = await fetch(`${API_BASE}/stats`);
-                const data = await res.json();
-
-                document.getElementById('stats-visits').innerText = data.total_visits;
-                document.getElementById('stats-msgs').innerText = data.total_messages;
-                document.getElementById('stats-ads').innerText = data.active_ads;
-
-                const table = document.getElementById('visitors-table');
-                table.innerHTML = data.recent_visitors.map(v => `
-                    <tr>
-                        <td>${new Date(v.timestamp).toLocaleTimeString()}</td>
-                        <td>${v.page}</td>
-                        <td><span class="badge">${v.device_type}</span></td>
-                    </tr>
-                `).join('');
-            } catch (e) { console.error(e); }
+            const res = await fetch(`${API}/stats`);
+            const d = await res.json();
+            document.getElementById('stat-visits').innerText = d.total_visits;
+            document.getElementById('stat-msgs').innerText = d.total_messages;
+            document.getElementById('stat-ads').innerText = d.active_ads;
+            document.getElementById('recent-visitors').innerHTML = d.recent_visitors.map(v =>
+                `<div style="padding:10px; border-bottom:1px solid #222;">${v.page} <span style="float:right;color:#666">${new Date(v.timestamp).toLocaleTimeString()}</span></div>`
+            ).join('');
         }
 
-        async function loadMessages() {
-            try {
-                const res = await fetch(`${API_BASE}/messages`);
-                const data = await res.json();
-
-                const table = document.getElementById('messages-table');
-                table.innerHTML = data.map(m => `
-                    <tr>
-                        <td style="font-weight:bold;">${m.name}</td>
-                        <td>${m.email}</td>
-                        <td style="max-width:300px;">${m.message}</td>
-                        <td><button class="action-btn danger-btn" onclick="deleteMessage(${m.id})"><i class="fas fa-trash"></i></button></td>
-                    </tr>
-                `).join('');
-            } catch (e) { console.error(e); }
+        // 2. Inbox
+        async function loadMsgs() {
+            const res = await fetch(`${API}/messages`);
+            const d = await res.json();
+            document.getElementById('messages-list').innerHTML = d.map(m => `
+                <div class="card" style="border-left:4px solid var(--accent)">
+                    <div style="display:flex;justify-content:space-between"><b>${m.name}</b> <small>${m.email}</small></div>
+                    <p style="margin-top:10px;color:#ccc;">${m.message}</p>
+                    <button onclick="del('messages', ${m.id}, loadMsgs)" class="btn-danger" style="margin-top:10px;">Delete</button>
+                </div>
+            `).join('');
         }
 
-        async function deleteMessage(id) {
-            if (!confirm("Delete this message?")) return;
-            await fetch(`${API_BASE}/messages?id=${id}`, { method: 'DELETE' });
-            loadMessages();
-        }
-
+        // 3. Marketing
         async function createAd() {
-            const headline = document.getElementById('ad-headline').value;
-            const link = document.getElementById('ad-link').value;
-            // If we had an image input, we'd get it here. For now defaulting to empty or maybe I should add the input as requested?
-            const image = document.getElementById('ad-image') ? document.getElementById('ad-image').value : '';
-
-            await fetch(`${API_BASE}/ads`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: headline,
-                    link: link,
-                    image: image
+            await fetch(`${API}/ads`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+                    title: document.getElementById('ad-title').value,
+                    image_url: document.getElementById('ad-img').value,
+                    link_url: document.getElementById('ad-link').value
                 })
             });
-
-            alert('✅ Ad Created!');
-            document.getElementById('ad-headline').value = "";
-            document.getElementById('ad-link').value = "";
-            if (document.getElementById('ad-image')) document.getElementById('ad-image').value = "";
             loadAds();
         }
-
         async function loadAds() {
-            try {
-                const res = await fetch(`${API_BASE}/ads`);
-                const data = await res.json();
-                const container = document.getElementById('ad-list');
-                container.innerHTML = data.map(ad => `
-                    <div class="ad-card-item">
-                        <div class="ad-card-img"><i class="fas fa-ad" style="font-size:2rem;color:var(--text-muted);"></i></div>
-                        <div class="ad-card-body">
-                            <div style="font-weight:bold;margin-bottom:5px;">${ad.title}</div>
-                            <div style="font-size:0.8rem;color:var(--text-muted);">${ad.link_url}</div>
-                            <button class="action-btn danger-btn" style="width:100%;margin-top:10px;" onclick="deleteAd(${ad.id})">Remove</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (e) { console.error(e); }
+            const d = await (await fetch(`${API}/ads`)).json();
+            document.getElementById('ads-list').innerHTML = d.map(a => `
+                <div style="padding:10px;border:1px solid #333;margin-bottom:10px;">${a.title} <button onclick="del('ads', ${a.id}, loadAds)" style="color:red;float:right;background:none;border:none;">&times;</button></div>
+            `).join('');
+        }
+        async function createCoupon() {
+            const d = await (await fetch(`${API}/coupons`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+                    discount: document.getElementById('coup-val').value
+                })
+            })).json();
+            alert(`Code: ${d.code}`);
+            loadCoupons();
+        }
+        async function loadCoupons() {
+            const d = await (await fetch(`${API}/coupons`)).json();
+            document.getElementById('coupons-list').innerHTML = d.map(c => `<div>${c.code} - ${c.discount}</div>`).join('');
         }
 
-        async function deleteAd(id) {
-            if (!confirm("Stop this campaign?")) return;
-            await fetch(`${API_BASE}/ads?id=${id}`, { method: 'DELETE' });
-            loadAds();
-        }
-
-        async function generateCoupon() {
-            const disc = document.getElementById('coupon-disc').value;
-            const res = await fetch(`${API_BASE}/coupons`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ discount: disc })
+        // 4. Portfolio
+        async function createProject() {
+            await fetch(`${API}/projects`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+                    title: document.getElementById('proj-title').value,
+                    image_url: document.getElementById('proj-img').value,
+                    link_url: document.getElementById('proj-link').value,
+                    tags: document.getElementById('proj-tags').value,
+                    description: document.getElementById('proj-desc').value
+                })
             });
-            const data = await res.json();
-            document.getElementById('coupon-result').innerText = data.code;
+            loadProjects();
+        }
+        async function loadProjects() {
+            const d = await (await fetch(`${API}/projects`)).json();
+            document.getElementById('projects-list').innerHTML = d.map(p => `
+                <div style="padding:10px;border:1px solid #333;margin-bottom:10px;display:flex;align-items:center;gap:10px;">
+                    <img src="${p.image_url}" style="width:40px;height:40px;object-fit:cover;">
+                    <div><b>${p.title}</b><br><small>${p.tags}</small></div>
+                    <button onclick="del('projects', ${p.id}, loadProjects)" class="btn-danger" style="margin-left:auto;">Delete</button>
+                </div>
+            `).join('');
         }
 
+        // 5. Content
+        async function createPost() {
+            await fetch(`${API}/posts`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+                    title: document.getElementById('post-title').value,
+                    content: document.getElementById('post-content').value,
+                    image_url: document.getElementById('post-img').value
+                })
+            });
+            loadPosts();
+        }
+        async function loadPosts() {
+            const d = await (await fetch(`${API}/posts`)).json();
+            document.getElementById('posts-list').innerHTML = d.map(p => `<div>${p.title} <button onclick="del('posts', ${p.id}, loadPosts)" style="color:red;float:right;">&times;</button></div>`).join('');
+        }
+        async function createTestimonial() {
+            await fetch(`${API}/testimonials`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+                    name: document.getElementById('test-name').value,
+                    role: document.getElementById('test-role').value,
+                    rating: document.getElementById('test-rating').value,
+                    review_text: document.getElementById('test-rev').value,
+                    image_url: 'https://ui-avatars.com/api/?name=' + document.getElementById('test-name').value
+                })
+            });
+            loadTestimonials();
+        }
+        async function loadTestimonials() {
+            const d = await (await fetch(`${API}/testimonials`)).json();
+            document.getElementById('testimonials-list').innerHTML = d.map(t => `<div>${t.name} (${t.rating}★) <button onclick="del('testimonials', ${t.id}, loadTestimonials)" style="color:red;float:right;">&times;</button></div>`).join('');
+        }
+
+        // 6. SEO & Profile
+        async function loadProfile() {
+            const d = await (await fetch(`${API}/settings`)).json();
+            document.getElementById('prof-name').value = d.profile_name || '';
+            document.getElementById('prof-head').value = d.profile_headline || '';
+            document.getElementById('prof-about').value = d.profile_about || '';
+            document.getElementById('prof-resume').value = d.resume_link || '';
+        }
+        async function saveProfile() {
+            await fetch(`${API}/settings`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+                    profile_name: document.getElementById('prof-name').value,
+                    profile_headline: document.getElementById('prof-head').value,
+                    profile_about: document.getElementById('prof-about').value,
+                    resume_link: document.getElementById('prof-resume').value
+                })
+            });
+            alert('Profile Saved');
+        }
+        async function loadSEO() {
+            const d = await (await fetch(`${API}/settings`)).json();
+            document.getElementById('seo-title').value = d.site_title || '';
+            document.getElementById('seo-desc').value = d.meta_description || '';
+            document.getElementById('seo-keys').value = d.meta_keywords || '';
+        }
+        async function saveSEO() {
+            await fetch(`${API}/settings`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+                    site_title: document.getElementById('seo-title').value,
+                    meta_description: document.getElementById('seo-desc').value,
+                    meta_keywords: document.getElementById('seo-keys').value
+                })
+            });
+            alert('SEO Saved');
+        }
+
+        // 7. Site Control
         async function loadSettings() {
-            try {
-                const res = await fetch(`${API_BASE}/settings`);
-                const data = await res.json();
-
-                document.getElementById('announcement-text').value = data.announcement_text || "";
-                if (document.getElementById('announcement-toggle')) {
-                    document.getElementById('announcement-toggle').checked = data.announcement_active === 'true' || data.announcement_active === '1';
-                }
-                document.getElementById('toggle-maint').checked = data.maintenance_mode === 'true' || data.maintenance_mode === '1';
-            } catch (e) { console.error(e); }
+            const d = await (await fetch(`${API}/settings`)).json();
+            document.getElementById('ann-active').checked = d.announcement_active === '1' || d.announcement_active === 'true';
+            document.getElementById('ann-text').value = d.announcement_text || '';
+            document.getElementById('ann-type').value = d.announcement_type || 'bar';
+            document.getElementById('ann-color').value = d.announcement_color || '#000000';
+            document.getElementById('maint-active').checked = d.maintenance_mode === '1' || d.maintenance_mode === 'true';
         }
-
-        async function saveAnnouncement() {
-            const text = document.getElementById('announcement-text').value;
-            const active = document.getElementById('announcement-toggle').checked ? "1" : "0";
-
-            await fetch(`${API_BASE}/settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    announcement_text: text,
-                    announcement_active: active
-                })
-            });
-            alert('✅ Announcement Updated!');
-        }
-
         async function saveSettings() {
-            // This is now mainly for Maintenance mode if saveAnnouncement is separate
-            const maint = document.getElementById('toggle-maint').checked;
-            // If we are just toggling maintenance, we can send just that key, OR send everything.
-            // To be safe and keep simple, let's just send maintenance_mode here.
+            const maint = document.getElementById('maint-active').checked ? "1" : "0";
+            let endObj = "null";
+            if (maint === "1") {
+                const dur = document.getElementById('maint-dur').value;
+                if (dur !== 'indefinite') {
+                    const now = new Date();
+                    now.setMinutes(now.getMinutes() + parseInt(dur));
+                    endObj = now.toISOString();
+                }
+            }
 
-            await fetch(`${API_BASE}/settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    maintenance_mode: maint ? "1" : "0"
+            await fetch(`${API}/settings`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+                    announcement_active: document.getElementById('ann-active').checked ? "1" : "0",
+                    announcement_text: document.getElementById('ann-text').value,
+                    announcement_type: document.getElementById('ann-type').value,
+                    announcement_color: document.getElementById('ann-color').value,
+                    maintenance_mode: maint,
+                    maintenance_end_time: endObj
                 })
             });
-            // alert("Settings Saved!"); // Optional for maintenance toggle
+            alert('Settings Saved');
+        }
+
+        // Helper
+        async function del(ep, id, cb) {
+            if (confirm('Delete?')) {
+                await fetch(`${API}/${ep}?id=${id}`, { method: 'DELETE' });
+                cb();
+            }
         }
 
         // Init
