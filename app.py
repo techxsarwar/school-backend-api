@@ -111,7 +111,14 @@ def init_db():
             "announcement_color": "#000000",
             "announcement_position": "top",
             "maintenance_mode": "0",
-            "maintenance_end_time": "null"
+            "maintenance_end_time": "null",
+            "profile_name": "Sarwar Altaf",
+            "profile_headline": "Building digital empires and merging High Performance Code with Premium Aesthetics.",
+            "profile_about": "Started my journey with nothing but Notepad and curiosity. Wrote my first lines of code, fascinated by the ability to create something from nothing.",
+            "resume_link": "#",
+            "site_title": "Sarwar Altaf Dar | Full Stack Developer",
+            "meta_description": "Based in India, Sarwar Altaf Dar is a 17-year-old Full Stack Web Developer building the future of the web.",
+            "meta_keywords": "Full Stack, Web Developer, Portfolio, Python, React, JavaScript"
         }
         for key, val in defaults.items():
             cursor.execute('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)', (key, val))
