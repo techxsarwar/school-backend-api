@@ -183,9 +183,10 @@ def manage_ads():
 
     if request.method == 'POST':
         data = request.json
-        title = data.get('title', 'Untitled Ad')
-        image_url = data.get('image_url', '')
-        link_url = data.get('link_url', '#')
+        # Aliases for robust handling
+        title = data.get('title') or data.get('headline') or 'Untitled Ad'
+        image_url = data.get('image_url') or data.get('image') or ''
+        link_url = data.get('link_url') or data.get('link') or '#'
         
         db.execute('INSERT INTO ads (title, image_url, link_url) VALUES (?, ?, ?)', 
                    (title, image_url, link_url))
@@ -263,8 +264,15 @@ def manage_settings():
     if request.method == 'POST':
         data = request.json
         for key, value in data.items():
-            # Convert booleans to strings for storage if needed, or keeping as text is fine
-            val_str = str(value).lower() if isinstance(value, bool) else str(value)
+            # Robust conversion: 
+            # Boolean True -> "true", False -> "false"
+            # Int 1 -> "1", 0 -> "0"
+            if isinstance(value, bool):
+                val_str = str(value).lower()
+            else:
+                val_str = str(value)
+            
+            # Using INSERT OR REPLACE to handle both new and existing settings
             db.execute('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', (key, val_str))
         db.commit()
         return jsonify({"success": True, "message": "Settings updated"})

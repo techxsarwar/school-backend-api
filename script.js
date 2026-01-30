@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const settings = await res.json();
 
             // Check Maintenance Mode
-            if (settings.maintenance_mode === 'true') {
+            if (settings.maintenance_mode === 'true' || settings.maintenance_mode === '1') {
                 document.body.innerHTML = `
                     <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#050505;color:white;text-align:center;font-family:sans-serif;">
                         <i class="fas fa-tools" style="font-size:3rem;color:#ff4747;margin-bottom:20px;"></i>
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Announcement Bar
-            if (settings.announcement_active === 'true' && settings.announcement_text) {
+            if ((settings.announcement_active === 'true' || settings.announcement_active === '1') && settings.announcement_text) {
                 const banner = document.createElement('div');
                 banner.className = 'ad-banner';
                 banner.innerHTML = `
@@ -56,6 +56,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Run connection
     initCMS();
+
+    // --- Admin Logic (Requested implementation) ---
+    // These functions are available if script.js is included in admin panel
+    window.saveAnnouncement = async function () {
+        const text = document.getElementById('announcement-text').value;
+        const active = document.getElementById('announcement-toggle').checked ? "1" : "0";
+
+        await fetch(`${API_BASE}/settings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                announcement_text: text,
+                announcement_active: active
+            })
+        });
+        alert('✅ Announcement Updated!');
+    }
+
+    window.createAd = async function () {
+        const title = document.getElementById('ad-headline').value;
+        const link = document.getElementById('ad-link').value;
+        const image = document.getElementById('ad-image') ? document.getElementById('ad-image').value : '';
+
+        await fetch(`${API_BASE}/ads`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, link, image })
+        });
+        alert('✅ Ad Created!');
+    }
 
     // Contact Form Handler (Global)
     window.submitContact = async function (e) {

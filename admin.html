@@ -484,7 +484,11 @@
                     <h3>Create New Ad</h3>
                     <div class="form-group">
                         <label>Headline</label>
-                        <input type="text" id="ad-title" class="input-field" placeholder="e.g. 50% Off Summer Sale">
+                        <input type="text" id="ad-headline" class="input-field" placeholder="e.g. 50% Off Summer Sale">
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL</label>
+                        <input type="text" id="ad-image" class="input-field" placeholder="https://...">
                     </div>
                     <div class="form-group">
                         <label>Link URL</label>
@@ -520,7 +524,7 @@
                 <div class="form-group" style="margin-top: 20px;">
                     <label>Announcement Bar Text</label>
                     <input type="text" id="announcement-text" class="input-field" placeholder="Alert message...">
-                    <button class="action-btn" style="margin-top:10px;" onclick="saveSettings()">Save Text</button>
+                    <button class="action-btn" style="margin-top:10px;" onclick="saveAnnouncement()">Save Text</button>
                 </div>
 
                 <div class="setting-row">
@@ -530,7 +534,7 @@
                         </div>
                     </div>
                     <label class="switch">
-                        <input type="checkbox" id="toggle-announce" onchange="saveSettings()">
+                        <input type="checkbox" id="announcement-toggle" onchange="saveAnnouncement()">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -636,16 +640,25 @@
         }
 
         async function createAd() {
-            const title = document.getElementById('ad-title').value;
+            const headline = document.getElementById('ad-headline').value;
             const link = document.getElementById('ad-link').value;
+            // If we had an image input, we'd get it here. For now defaulting to empty or maybe I should add the input as requested?
+            const image = document.getElementById('ad-image') ? document.getElementById('ad-image').value : '';
 
             await fetch(`${API_BASE}/ads`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, link_url: link })
+                body: JSON.stringify({
+                    title: headline,
+                    link: link,
+                    image: image
+                })
             });
-            document.getElementById('ad-title').value = "";
+
+            alert('✅ Ad Created!');
+            document.getElementById('ad-headline').value = "";
             document.getElementById('ad-link').value = "";
+            if (document.getElementById('ad-image')) document.getElementById('ad-image').value = "";
             loadAds();
         }
 
@@ -690,26 +703,42 @@
                 const data = await res.json();
 
                 document.getElementById('announcement-text').value = data.announcement_text || "";
-                document.getElementById('toggle-announce').checked = data.announcement_active === 'true';
-                document.getElementById('toggle-maint').checked = data.maintenance_mode === 'true';
+                if (document.getElementById('announcement-toggle')) {
+                    document.getElementById('announcement-toggle').checked = data.announcement_active === 'true' || data.announcement_active === '1';
+                }
+                document.getElementById('toggle-maint').checked = data.maintenance_mode === 'true' || data.maintenance_mode === '1';
             } catch (e) { console.error(e); }
         }
 
-        async function saveSettings() {
+        async function saveAnnouncement() {
             const text = document.getElementById('announcement-text').value;
-            const announce = document.getElementById('toggle-announce').checked;
-            const maint = document.getElementById('toggle-maint').checked;
+            const active = document.getElementById('announcement-toggle').checked ? "1" : "0";
 
             await fetch(`${API_BASE}/settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     announcement_text: text,
-                    announcement_active: announce,
-                    maintenance_mode: maint
+                    announcement_active: active
                 })
             });
-            alert("Settings Saved!");
+            alert('✅ Announcement Updated!');
+        }
+
+        async function saveSettings() {
+            // This is now mainly for Maintenance mode if saveAnnouncement is separate
+            const maint = document.getElementById('toggle-maint').checked;
+            // If we are just toggling maintenance, we can send just that key, OR send everything.
+            // To be safe and keep simple, let's just send maintenance_mode here.
+
+            await fetch(`${API_BASE}/settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    maintenance_mode: maint ? "1" : "0"
+                })
+            });
+            // alert("Settings Saved!"); // Optional for maintenance toggle
         }
 
         // Init
