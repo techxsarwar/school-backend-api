@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator | Sarwar Altaf Dar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-editor: #0d1017;
+            --bg-paper: #ffffff;
+            --primary: #673de6;
+            --text-light: #e0e0e0;
+            --text-dark: #333333;
+            --border: #2d3748;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Left Side: Editor --- */
+        .editor-pane {
+            width: 40%;
+            background: var(--bg-editor);
+            color: var(--text-light);
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        .btn-back {
+            color: var(--text-light);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8b9bb4;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            border-radius: 6px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .file-upload {
+            border: 2px dashed var(--border);
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #8b9bb4;
+        }
+
+        /* --- Right Side: Preview --- */
+        .preview-pane {
+            width: 60%;
+            background: #2d3748;
+            /* Dark framing for the paper */
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .invoice-paper {
+            background: var(--bg-paper);
+            color: var(--text-dark);
+            width: 210mm;
+            min-height: 297mm;
+            /* A4 */
+            padding: 15mm;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Invoice Internal Layout */
+        .inv-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .inv-logo img {
+            max-height: 60px;
+            max-width: 200px;
+        }
+
+        .inv-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            text-align: right;
+        }
+
+        .inv-meta {
+            text-align: right;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .inv-addresses {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .inv-address-block h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .inv-address-block p {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #333;
+        }
+
+        .inv-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .inv-table th {
+            text-align: left;
+            padding: 12px 8px;
+            border-bottom: 2px solid #eee;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        .inv-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .inv-table td.qty,
+        .inv-table td.rate,
+        .inv-table td.amount {
+            text-align: right;
+        }
+
+        .inv-totals {
+            margin-left: auto;
+            width: 40%;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .total-row.grand {
+            font-size: 1.2rem;
+            font-weight: 800;
+            border-top: 2px solid #333;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+
+        .inv-footer {
+            margin-top: auto;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+
+        .watermark-link {
+            text-decoration: none;
+            color: #333;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .watermark-brand {
+            color: var(--primary);
+        }
+
+        .inv-signature img {
+            max-height: 60px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Actions */
+        .btn-download {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 1rem;
+        }
+
+        .btn-sm {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* --- PRINT CSS --- */
+        @media print {
+            body {
+                overflow: visible;
+                height: auto;
+            }
+
+            .editor-pane {
+                display: none;
+            }
+
+            .preview-pane {
+                width: 100%;
+                padding: 0;
+                background: white;
+            }
+
+            .invoice-paper {
+                width: 100%;
+                min-height: auto;
+                box-shadow: none;
+                padding: 15mm;
+                margin: 0;
+            }
+
+            @page {
+                margin: 0;
+                size: auto;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+                overflow-y: scroll;
+            }
+
+            .editor-pane {
+                width: 100%;
+                height: auto;
+                order: 2;
+                /* Preview first on mobile? No, Editor first */
+                order: 1;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 20px;
+            }
+
+            .preview-pane {
+                width: 100%;
+                height: auto;
+                order: 2;
+                padding: 10px;
+                background: #1a202c;
+            }
+
+            .invoice-paper {
+                width: 100%;
+                min-height: auto;
+                padding: 15px;
+                font-size: 0.8rem;
+                /* Scale down text */
+            }
+
+            .inv-title {
+                font-size: 1.8rem;
+            }
+
+            .inv-table th,
+            .inv-table td {
+                padding: 8px 4px;
+                font-size: 0.8rem;
+            }
+
+            .inv-logo img {
+                max-height: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Editor Section -->
+    <div class="editor-pane">
+        <div class="editor-header">
+            <h3>Invoice Editor</h3>
+            <a href="tools.html" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Tools</a>
+        </div>
+
+        <div>
+            <div class="section-title">Branding</div>
+            <div class="form-group">
+                <input type="file" id="logoInput" accept="image/*" class="file-upload">
+            </div>
+        </div>
+
+        <div>
+            <div class="section-title">Invoice Details</div>
+            <div class="form-row">
+                <input type="text" id="invNumber" placeholder="Invoice # (e.g. INV-001)" value="INV-001">
+                <input type="date" id="invDate">
+            </div>
+        </div>
+
+        <div>
+            <div class="section-title">Sender (You)</div>
+            <div class="form-group"><input type="text" id="senderName" placeholder="Your Name / Company"></div>
+            <div class="form-group"><input type="email" id="senderEmail" placeholder="Email Address"></div>
+            <div class="form-group"><textarea id="senderAddress" rows="2"
+                    placeholder="Street Address, City, Zip"></textarea></div>
+        </div>
+
+        <div>
+            <div class="section-title">Client (Bill To)</div>
+            <div class="form-group"><input type="text" id="clientName" placeholder="Client Name"></div>
+            <div class="form-group"><input type="email" id="clientEmail" placeholder="Client Email"></div>
+            <div class="form-group"><textarea id="clientAddress" rows="2" placeholder="Client Address"></textarea></div>
+        </div>
+
+        <div>
+            <div class="section-title">Line Items</div>
+            <div id="lineItemsContainer">
+                <!-- Items injected here -->
+            </div>
+            <button class="btn-sm" onclick="addLineItem()">+ Add Item</button>
+        </div>
+
+        <div>
+            <div class="section-title">Tax & Signature</div>
+            <div class="form-row">
+                <input type="number" id="taxRate" placeholder="Tax Rate %" value="0">
+                <input type="file" id="sigInput" accept="image/*" class="file-upload">
+            </div>
+        </div>
+
+        <button class="btn-download" onclick="window.print()"><i class="fas fa-download"></i> Download PDF</button>
+
+    </div>
+
+    <!-- Preview Section -->
+    <div class="preview-pane">
+        <div class="invoice-paper">
+            <div class="inv-header">
+                <div class="inv-logo" id="displayLogo"><!-- Logo Here --></div>
+                <div style="text-align: right;">
+                    <div class="inv-title">INVOICE</div>
+                    <div class="inv-meta">
+                        <span id="displayInvNum">#INV-001</span><br>
+                        Date: <span id="displayDate">--/--/----</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inv-addresses">
+                <div class="inv-address-block">
+                    <h4>From:</h4>
+                    <p id="displaySender">Name<br>Email<br>Address</p>
+                </div>
+                <div class="inv-address-block" style="text-align: right;">
+                    <h4>Bill To:</h4>
+                    <p id="displayClient">Client Name<br>Client Email<br>Address</p>
+                </div>
+            </div>
+
+            <table class="inv-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">Description</th>
+                        <th style="width: 15%; text-align: right;">Qty</th>
+                        <th style="width: 15%; text-align: right;">Rate</th>
+                        <th style="width: 20%; text-align: right;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="displayItems">
+                    <!-- Rows -->
+                </tbody>
+            </table>
+
+            <div class="inv-totals">
+                <div class="total-row"><span>Subtotal</span><span id="displaySubtotal">₹0.00</span></div>
+                <div class="total-row"><span>Tax (<span id="displayTaxRate">0</span>%)</span><span
+                        id="displayTaxAmt">₹0.00</span></div>
+                <div class="total-row grand"><span>Total</span><span id="displayGrandTotal">₹0.00</span></div>
+            </div>
+
+            <div class="inv-footer">
+                <div class="inv-signature" id="displaySig" style="text-align: left;"><!-- Signature --></div>
+                <p>Thank you for your business!</p>
+
+                <!-- GROWTH HACK WATERMARK -->
+                <a href="https://sarwaraltaf.in" target="_blank" class="watermark-link">
+                    Invoice Generated by <span class="watermark-brand">SarwarAltaf.in</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Init Date
+        document.getElementById('invDate').valueAsDate = new Date();
+
+        // --- Data Binding & Logic --- 
+
+        // Simple 1-way binding inputs to displays
+        const bindings = [
+            { input: 'invNumber', display: 'displayInvNum' },
+            { input: 'invDate', display: 'displayDate' },
+            { input: 'taxRate', display: 'displayTaxRate' },
+            // Senders
+            { input: 'senderName', display: 'displaySender', complex: true },
+            { input: 'senderEmail', display: 'displaySender', complex: true },
+            { input: 'senderAddress', display: 'displaySender', complex: true },
+            // Clients
+            { input: 'clientName', display: 'displayClient', complex: true },
+            { input: 'clientEmail', display: 'displayClient', complex: true },
+            { input: 'clientAddress', display: 'displayClient', complex: true },
+        ];
+
+        // Attach listeners
+        bindings.forEach(b => {
+            const el = document.getElementById(b.input);
+            el.addEventListener('input', () => {
+                if (b.complex) updateComplexFields();
+                else document.getElementById(b.display).textContent = el.value;
+                if (b.input === 'taxRate') calculateTotals();
+            });
+        });
+
+        function updateComplexFields() {
+            // Sender
+            const sName = document.getElementById('senderName').value || 'Your Name';
+            const sEmail = document.getElementById('senderEmail').value || '';
+            const sAddr = document.getElementById('senderAddress').value || '';
+            document.getElementById('displaySender').innerHTML = `<strong>${sName}</strong><br>${sEmail}<br>${sAddr.replace(/\n/g, '<br>')}`;
+
+            // Client
+            const cName = document.getElementById('clientName').value || 'Client Name';
+            const cEmail = document.getElementById('clientEmail').value || '';
+            const cAddr = document.getElementById('clientAddress').value || '';
+            document.getElementById('displayClient').innerHTML = `<strong>${cName}</strong><br>${cEmail}<br>${cAddr.replace(/\n/g, '<br>')}`;
+        }
+
+        // --- Image Handling ---
+        function handleImageUpload(inputId, displayId) {
+            document.getElementById(inputId).addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (evt) {
+                        document.getElementById(displayId).innerHTML = `<img src="${evt.target.result}" />`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        handleImageUpload('logoInput', 'displayLogo');
+        handleImageUpload('sigInput', 'displaySig');
+
+        // --- Line Items Logic ---
+        function addLineItem() {
+            const container = document.getElementById('lineItemsContainer');
+            const id = Date.now();
+
+            const div = document.createElement('div');
+            div.className = 'form-group';
+            div.style.background = 'rgba(255,255,255,0.03)';
+            div.style.padding = '10px';
+            div.style.borderRadius = '6px';
+            div.id = `item-${id}`;
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span style="font-size:0.8rem; color:#666;">Item</span>
+                    <span style="font-size:0.8rem; color:#ff5f56; cursor:pointer;" onclick="removeLineItem('${id}')">Remove</span>
+                </div>
+                <input type="text" class="item-desc" placeholder="Description" oninput="calculateTotals()">
+                <div class="form-row" style="margin-top:5px;">
+                    <input type="number" class="item-qty" placeholder="Qty" value="1" oninput="calculateTotals()">
+                    <input type="number" class="item-rate" placeholder="Rate" value="0" oninput="calculateTotals()">
+                </div>
+            `;
+            container.appendChild(div);
+            calculateTotals();
+        }
+
+        function removeLineItem(id) {
+            document.getElementById(`item-${id}`).remove();
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            const items = document.querySelectorAll('#lineItemsContainer > div');
+            const tbody = document.getElementById('displayItems');
+            tbody.innerHTML = '';
+
+            let subtotal = 0;
+
+            items.forEach(item => {
+                const desc = item.querySelector('.item-desc').value || 'Item';
+                const qty = parseFloat(item.querySelector('.item-qty').value) || 0;
+                const rate = parseFloat(item.querySelector('.item-rate').value) || 0;
+                const amt = qty * rate;
+                subtotal += amt;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${desc}</td>
+                    <td class="qty">${qty}</td>
+                    <td class="rate">₹${rate.toFixed(2)}</td>
+                    <td class="amount">₹${amt.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            const taxAmt = subtotal * (taxRate / 100);
+            const total = subtotal + taxAmt;
+
+            document.getElementById('displaySubtotal').textContent = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('displayTaxAmt').textContent = `₹${taxAmt.toFixed(2)}`;
+            document.getElementById('displayGrandTotal').textContent = `₹${total.toFixed(2)}`;
+        }
+
+        // Init with 1 item
+        addLineItem();
+        updateComplexFields();
+
+    </script>
+</body>
+
+</html>

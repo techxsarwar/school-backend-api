@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Seating Generator | Sarwar Altaf Dar</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global Style -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* Tool Interface (Dark Mode) */
+        :root {
+            --tool-bg: #0d1117;
+            --tool-card: #161b22;
+            --tool-border: #30363d;
+            --accent: #673de6;
+            --success: #27c93f;
+        }
+
+        body {
+            background-color: var(--tool-bg);
+            color: #c9d1d9;
+        }
+
+        .generator-container {
+            max-width: 1400px;
+            margin: 140px auto 100px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 40px;
+        }
+
+        .config-panel {
+            background: var(--tool-card);
+            border: 1px solid var(--tool-border);
+            border-radius: 16px;
+            padding: 30px;
+            height: fit-content;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--tool-border);
+            padding-bottom: 10px;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #8b949e;
+            font-size: 0.85rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: #0d1117;
+            border: 1px solid var(--tool-border);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Toggle Button */
+        .toggle-group {
+            display: flex;
+            background: #0d1117;
+            padding: 5px;
+            border-radius: 8px;
+            border: 1px solid var(--tool-border);
+            margin-bottom: 20px;
+        }
+
+        .toggle-opt {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #8b949e;
+            transition: all 0.2s;
+        }
+
+        .toggle-opt.active {
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+        }
+
+        .gen-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Room Preview */
+        .room-preview {
+            background: #21262d;
+            padding: 40px;
+            border-radius: 12px;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .room-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #30363d;
+            /* Floor color */
+            border-radius: 8px;
+            border: 4px solid #444;
+            /* Walls */
+            position: relative;
+        }
+
+        .room-grid::before {
+            content: "FRONT (Greenboard)";
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #8b949e;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .desk {
+            width: 80px;
+            height: 60px;
+            background: #fff;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .desk.empty {
+            background: repeating-linear-gradient(45deg,
+                    rgba(255, 255, 255, 0.1),
+                    rgba(255, 255, 255, 0.1) 10px,
+                    transparent 10px,
+                    transparent 20px);
+            box-shadow: none;
+            border: 2px dashed #555;
+        }
+
+        .desk-roll {
+            font-weight: 800;
+            color: #1a237e;
+            font-size: 1rem;
+        }
+
+        .desk-label {
+            font-size: 0.6rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        /* Printable Styles (Hidden on screen) */
+        #printArea {
+            display: none;
+        }
+
+        .print-page {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            padding: 15mm;
+            page-break-after: always;
+            color: black;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            position: relative;
+        }
+
+        .door-list-header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .door-logo {
+            height: 50px;
+            margin-bottom: 10px;
+        }
+
+        .door-room {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+
+        .door-range {
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .desk-slips-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 10mm;
+            height: 100%;
+        }
+
+        .desk-slip {
+            border: 2px dashed #999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .generator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pricing.html">Pricing</a></li>
+                <li><a href="tools.html" class="active">Tools</a></li>
+                <li><a href="mailto:workwith@sarwaraltaf.in" class="cta-button">Hire Me</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="generator-container">
+        <!-- Config -->
+        <div class="config-panel">
+            <h2 class="section-title"><i class="fas fa-th"></i> Room Configuration</h2>
+
+            <div class="form-group">
+                <label class="form-label">Room Number</label>
+                <input type="text" id="roomNo" class="form-input" value="Room 5" oninput="updateRoom()">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label class="form-label">Rows</label>
+                    <input type="number" id="rows" class="form-input" value="5" min="1" max="10" oninput="updateRoom()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Desks/Row</label>
+                    <input type="number" id="cols" class="form-input" value="4" min="1" max="8" oninput="updateRoom()">
+                </div>
+            </div>
+
+            <h2 class="section-title" style="margin-top: 20px;"><i class="fas fa-user-graduate"></i> Student Data</h2>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label class="form-label">Start Roll No</label>
+                    <input type="number" id="startRoll" class="form-input" value="101" oninput="updateRoom()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">End Roll No</label>
+                    <input type="number" id="endRoll" class="form-input" value="130" oninput="updateRoom()">
+                </div>
+            </div>
+
+            <label class="form-label">Seating Pattern</label>
+            <div class="toggle-group">
+                <div class="toggle-opt active" id="optSeq" onclick="setPattern('sequential')">Sequential</div>
+                <div class="toggle-opt" id="optAlt" onclick="setPattern('alternate')">Alternate</div>
+            </div>
+            <p style="font-size: 0.75rem; color: #666; margin-top: -10px; margin-bottom: 20px;">
+                Alternate mode leaves an empty seat between students.
+            </p>
+
+            <button class="gen-btn" onclick="downloadPDF()">
+                <i class="fas fa-file-pdf"></i> Download Door List & Slips
+            </button>
+        </div>
+
+        <!-- Preview -->
+        <div class="room-preview">
+            <h3 style="color: white; margin-bottom: 10px;">Live Room Map <span id="pRoom" style="opacity: 0.5;">(Room
+                    5)</span></h3>
+            <div id="roomGrid" class="room-grid">
+                <!-- Grid items generated by JS -->
+            </div>
+            <div style="margin-top: 20px; color: #8b949e; font-size: 0.9rem;">
+                <span style="color: var(--success);"><i class="fas fa-user"></i> <span id="pCount">0</span> Students
+                    Assigned</span> |
+                <span><i class="fas fa-chair"></i> <span id="pCapacity">0</span> Total Seats</span>
+            </div>
+        </div>
+
+        <!-- Hidden Print Area -->
+        <div id="printArea">
+            <!-- Page 1: Door List -->
+            <div class="print-page">
+                <div class="door-list-header">
+                    <img src="https://via.placeholder.com/150x50?text=SCHOOL+LOGO" class="door-logo">
+                    <h2>EXAM SEATING PLAN</h2>
+                </div>
+                <div style="text-align: center; margin-top: 50mm;">
+                    <div style="font-size: 2rem;">ROOM NUMBER</div>
+                    <div class="door-room" id="printRoom">5</div>
+                    <hr style="width: 50%; margin: 20px auto; border: 2px solid #000;">
+                    <div style="font-size: 1.2rem; margin-bottom: 10px;">ROLL NUMBERS</div>
+                    <div class="door-range" id="printRange">101 - 130</div>
+                </div>
+                <div style="position: absolute; bottom: 10mm; width: 100%; text-align: center; font-size: 0.8rem;">
+                    Generated by SarwarAltaf.in School Tools
+                </div>
+            </div>
+
+            <!-- Page 2: Desk Slips (Dynamic) -->
+            <div id="deskSlipsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentPattern = 'sequential';
+
+        function setPattern(mode) {
+            currentPattern = mode;
+            document.getElementById('optSeq').classList.toggle('active', mode === 'sequential');
+            document.getElementById('optAlt').classList.toggle('active', mode === 'alternate');
+            updateRoom();
+        }
+
+        function updateRoom() {
+            const roomNo = document.getElementById('roomNo').value;
+            const rows = parseInt(document.getElementById('rows').value) || 5;
+            const cols = parseInt(document.getElementById('cols').value) || 4;
+            const start = parseInt(document.getElementById('startRoll').value) || 0;
+            const end = parseInt(document.getElementById('endRoll').value) || 0;
+
+            // UI Updates
+            document.getElementById('pRoom').innerText = `(${roomNo})`;
+            document.getElementById('printRoom').innerText = roomNo;
+            document.getElementById('printRange').innerText = `${start} - ${end}`; // Approximate, fixed later
+
+            // Generate Student List
+            let students = [];
+            for (let r = start; r <= end; r++) {
+                students.push(r);
+            }
+
+            // Grid Config
+            const grid = document.getElementById('roomGrid');
+            grid.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+            grid.innerHTML = "";
+
+            // Mapping Logic
+            let studentIdx = 0;
+            let capacity = rows * cols;
+            let assignedCount = 0;
+
+            for (let i = 0; i < capacity; i++) {
+                const desk = document.createElement('div');
+                desk.className = 'desk';
+
+                // Determine if this seat gets a student
+                let hasStudent = false;
+                let currentRoll = null;
+
+                if (studentIdx < students.length) {
+                    if (currentPattern === 'sequential') {
+                        hasStudent = true;
+                    } else {
+                        // Alternate: Even index (0, 2, 4...) gets student, Odd gets empty
+                        // OR check logic: If we want checkers, simplified:
+                        // Just toggle usage every seat? 
+                        // Let's do: Seat 1 Yes, Seat 2 No, Seat 3 Yes...
+                        if (i % 2 === 0) hasStudent = true;
+                    }
+
+                    if (hasStudent) {
+                        currentRoll = students[studentIdx];
+                        studentIdx++;
+                        assignedCount++;
+                    }
+                }
+
+                if (currentRoll) {
+                    desk.innerHTML = `
+                        <div class="desk-roll">${currentRoll}</div>
+                        <div class="desk-label">Desk ${i + 1}</div>
+                    `;
+                } else {
+                    desk.classList.add('empty');
+                    desk.innerHTML = `<i class="fas fa-times" style="opacity: 0.2;"></i>`;
+                }
+
+                grid.appendChild(desk);
+            }
+
+            document.getElementById('pCount').innerText = assignedCount;
+            document.getElementById('pCapacity').innerText = capacity;
+
+            // Fix Print Range based on actual assigned
+            if (assignedCount > 0) {
+                document.getElementById('printRange').innerText = `${students[0]} - ${students[studentIdx - 1]}`;
+            }
+
+            return { students: students.slice(0, studentIdx) }; // Returns actually assigned students
+        }
+
+        // Initial Draw
+        setTimeout(updateRoom, 100);
+
+        function downloadPDF() {
+            // Generate Desk Slips Pages
+            const container = document.getElementById('deskSlipsContainer');
+            container.innerHTML = ""; // Reset
+
+            // Get current assigned students from update logic re-run or cache?
+            // Let's re-run logic simplified to get the assignments
+            // Actually, we just need to print Labels for the students who got seats.
+
+            // Re-simulate assignment to get list
+            const rows = parseInt(document.getElementById('rows').value) || 5;
+            const cols = parseInt(document.getElementById('cols').value) || 4;
+            const start = parseInt(document.getElementById('startRoll').value) || 0;
+            const end = parseInt(document.getElementById('endRoll').value) || 0;
+
+            let students = [];
+            for (let r = start; r <= end; r++) students.push(r);
+
+            let assignedStudents = [];
+            let studentIdx = 0;
+            let capacity = rows * cols;
+
+            for (let i = 0; i < capacity; i++) {
+                let hasStudent = false;
+                if (studentIdx < students.length) {
+                    if (currentPattern === 'sequential') {
+                        hasStudent = true;
+                    } else if (i % 2 === 0) {
+                        hasStudent = true;
+                    }
+                    if (hasStudent) {
+                        assignedStudents.push({ roll: students[studentIdx], desk: i + 1 });
+                        studentIdx++;
+                    }
+                }
+            }
+
+            // Chunk into 8 per page (2x4)
+            const chunkSize = 8;
+            for (let i = 0; i < assignedStudents.length; i += chunkSize) {
+                const chunk = assignedStudents.slice(i, i + chunkSize);
+                const page = document.createElement('div');
+                page.className = 'print-page';
+
+                const grid = document.createElement('div');
+                grid.className = 'desk-slips-grid';
+
+                chunk.forEach(s => {
+                    const slip = document.createElement('div');
+                    slip.className = 'desk-slip';
+                    slip.innerHTML = `
+                         <div style="font-size: 1rem; color: #666;">DESK ${s.desk}</div>
+                         <div style="font-size: 3rem; font-weight: 800; margin: 10px 0;">${s.roll}</div>
+                         <div style="font-size: 0.8rem;">${document.getElementById('roomNo').value}</div>
+                    `;
+                    grid.appendChild(slip);
+                });
+
+                page.appendChild(grid);
+                container.appendChild(page);
+            }
+
+            // PDF Config
+            const element = document.getElementById('printArea');
+            // We need to show it temporarily? No, html2pdf can render hidden if displayed block momentarily
+            element.style.display = 'block';
+
+            const opt = {
+                margin: 0,
+                filename: 'Exam_Seating_Plan.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+
+</html>

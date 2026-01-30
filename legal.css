@@ -1,0 +1,134 @@
+/* Legal Suite Styles */
+:root {
+    --legal-bg: #0d1017;
+    --legal-sidebar: #161b22;
+    --legal-text: #b0b5c1;
+    --legal-heading: #ffffff;
+    --legal-accent: #673de6;
+    --legal-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    background-color: var(--legal-bg);
+    color: var(--legal-text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    line-height: 1.8;
+}
+
+.legal-container {
+    display: flex;
+    max-width: 1200px;
+    margin: 120px auto 80px;
+    padding: 0 20px;
+    gap: 60px;
+    position: relative;
+}
+
+/* Sidebar Navigation */
+.legal-sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 120px;
+    height: fit-content;
+    background: var(--legal-sidebar);
+    padding: 30px;
+    border-radius: 16px;
+    border: 1px solid var(--legal-border);
+}
+
+.legal-sidebar h3 {
+    color: var(--legal-heading);
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--legal-border);
+}
+
+.legal-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.legal-nav li {
+    margin-bottom: 12px;
+}
+
+.legal-nav a {
+    color: var(--legal-text);
+    text-decoration: none;
+    font-weight: 500;
+    display: block;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.legal-nav a:hover,
+.legal-nav a.active {
+    background: rgba(103, 61, 230, 0.1);
+    color: var(--legal-accent);
+    padding-left: 16px;
+}
+
+/* Content Area */
+.legal-content {
+    flex-grow: 1;
+    max-width: 800px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 40px;
+    border-radius: 16px;
+    border: 1px solid var(--legal-border);
+}
+
+.legal-content h1 {
+    color: var(--legal-heading);
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.legal-date {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 40px;
+}
+
+.legal-content h2 {
+    color: var(--legal-heading);
+    font-size: 1.5rem;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.legal-content p {
+    margin-bottom: 20px;
+}
+
+.legal-content ul {
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
+.legal-content li {
+    margin-bottom: 10px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .legal-container {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .legal-sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+    }
+
+    .legal-content {
+        padding: 20px;
+    }
+}

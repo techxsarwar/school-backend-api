@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern QR Generator | Sarwar Altaf Dar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- QR Code Styling Library -->
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    <style>
+        .qr-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            max-width: 1000px;
+            margin: 150px auto 100px;
+            padding: 0 20px;
+            align-items: start;
+        }
+
+        .qr-controls {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .qr-preview {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 100px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary-accent);
+            outline: none;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        input[type="color"] {
+            border: none;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            background: none;
+        }
+
+        .download-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .branding-text {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .qr-layout {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                margin-top: 120px;
+            }
+
+            .qr-preview {
+                order: 1;
+                /* Show preview below controls */
+            }
+        }
+
+        #canvas-container {
+            margin: 0 auto;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .qr-layout {
+                grid-template-columns: 1fr;
+                margin-top: 120px;
+            }
+
+            .qr-preview {
+                order: -1;
+                /* Show preview on top */
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cursor"></div>
+    <div class="cursor2"></div>
+
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#projects">Projects</a></li>
+                <li><a href="tools.html" class="active">Tools</a></li>
+                <li><a href="mailto:workwith@sarwaraltaf.in" class="cta-button">Hire Me</a></li>
+            </ul>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container qr-layout">
+        <!-- Controls -->
+        <div class="qr-controls">
+            <h2 style="margin-bottom: 20px;">QR Configuration</h2>
+
+            <div class="control-group">
+                <label class="control-label">Content (URL or Text)</label>
+                <input type="text" id="qrText" class="input-field" placeholder="https://sarwaraltaf.in"
+                    value="https://sarwaraltaf.in">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Foreground Color (Dots)</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" id="fgColor" value="#673de6">
+                    <span id="fgColorValue" style="font-family: monospace;">#673de6</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Background Color</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" id="bgColor" value="#ffffff">
+                    <span id="bgColorValue" style="font-family: monospace;">#ffffff</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Dot Style</label>
+                <select id="dotType" class="input-field">
+                    <option value="square">Square</option>
+                    <option value="dots" selected>Dots (Rounded)</option>
+                    <option value="rounded">Rounded</option>
+                    <option value="extra-rounded">Extra Rounded</option>
+                    <option value="classy">Classy</option>
+                    <option value="classy-rounded">Classy Rounded</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Corner Square Style</label>
+                <select id="cornerType" class="input-field">
+                    <option value="square">Square</option>
+                    <option value="dot" selected>Dot</option>
+                    <option value="extra-rounded">Extra Rounded</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="qr-preview">
+            <h3 style="margin-bottom: 20px;">Live Preview</h3>
+
+            <div id="canvas-container"></div>
+
+            <p class="branding-text">Powered by SarwarAltaf.in</p>
+
+            <div class="download-group">
+                <button class="secondary-btn" onclick="downloadQR('png')"><i class="fas fa-download"></i> PNG</button>
+                <button class="primary-btn" onclick="downloadQR('svg')"><i class="fas fa-vector-square"></i>
+                    SVG</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Pre-Footer CTA -->
+    <section class="pre-footer">
+        <div class="container">
+            <h2>Ready to launch your next project?</h2>
+            <p>Let's turn your ideas into a digital reality.</p>
+            <a href="mailto:workwith@sarwaraltaf.in" class="cta-button"
+                style="padding: 15px 40px; font-size: 1.1rem;">Start a Conversation</a>
+        </div>
+    </section>
+
+    <!-- Mega Footer -->
+    <footer class="mega-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Column 1: Brand -->
+                <div class="footer-col footer-brand">
+                    <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+                    <p>Building the future of the web, one pixel at a time.</p>
+                    <div class="status-badge">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i> Available for Freelance
+                    </div>
+                </div>
+
+                <!-- Column 2: Explore -->
+                <div class="footer-col">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#about">About</a></li>
+                        <li><a href="index.html#projects">Portfolio</a></li>
+                        <li><a href="blog.html">Blog (IRIS)</a></li>
+                        <li><a href="mailto:workwith@sarwaraltaf.in">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Tools -->
+                <div class="footer-col">
+                    <h4>Developer Tools</h4>
+                    <ul>
+                        <li><a href="invoice.html">Invoice Maker</a></li>
+                        <li><a href="qrcode.html">QR Generator</a></li>
+                        <li><a href="codeimage.html">Snippet Studio</a></li>
+                        <li><a href="screenshot.html">URL to Image</a></li>
+                        <li><a href="timer.html">Villain Timer</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Socials -->
+                <div class="footer-col">
+                    <h4>Connect</h4>
+                    <div class="social-row">
+                        <a href="https://github.com/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-github"></i></a>
+                        <a href="https://linkedin.com/in/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-linkedin-in"></i></a>
+                        <a href="https://instagram.com/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-instagram"></i></a>
+                        <a href="mailto:workwith@sarwaraltaf.in" class="social-btn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="footer-bottom">
+                <div class="container bottom-flex">
+                    <p>&copy; <span id="current-year"></span> Sarwar Altaf Dar. All Rights Reserved.</p>
+                    <div class="bottom-links">
+                        <a href="privacy.html">Privacy Policy</a>
+                        <a href="terms.html">Terms & Conditions</a>
+                        <a href="disclaimer.html">Disclaimer</a>
+                        <a href="cookies.html">Cookies</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script>
+        // Init QR Code
+        const qrCode = new QRCodeStyling({
+            width: 300,
+            height: 300,
+            type: "svg",
+            data: "https://sarwaraltaf.in",
+            image: "",
+            dotsOptions: {
+                color: "#673de6",
+                type: "dots"
+            },
+            backgroundOptions: {
+                color: "#ffffff",
+            },
+            imageOptions: {
+                crossOrigin: "anonymous",
+                margin: 20
+            },
+            cornersSquareOptions: {
+                type: "dot"
+            }
+        });
+
+        // Render Initial
+        qrCode.append(document.getElementById("canvas-container"));
+
+        // Inputs
+        const textInput = document.getElementById('qrText');
+        const fgInput = document.getElementById('fgColor');
+        const bgInput = document.getElementById('bgColor');
+        const dotTypeInput = document.getElementById('dotType');
+        const cornerTypeInput = document.getElementById('cornerType');
+
+        const fgValue = document.getElementById('fgColorValue');
+        const bgValue = document.getElementById('bgColorValue');
+
+        // Update Function
+        function updateQR() {
+            const options = {
+                data: textInput.value || " ",
+                dotsOptions: {
+                    color: fgInput.value,
+                    type: dotTypeInput.value
+                },
+                backgroundOptions: {
+                    color: bgInput.value,
+                },
+                cornersSquareOptions: {
+                    type: cornerTypeInput.value,
+                    color: fgInput.value // Match FG color usually looks best
+                }
+            };
+
+            qrCode.update(options);
+
+            // Update Text Labels
+            fgValue.innerText = fgInput.value;
+            bgValue.innerText = bgInput.value;
+        }
+
+        // Listeners
+        textInput.addEventListener('keyup', updateQR);
+        fgInput.addEventListener('input', updateQR);
+        bgInput.addEventListener('input', updateQR);
+        dotTypeInput.addEventListener('change', updateQR);
+        cornerTypeInput.addEventListener('change', updateQR);
+
+        // Download
+        function downloadQR(format) {
+            qrCode.download({ name: "sarwar_qr_code", extension: format });
+        }
+    </script>
+</body>
+
+</html>

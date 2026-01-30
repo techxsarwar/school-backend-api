@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Analyzer | Sarwar Altaf Dar</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global Style -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="legal.css"> <!-- Reusing legal.css for consistent footer/nav styles if needed -->
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Tool Interface (Dark Mode) */
+        :root {
+            --tool-bg: #0d1117;
+            --tool-card: #161b22;
+            --tool-border: #30363d;
+            --accent: #673de6;
+            --danger: #ff5f56;
+            --success: #27c93f;
+        }
+
+        body {
+            background-color: var(--tool-bg);
+            color: #c9d1d9;
+        }
+
+        .analyzer-container {
+            max-width: 1200px;
+            margin: 140px auto 100px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 40px;
+        }
+
+        .config-panel {
+            background: var(--tool-card);
+            border: 1px solid var(--tool-border);
+            border-radius: 16px;
+            padding: 30px;
+            height: fit-content;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--tool-border);
+            padding-bottom: 10px;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        /* Slider Styling */
+        .slider-group {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border: 1px solid var(--tool-border);
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: var(--danger);
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed var(--tool-border);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--accent);
+            background: rgba(103, 61, 230, 0.1);
+        }
+
+        .gen-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .gen-btn:disabled {
+            background: #30363d;
+            cursor: not-allowed;
+        }
+
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--tool-card);
+            border: 1px solid var(--tool-border);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .stat-label {
+            color: #8b949e;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Defaulter Table */
+        .defaulter-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--tool-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--tool-border);
+        }
+
+        .defaulter-table th {
+            background: rgba(255, 95, 86, 0.1);
+            color: var(--danger);
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .defaulter-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--tool-border);
+            color: #c9d1d9;
+        }
+
+        .defaulter-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .sms-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--tool-border);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .sms-btn:hover {
+            background: white;
+            color: black;
+        }
+
+        .chart-container {
+            height: 300px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        @media (max-width: 900px) {
+            .analyzer-container {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pricing.html">Pricing</a></li>
+                <li><a href="tools.html" class="active">Tools</a></li>
+                <li><a href="mailto:workwith@sarwaraltaf.in" class="cta-button">Hire Me</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="analyzer-container">
+        <!-- Config -->
+        <div class="config-panel">
+            <h2 class="section-title"><i class="fas fa-sliders-h"></i> Configuration</h2>
+
+            <div class="drop-zone" id="dropZone">
+                <i class="fas fa-file-excel" style="font-size: 2rem; color: #27c93f;"></i>
+                <h4 style="color: white; margin: 10px 0 5px;">Upload Attendance Data</h4>
+                <p style="font-size: 0.8rem; color: #888;">Expected: Name, Total, Attended</p>
+                <input type="file" id="excelInput" hidden accept=".xlsx, .csv">
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>Threshold Limit</span>
+                    <span id="thresholdVal" style="color: var(--danger);">75%</span>
+                </div>
+                <input type="range" id="thresholdSlider" min="0" max="100" value="75" oninput="updateAnalysis()">
+                <p style="font-size: 0.75rem; color: #888; margin-top: 10px;">Students below this % will be marked as
+                    defaulters.</p>
+            </div>
+
+            <div id="fileInfo"
+                style="display: none; background: rgba(39, 201, 63, 0.1); padding: 10px; border-radius: 8px; color: #27c93f; font-size: 0.9rem; margin-bottom: 20px;">
+                <i class="fas fa-check-circle"></i> <span id="fileName">data.xlsx</span> loaded.
+            </div>
+
+            <button class="gen-btn" id="analyzeBtn" onclick="analyzeData()" disabled>
+                <i class="fas fa-bolt"></i> Analyze Report
+            </button>
+        </div>
+
+        <!-- Dashboard -->
+        <div>
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-val" style="color: var(--success);" id="safeCount">0</div>
+                    <div class="stat-label">Safe Zone Students</div>
+                </div>
+                <div class="stat-card" style="border-color: var(--danger);">
+                    <div class="stat-val" style="color: var(--danger);" id="defaulterCount">0</div>
+                    <div class="stat-label">Defaulters List (Action Needed)</div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr;">
+                <div class="config-panel" style="padding: 0; overflow: hidden;">
+                    <div
+                        style="padding: 15px; border-bottom: 1px solid var(--tool-border); display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="color: white; font-size: 1rem; margin: 0;"><i class="fas fa-exclamation-circle"
+                                style="color: var(--danger);"></i> Defaulter Red List</h3>
+                    </div>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <table class="defaulter-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Attendance</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="defaulterBody">
+                                <tr>
+                                    <td colspan="3" style="text-align: center; padding: 30px;">Upload data to generate
+                                        list.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="config-panel">
+                    <h3 style="color: white; font-size: 1rem; margin-bottom: 20px; text-align: center;">Visual Analysis
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let studentData = [];
+        let chartInstance = null;
+
+        // --- Drag & Drop ---
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('excelInput');
+
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+        function handleFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                studentData = XLSX.utils.sheet_to_json(sheet);
+
+                document.getElementById('fileInfo').style.display = 'block';
+                document.getElementById('fileName').innerText = file.name;
+                document.getElementById('analyzeBtn').disabled = false;
+
+                analyzeData(); // Auto analyze on load
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function updateAnalysis() {
+            document.getElementById('thresholdVal').innerText = document.getElementById('thresholdSlider').value + '%';
+            if (studentData.length > 0) analyzeData();
+        }
+
+        function analyzeData() {
+            const threshold = parseInt(document.getElementById('thresholdSlider').value);
+            let safe = 0;
+            let defaulters = [];
+
+            // Process Data
+            studentData.forEach(student => {
+                // Flexible keys: look for 'Name', 'Total', 'Attended'
+                // Or assume specific if not found? 
+                // Let's fuzzy match a bit or assume standardized col names from prompt
+                const name = student['Name'] || student['Student Name'];
+                const total = Number(student['Total Lectures'] || student['Total'] || 100);
+                const attended = Number(student['Attended Lectures'] || student['Attended'] || 0);
+
+                const percentage = Math.round((attended / total) * 100);
+
+                if (percentage < threshold) {
+                    defaulters.push({ name, percentage, attended, total });
+                } else {
+                    safe++;
+                }
+            });
+
+            // Update UI Stats
+            document.getElementById('safeCount').innerText = safe;
+            document.getElementById('defaulterCount').innerText = defaulters.length;
+
+            // Render Table
+            const tbody = document.getElementById('defaulterBody');
+            tbody.innerHTML = "";
+
+            if (defaulters.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #27c93f;"><i class="fas fa-check-circle"></i> No Defaulters Found!</td></tr>`;
+            } else {
+                defaulters.forEach(d => {
+                    const row = document.createElement('tr');
+                    const smsText = `Alert: Your ward ${d.name} has only ${d.percentage}% attendance. Please visit school.`;
+
+                    row.innerHTML = `
+                        <td>
+                            <div style="font-weight: bold; color: white;">${d.name}</div>
+                            <div style="font-size: 0.8rem; color: #666;">${d.attended}/${d.total} Lectures</div>
+                        </td>
+                        <td>
+                            <span style="color: var(--danger); font-weight: bold;">${d.percentage}%</span>
+                        </td>
+                        <td>
+                            <button class="sms-btn" onclick="copySMS('${smsText}')" title="Copy SMS">
+                                <i class="fas fa-comment-alt"></i> Copy SMS
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // Update Chart
+            renderChart(safe, defaulters.length);
+        }
+
+        function copySMS(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("SMS Copied to Clipboard:\n" + text);
+            });
+        }
+
+        function renderChart(safe, dangerous) {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Safe Zone', 'Defaulters'],
+                    datasets: [{
+                        data: [safe, dangerous],
+                        backgroundColor: ['#27c93f', '#ff5f56'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#c9d1d9' }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

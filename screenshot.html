@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Screenshot Tool | Sarwar Altaf Dar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .tool-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+            margin: 150px auto 100px;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .input-group {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 5px;
+            margin: 40px 0;
+            backdrop-filter: blur(10px);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 20px rgba(103, 61, 230, 0.2);
+        }
+
+        .url-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .capture-btn {
+            background: var(--primary-accent);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            margin: 2px;
+        }
+
+        .capture-btn:hover {
+            transform: scale(1.05);
+            background: var(--secondary-accent);
+        }
+
+        .preview-area {
+            width: 100%;
+            min-height: 400px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 16px;
+            display: none;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Loading Animation */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(103, 61, 230, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-accent);
+            animation: spin 1s ease-in-out infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .download-btn {
+            margin-top: 30px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Nav (Standard) -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#projects">Projects</a></li>
+                <li><a href="tools.html" class="active">Tools</a></li>
+                <li><a href="mailto:workwith@sarwaraltaf.in" class="cta-button">Hire Me</a></li>
+            </ul>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <div class="tool-layout">
+        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Website to Image</h1>
+        <p style="color: var(--text-muted);">Enter a URL to capture a high-quality screenshot.</p>
+
+        <div class="input-group">
+            <input type="url" id="urlInput" class="url-input" placeholder="https://example.com"
+                value="https://google.com">
+            <button class="capture-btn" onclick="captureScreenshot()">
+                <i class="fas fa-camera"></i>
+            </button>
+        </div>
+
+        <div class="preview-area" id="previewContainer">
+            <div class="loader" id="loader"></div>
+            <p id="placeholderText" style="color: var(--text-muted);">Preview will appear here</p>
+            <img id="resultImage" class="result-image" alt="Screenshot">
+        </div>
+
+        <button id="downloadBtn" class="primary-btn download-btn" onclick="downloadImage()">
+            <i class="fas fa-download"></i> Save Image
+        </button>
+    </div>
+
+
+    <!-- Pre-Footer CTA -->
+    <section class="pre-footer">
+        <div class="container">
+            <h2>Ready to launch your next project?</h2>
+            <p>Let's turn your ideas into a digital reality.</p>
+            <a href="mailto:workwith@sarwaraltaf.in" class="cta-button"
+                style="padding: 15px 40px; font-size: 1.1rem;">Start a Conversation</a>
+        </div>
+    </section>
+
+    <!-- Mega Footer -->
+    <footer class="mega-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Column 1: Brand -->
+                <div class="footer-col footer-brand">
+                    <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+                    <p>Building the future of the web, one pixel at a time.</p>
+                    <div class="status-badge">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i> Available for Freelance
+                    </div>
+                </div>
+
+                <!-- Column 2: Explore -->
+                <div class="footer-col">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#about">About</a></li>
+                        <li><a href="index.html#projects">Portfolio</a></li>
+                        <li><a href="blog.html">Blog (IRIS)</a></li>
+                        <li><a href="mailto:workwith@sarwaraltaf.in">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Tools -->
+                <div class="footer-col">
+                    <h4>Developer Tools</h4>
+                    <ul>
+                        <li><a href="invoice.html">Invoice Maker</a></li>
+                        <li><a href="qrcode.html">QR Generator</a></li>
+                        <li><a href="codeimage.html">Snippet Studio</a></li>
+                        <li><a href="screenshot.html">URL to Image</a></li>
+                        <li><a href="timer.html">Villain Timer</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Socials -->
+                <div class="footer-col">
+                    <h4>Connect</h4>
+                    <div class="social-row">
+                        <a href="https://github.com/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-github"></i></a>
+                        <a href="https://linkedin.com/in/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-linkedin-in"></i></a>
+                        <a href="https://instagram.com/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-instagram"></i></a>
+                        <a href="mailto:workwith@sarwaraltaf.in" class="social-btn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="footer-bottom">
+                <div class="container bottom-flex">
+                    <p>&copy; <span id="current-year"></span> Sarwar Altaf Dar. All Rights Reserved.</p>
+                    <div class="bottom-links">
+                        <a href="privacy.html">Privacy Policy</a>
+                        <a href="terms.html">Terms & Conditions</a>
+                        <a href="disclaimer.html">Disclaimer</a>
+                        <a href="cookies.html">Cookies</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script>
+        // CONFIGURATION
+        // Get a free key at https://apiflash.com/dashboard
+        const API_KEY = 'YOUR_ACCESS_KEY';
+
+        const urlInput = document.getElementById('urlInput');
+        const loader = document.getElementById('loader');
+        const resultImage = document.getElementById('resultImage');
+        const placeholderText = document.getElementById('placeholderText');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const previewContainer = document.getElementById('previewContainer');
+
+        let currentImageUrl = '';
+
+        async function captureScreenshot() {
+            const url = urlInput.value.trim();
+            if (!url) return alert('Please enter a valid URL');
+
+            // UI Loading State
+            loader.style.display = 'block';
+            placeholderText.style.display = 'none';
+            resultImage.style.display = 'none';
+            downloadBtn.style.display = 'none';
+            previewContainer.style.borderStyle = 'solid';
+
+            // Check for API Key
+            if (API_KEY === 'YOUR_ACCESS_KEY') {
+                setTimeout(() => {
+                    alert('Configuration Required: Please add your APIFlash Access Key in the source code (Line 124).');
+                    loader.style.display = 'none';
+                    placeholderText.style.display = 'block';
+                    placeholderText.innerText = "API Key Missing";
+                }, 1000);
+                return;
+            }
+
+            try {
+                // Construct API URL
+                const apiUrl = `https://api.apiflash.com/v1/urltoimage?access_key=${API_KEY}&url=${encodeURIComponent(url)}&response_type=json&wait_until=page_loaded`;
+
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.url) {
+                    currentImageUrl = data.url;
+
+                    // Preload Image
+                    const img = new Image();
+                    img.onload = () => {
+                        loader.style.display = 'none';
+                        resultImage.src = currentImageUrl;
+                        resultImage.style.display = 'block';
+                        previewContainer.style.border = 'none';
+                        previewContainer.style.background = 'transparent';
+                        downloadBtn.style.display = 'inline-flex';
+                    };
+                    img.src = currentImageUrl;
+                } else {
+                    throw new Error('API Error');
+                }
+
+            } catch (error) {
+                console.error(error);
+                loader.style.display = 'none';
+                placeholderText.style.display = 'block';
+                placeholderText.innerText = "Failed to capture. Check URL or API Quota.";
+            }
+        }
+
+        function downloadImage() {
+            if (!currentImageUrl) return;
+            // Force download by opening in new tab (simplest method for external URLs)
+            // Ideally we'd fetch blob and download, but CORS might block it from APIFlash direct URL
+            window.open(currentImageUrl, '_blank');
+        }
+
+        // Allow Enter key to submit
+        urlInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                captureScreenshot();
+            }
+        });
+    </script>
+</body>
+
+</html>

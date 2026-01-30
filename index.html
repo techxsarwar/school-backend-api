@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Based in India, Sarwar Altaf Dar is a 17-year-old Full Stack Web Developer building the future of the web.">
+    <title>Sarwar Altaf Dar | Full Stack Developer</title>
+
+    <!-- Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- UI Enhancements -->
+
+
+    <canvas id="particles-canvas"></canvas>
+
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="#" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+            <ul class="nav-links">
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="tools.html">Tools</a></li>
+                <li><a href="mailto:workwith@sarwaraltaf.in" class="cta-button">Hire Me</a></li>
+            </ul>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <header id="hero" class="hero-section">
+        <div class="container hero-content">
+            <!-- Left Side: Content -->
+            <div class="hero-text" data-aos="fade-right" data-aos-duration="1000">
+                <span class="pill-badge">👋 Hi, I am Sarwar Altaf</span>
+
+                <h1>Sarwar <span class="text-gradient">Altaf</span></h1>
+
+                <h2 class="typewriter-container">
+                    I am a <span class="txt-type" data-wait="2000"
+                        data-words='["Full Stack Architect", "Physics Enthusiast", "Problem Solver"]'></span>
+                    <span class="cursor-blink">|</span>
+                </h2>
+
+                <p class="hero-subtext">
+                    Building digital empires and exploring the philosophy of the dark web.
+                    Merging High Performance Code with Premium Aesthetics. Based in India.
+                </p>
+
+                <div class="cta-group">
+                    <a href="#projects" class="primary-btn">
+                        View My Work <i class="fas fa-arrow-down"></i>
+                    </a>
+                    <a href="blog.html" class="secondary-btn">
+                        Read IRIS <i class="fas fa-book-open"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Side: Visual -->
+            <div class="hero-visual" data-aos="fade-left" data-aos-duration="1200">
+                <div class="aura-glow"></div>
+
+                <div class="glass-card-wrapper" data-tilt data-tilt-max="10" data-tilt-speed="400"
+                    data-tilt-glare="true" data-tilt-max-glare="0.3">
+                    <div class="profile-card">
+                        <div class="profile-img-container">
+                            <!-- Placeholder: DiceBear Avatar -->
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarwar&backgroundColor=b6e3f4"
+                                alt="Sarwar Altaf" loading="lazy">
+                        </div>
+                        <div class="profile-info">
+                            <h3>Sarwar Altaf Dar</h3>
+                            <p>@darsarwaraltaf • <span style="color: #27c93f; font-weight: bold;">Available</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>My Journey</h2>
+                <p>A 17-year-old developer from Jammu & Kashmir building the future.</p>
+            </div>
+
+            <div class="timeline-container">
+                <!-- Central Line -->
+                <div class="timeline-line">
+                    <div class="timeline-line-fill" id="timelineFill"></div>
+                </div>
+
+                <!-- Milestone 1 -->
+                <div class="timeline-row">
+                    <div class="timeline-content left" data-aos="fade-up">
+                        <div class="glass-card timeline-card">
+                            <span class="timeline-year">The Beginning</span>
+                            <h3>Hello World <span class="timeline-icon">&lt; &gt;</span></h3>
+                            <h4>The Spark</h4>
+                            <p>Started my journey with nothing but Notepad and curiosity. Wrote my first lines of code,
+                                fascinated by the ability to create something from nothing.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Milestone 2 -->
+                <div class="timeline-row">
+                    <div class="timeline-content right" data-aos="fade-up">
+                        <div class="glass-card timeline-card">
+                            <span class="timeline-year">High School</span>
+                            <h3>Ayesha Ali Academy <span class="timeline-icon">🎓</span></h3>
+                            <h4>The Foundation</h4>
+                            <p>Completed my high school education at Ayesha Ali Academy. Developed the discipline and
+                                logical thinking required for complex engineering.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Milestone 3 -->
+                <div class="timeline-row">
+                    <div class="timeline-content left" data-aos="fade-up">
+                        <div class="glass-card timeline-card">
+                            <span class="timeline-year">Present</span>
+                            <h3>Full Stack Mastery <span class="timeline-icon">⚡</span></h3>
+                            <h4>The Architect</h4>
+                            <p>Evolved into a Full Stack Architect. Building scalable apps with React, Node.js, and
+                                Cloud Architecture. Turning raw ideas into deployed software.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Milestone 4 -->
+                <div class="timeline-row">
+                    <div class="timeline-content right" data-aos="fade-up">
+                        <div class="glass-card timeline-card">
+                            <span class="timeline-year">In Progress</span>
+                            <h3>Teaching the Future <span class="timeline-icon">📚</span></h3>
+                            <h4>The Author</h4>
+                            <p>Writing a comprehensive book that takes readers from Python basics all the way to
+                                training their own Large Language Model (LLM).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="skills" class="skills-section">
+        <div class="container">
+            <!-- New Highlights Section -->
+            <div class="highlights-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 60px;">
+                <div class="glass-card"
+                    style="padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03);">
+                    <h3 style="color: white; margin-bottom: 10px; font-size: 1.5rem;">Full Stack Development</h3>
+                    <p style="color: var(--text-muted);">Mastered React, Node.js, and scaling complex applications.</p>
+                </div>
+                <div class="glass-card"
+                    style="padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03);">
+                    <h3 style="color: white; margin-bottom: 10px; font-size: 1.5rem;">Content Creation</h3>
+                    <p style="color: var(--text-muted);">Started sharing knowledge and building a community.</p>
+                </div>
+            </div>
+
+            <div class="section-header" data-aos="fade-up">
+                <h2>Tech Stack</h2>
+                <p>My weapon of choice for building scalable applications.</p>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <i class="fab fa-react" style="color: #61DAFB;"></i>
+                    <h3>React</h3>
+                    <p>Frontend Library</p>
+                </div>
+                <div class="skill-card">
+                    <i class="fab fa-node-js" style="color: #68A063;"></i>
+                    <h3>Node.js</h3>
+                    <p>Backend Runtime</p>
+                </div>
+                <div class="skill-card">
+                    <i class="fab fa-python" style="color: #3776AB;"></i>
+                    <h3>Python</h3>
+                    <p>Scripting & AI</p>
+                </div>
+                <div class="skill-card">
+                    <i class="fas fa-database" style="color: #f29111;"></i>
+                    <h3>Database</h3>
+                    <p>SQL & NoSQL</p>
+                </div>
+                <div class="skill-card">
+                    <i class="fab fa-js" style="color: #F7DF1E;"></i>
+                    <h3>JavaScript</h3>
+                    <p>ES6+ Core</p>
+                </div>
+                <div class="skill-card">
+                    <i class="fab fa-html5" style="color: #E34F26;"></i>
+                    <h3>HTML5 & CSS3</h3>
+                    <p>Semantic Layouts</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="projects-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2>Live Projects</h2>
+                <p>Explore my open-source work directly from GitHub.</p>
+            </div>
+
+            <!-- Featured Live Sites (Carousel) -->
+            <div class="featured-showcase" style="margin-bottom: 80px;">
+                <h3 style="text-align: center; margin-bottom: 30px; color: var(--secondary-accent);">Featured Work</h3>
+
+                <div class="carousel-container" data-aos="fade-up">
+                    <div class="carousel-track">
+                        <!-- Slide 1 -->
+                        <div class="carousel-slide active">
+                            <div class="glass-card browser-mockup">
+                                <div class="browser-header">
+                                    <div class="traffic-lights">
+                                        <span class="light red"></span>
+                                        <span class="light yellow"></span>
+                                        <span class="light green"></span>
+                                    </div>
+                                    <div class="address-bar">
+                                        <i class="fas fa-lock" style="font-size: 0.7rem; margin-right: 5px;"></i>
+                                        govthscrpora.netlify.app
+                                    </div>
+                                </div>
+                                <div class="browser-content">
+                                    <iframe src="https://govthscrpora.netlify.app/" title="Government Script"
+                                        loading="lazy"></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 2 -->
+                        <div class="carousel-slide">
+                            <div class="glass-card browser-mockup">
+                                <div class="browser-header">
+                                    <div class="traffic-lights">
+                                        <span class="light red"></span>
+                                        <span class="light yellow"></span>
+                                        <span class="light green"></span>
+                                    </div>
+                                    <div class="address-bar">
+                                        <i class="fas fa-lock" style="font-size: 0.7rem; margin-right: 5px;"></i>
+                                        thedataprysm.store
+                                    </div>
+                                </div>
+                                <div class="browser-content">
+                                    <iframe src="https://thedataprysm.store/" title="The Data Prysm"
+                                        loading="lazy"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <button class="carousel-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+                    <button class="carousel-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+
+                    <!-- Indicators -->
+                    <div class="carousel-dots">
+                        <span class="dot active" data-slide="0"></span>
+                        <span class="dot" data-slide="1"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="projects-grid" class="projects-grid">
+                <!-- Projects will be injected here by JS -->
+                <div class="loading-state">
+                    <i class="fas fa-circle-notch fa-spin"></i> Loading projects...
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Pre-Footer CTA -->
+    <section class="pre-footer">
+        <div class="container">
+            <h2>Ready to launch your next project?</h2>
+            <p>Let's turn your ideas into a digital reality.</p>
+            <a href="mailto:workwith@sarwaraltaf.in" class="cta-button"
+                style="padding: 15px 40px; font-size: 1.1rem;">Start a Conversation</a>
+        </div>
+    </section>
+
+    <!-- Mega Footer -->
+    <footer class="mega-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Column 1: Brand -->
+                <div class="footer-col footer-brand">
+                    <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+                    <p>Building the future of the web, one pixel at a time.</p>
+                    <div class="status-badge">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i> Available for Freelance
+                    </div>
+                </div>
+
+                <!-- Column 2: Explore -->
+                <div class="footer-col">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                        <li><a href="index.html#about">About</a></li>
+                        <li><a href="index.html#projects">Portfolio</a></li>
+                        <li><a href="blog.html">Blog (IRIS)</a></li>
+                        <li><a href="mailto:workwith@sarwaraltaf.in">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Tools -->
+                <div class="footer-col">
+                    <h4>Developer Tools</h4>
+                    <ul>
+                        <li><a href="invoice.html">Invoice Maker</a></li>
+                        <li><a href="qrcode.html">QR Generator</a></li>
+                        <li><a href="codeimage.html">Snippet Studio</a></li>
+                        <li><a href="screenshot.html">URL to Image</a></li>
+                        <li><a href="timer.html">Villain Timer</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Socials -->
+                <div class="footer-col">
+                    <h4>Connect</h4>
+                    <div class="social-row">
+                        <a href="https://github.com/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-github"></i></a>
+                        <a href="https://linkedin.com/in/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-linkedin-in"></i></a>
+                        <a href="https://instagram.com/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-instagram"></i></a>
+                        <a href="mailto:workwith@sarwaraltaf.in" class="social-btn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="footer-bottom">
+                <div class="container bottom-flex">
+                    <p>&copy; <span id="current-year"></span> Sarwar Altaf Dar. All Rights Reserved. <a
+                            href="login.html"
+                            style="color: #333; text-decoration: none; margin-left: 10px; font-size: 0.8rem;"><i
+                                class="fas fa-lock"></i></a></p>
+                    <div class="bottom-links">
+                        <a href="privacy.html">Privacy Policy</a>
+                        <a href="terms.html">Terms & Conditions</a>
+                        <a href="disclaimer.html">Disclaimer</a>
+                        <a href="cookies.html">Cookies</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <a href="#" class="back-to-top"><i class="fas fa-chevron-up"></i></a>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? "http://127.0.0.1:5000"
+            : "https://sarwar-school-api.onrender.com";
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>

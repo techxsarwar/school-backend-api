@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time-Table Conflict Detector | Sarwar Altaf Dar</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global Style -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <style>
+        :root {
+            --tool-bg: #0d1117;
+            --tool-card: #161b22;
+            --tool-border: #30363d;
+            --accent: #673de6;
+            --danger: #ff5f56;
+            --warning: #e3b341;
+            --success: #27c93f;
+        }
+
+        body {
+            background-color: var(--tool-bg);
+            color: #c9d1d9;
+        }
+
+        .tt-container {
+            max-width: 1600px;
+            margin: 140px auto 100px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        /* Sidebar */
+        .config-panel {
+            background: var(--tool-card);
+            border: 1px solid var(--tool-border);
+            border-radius: 16px;
+            padding: 25px;
+            height: fit-content;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--tool-border);
+            padding-bottom: 10px;
+        }
+
+        /* Inputs */
+        .form-select,
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            background: #0d1117;
+            border: 1px solid var(--tool-border);
+            border-radius: 8px;
+            color: white;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+
+        .form-select:focus,
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Data Lists */
+        .data-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .data-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Main Grid */
+        .grid-wrapper {
+            background: var(--tool-card);
+            border: 1px solid var(--tool-border);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tt-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            /* Fixed width cols */
+        }
+
+        .tt-table th {
+            background: #21262d;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid var(--tool-border);
+            border-right: 1px solid var(--tool-border);
+            width: 12.5%;
+            /* 8 periods + 1 header? No, usually Day + Periods */
+        }
+
+        .tt-table td {
+            border-right: 1px solid var(--tool-border);
+            border-bottom: 1px solid var(--tool-border);
+            vertical-align: top;
+            height: 120px;
+            padding: 5px;
+            background: #0d1117;
+            transition: all 0.2s;
+        }
+
+        .tt-table td:hover {
+            background: #161b22;
+        }
+
+        /* Cell Content */
+        .cell-content {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            height: 100%;
+        }
+
+        .cell-select {
+            background: transparent;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            font-size: 0.75rem;
+            padding: 4px;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .cell-select option {
+            background: #0d1117;
+        }
+
+        /* Conflict State */
+        .conflict-cell {
+            background: rgba(255, 95, 86, 0.2) !important;
+            border: 2px solid var(--danger) !important;
+        }
+
+        .conflict-msg {
+            font-size: 0.65rem;
+            color: var(--danger);
+            font-weight: bold;
+            display: none;
+            margin-top: 2px;
+        }
+
+        .conflict-cell .conflict-msg {
+            display: block;
+        }
+
+        .gen-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .tt-container {
+                grid-template-columns: 1fr;
+            }
+
+            .tt-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pricing.html">Pricing</a></li>
+                <li><a href="tools.html" class="active">Tools</a></li>
+                <li><a href="mailto:workwith@sarwaraltaf.in" class="cta-button">Hire Me</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="tt-container">
+        <!-- Sidebar -->
+        <div class="config-panel">
+            <h2 class="section-title"><i class="fas fa-database"></i> Setup Data</h2>
+
+            <label class="form-label">Manage Classes</label>
+            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                <input type="text" id="newClass" class="form-input" placeholder="e.g. Class 10" style="margin:0;">
+                <button class="gen-btn" onclick="addClass()" style="width: auto; margin:0;"><i
+                        class="fas fa-plus"></i></button>
+            </div>
+
+            <label class="form-label">Manage Teachers</label>
+            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                <input type="text" id="newTeacher" class="form-input" placeholder="e.g. Mr. Sharma" style="margin:0;">
+                <button class="gen-btn" onclick="addTeacher()" style="width: auto; margin:0;"><i
+                        class="fas fa-plus"></i></button>
+            </div>
+
+            <label class="form-label">Manage Subjects</label>
+            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                <input type="text" id="newSubject" class="form-input" placeholder="e.g. Math" style="margin:0;">
+                <button class="gen-btn" onclick="addSubject()" style="width: auto; margin:0;"><i
+                        class="fas fa-plus"></i></button>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--tool-border); margin: 20px 0;">
+
+            <h2 class="section-title"><i class="fas fa-download"></i> Exports</h2>
+            <button class="gen-btn" onclick="downloadPDF('class')">
+                <i class="fas fa-file-pdf"></i> Class Schedule
+            </button>
+            <button class="gen-btn" onclick="downloadPDF('teacher')" style="background: #27c93f;">
+                <i class="fas fa-user-clock"></i> Teacher Schedule
+            </button>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="grid-wrapper">
+            <div
+                style="padding: 20px; border-bottom: 1px solid var(--tool-border); display: flex; justify-content: space-between; align-items: center; background: #161b22;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <h2 style="color: white; margin: 0;">Editing:</h2>
+                    <select id="activeClassSelect" class="form-select"
+                        style="width: 200px; margin: 0; font-size: 1.1rem; font-weight: bold;" onchange="switchClass()">
+                        <!-- Options filled by JS -->
+                    </select>
+                </div>
+                <div style="font-size: 0.9rem; color: #888;">
+                    <i class="fas fa-bolt" style="color: var(--warning);"></i> Auto-Conflict Detection Active
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="tt-table" id="timetable">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Day</th>
+                            <th>Period 1</th>
+                            <th>Period 2</th>
+                            <th>Period 3</th>
+                            <th>Period 4</th>
+                            <th>Period 5</th>
+                            <th>Period 6</th>
+                            <th>Period 7</th>
+                            <th>Period 8</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ttBody">
+                        <!-- Rows for Mon-Sat -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teacher View Hidden Print -->
+    <div id="teacherPrintArea" style="display: none; padding: 20px; background: white; color: black;">
+        <!-- Populated dynamically -->
+    </div>
+
+    <script>
+        // --- State ---
+        const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const PERIODS = 8;
+
+        let state = {
+            classes: ['Class 9', 'Class 10'], // Default
+            teachers: ['Mr. Sharma', 'Ms. Gupta', 'Mrs. Verma', 'Mr. Khan'],
+            subjects: ['Math', 'Science', 'English', 'History', 'Physics', 'Chemistry'],
+            schedules: {
+                'Class 10': {}, // Format: "Mon-1": {teacher: "Mr. Sharma", subject: "Math"} 
+                'Class 9': {}
+            },
+            activeClass: 'Class 10'
+        };
+
+        // --- Initialization ---
+        function init() {
+            renderDropdowns();
+            renderGrid();
+        }
+
+        function renderDropdowns() {
+            // Class Select
+            const clsSel = document.getElementById('activeClassSelect');
+            clsSel.innerHTML = state.classes.map(c => `<option value="${c}">${c}</option>`).join('');
+            clsSel.value = state.activeClass;
+        }
+
+        // --- Add Data Helpers ---
+        function addClass() {
+            const val = document.getElementById('newClass').value;
+            if (val && !state.classes.includes(val)) {
+                state.classes.push(val);
+                state.schedules[val] = {};
+                renderDropdowns();
+                switchClass(val); // Switch to new
+                Toastify({ text: `Added ${val}`, backgroundColor: "#27c93f" }).showToast();
+                document.getElementById('newClass').value = "";
+            }
+        }
+        // Similar for Teacher/Subject (omitted specific UI list population for brevity, but logic exists in dropdowns)
+        function addTeacher() {
+            const val = document.getElementById('newTeacher').value;
+            if (val && !state.teachers.includes(val)) {
+                state.teachers.push(val);
+                renderGrid(); // Re-render to update selects
+                Toastify({ text: `Added ${val}`, backgroundColor: "#27c93f" }).showToast();
+                document.getElementById('newTeacher').value = "";
+            }
+        }
+        function addSubject() {
+            const val = document.getElementById('newSubject').value;
+            if (val && !state.subjects.includes(val)) {
+                state.subjects.push(val);
+                renderGrid();
+                Toastify({ text: `Added ${val}`, backgroundColor: "#27c93f" }).showToast();
+                document.getElementById('newSubject').value = "";
+            }
+        }
+
+        // --- Grid Rendering ---
+        function switchClass(clsName) {
+            state.activeClass = clsName || document.getElementById('activeClassSelect').value;
+            document.getElementById('activeClassSelect').value = state.activeClass;
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const tbody = document.getElementById('ttBody');
+            tbody.innerHTML = "";
+
+            const currentSched = state.schedules[state.activeClass] || {};
+
+            DAYS.forEach(day => {
+                const tr = document.createElement('tr');
+
+                // Day Header
+                const th = document.createElement('th');
+                th.innerText = day;
+                tr.appendChild(th);
+
+                for (let p = 1; p <= PERIODS; p++) {
+                    const cellKey = `${day}-${p}`;
+                    const cellData = currentSched[cellKey] || { teacher: "", subject: "" };
+
+                    const td = document.createElement('td');
+                    td.id = `cell-${cellKey}`; // UI ID
+
+                    // Build Selects
+                    const subjOpts = [`<option value="">Subject...</option>`, ...state.subjects.map(s => `<option value="${s}" ${s === cellData.subject ? 'selected' : ''}>${s}</option>`)].join('');
+                    const teachOpts = [`<option value="">Teacher...</option>`, ...state.teachers.map(t => `<option value="${t}" ${t === cellData.teacher ? 'selected' : ''}>${t}</option>`)].join('');
+
+                    td.innerHTML = `
+                        <div class="cell-content">
+                            <select class="cell-select subject-select" onchange="updateCell('${cellKey}', 'subject', this.value)">
+                                ${subjOpts}
+                            </select>
+                            <select class="cell-select teacher-select" onchange="updateCell('${cellKey}', 'teacher', this.value)">
+                                ${teachOpts}
+                            </select>
+                            <div class="conflict-msg" id="msg-${cellKey}">
+                                <i class="fas fa-exclamation-triangle"></i> Conflict!
+                            </div>
+                        </div>
+                    `;
+                    tr.appendChild(td);
+                }
+                tbody.appendChild(tr);
+            });
+
+            // Run validation after render to show existing conflicts
+            validateAll();
+        }
+
+        // --- Logic & Validation ---
+        function updateCell(key, field, value) {
+            if (!state.schedules[state.activeClass]) state.schedules[state.activeClass] = {};
+            if (!state.schedules[state.activeClass][key]) state.schedules[state.activeClass][key] = {};
+
+            state.schedules[state.activeClass][key][field] = value;
+
+            // Validate this specific cell (and others affected)
+            validateAll();
+        }
+
+        function validateAll() {
+            // Clear all visual conflict states in current view
+            document.querySelectorAll('.conflict-cell').forEach(el => el.classList.remove('conflict-cell'));
+
+            // Check current view slots
+            DAYS.forEach(day => {
+                for (let p = 1; p <= PERIODS; p++) {
+                    const key = `${day}-${p}`;
+                    const currentData = state.schedules[state.activeClass][key];
+
+                    if (currentData && currentData.teacher) {
+                        const conflict = checkConflict(state.activeClass, key, currentData.teacher);
+                        if (conflict) {
+                            const cell = document.getElementById(`cell-${key}`);
+                            if (cell) {
+                                cell.classList.add('conflict-cell');
+                                const msg = document.getElementById(`msg-${key}`);
+                                msg.innerText = `Busy in ${conflict.class}`;
+
+                                // Show Toast only if just changed? 
+                                // For now just visual red is enough, toast might spam.
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function checkConflict(currentClass, key, teacherName) {
+            // Loop through ALL other classes
+            for (let cls of state.classes) {
+                if (cls === currentClass) continue;
+
+                const otherSched = state.schedules[cls];
+                if (otherSched && otherSched[key] && otherSched[key].teacher === teacherName) {
+                    return { class: cls }; // Found conflict
+                }
+            }
+            return null;
+        }
+
+        // --- Export ---
+        function downloadPDF(type) {
+            if (type === 'teacher') {
+                const teacherData = generateTeacherData();
+                const printArea = document.getElementById('teacherPrintArea');
+                printArea.innerHTML = renderTeacherView(teacherData);
+                printArea.style.display = 'block';
+
+                const opt = {
+                    margin: 5,
+                    filename: `Teacher_Schedules.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+
+                html2pdf().set(opt).from(printArea).save().then(() => {
+                    printArea.style.display = 'none';
+                });
+                return;
+            }
+
+            const element = document.querySelector('.grid-wrapper');
+            const opt = {
+                margin: 5,
+                filename: `${state.activeClass}_Schedule.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function generateTeacherData() {
+            const data = {};
+            // Initialize
+            state.teachers.forEach(t => {
+                data[t] = {};
+            });
+
+            // Aggregate
+            for (const [className, schedule] of Object.entries(state.schedules)) {
+                for (const [key, slot] of Object.entries(schedule)) {
+                    if (slot.teacher && data[slot.teacher]) {
+                        // Store class and subject
+                        data[slot.teacher][key] = {
+                            class: className,
+                            subject: slot.subject
+                        };
+                    }
+                }
+            }
+            return data;
+        }
+
+        function renderTeacherView(data) {
+            let html = `<h1 style="text-align:center; margin-bottom:20px; color:black;">Master Teacher Schedule</h1>`;
+
+            // Grid container for multiple days/teachers? 
+            // Better: One table per teacher stacked.
+
+            for (const [teacher, schedule] of Object.entries(data)) {
+                html += `
+                    <div style="margin-bottom: 40px; page-break-inside: avoid; border: 1px solid #ccc; padding: 15px; border-radius: 8px;">
+                        <h3 style="color: black; border-bottom: 2px solid #ccc; padding-bottom: 5px;">${teacher}</h3>
+                        <table style="width:100%; border-collapse: collapse; margin-top:10px; table-layout: fixed;">
+                            <thead>
+                                <tr style="background: #333; color: white;">
+                                    <th style="padding:8px; border:1px solid #999;">Day</th>
+                                    ${Array.from({ length: PERIODS }, (_, i) => `<th style="padding:8px; border:1px solid #999;">P${i + 1}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                DAYS.forEach(day => {
+                    html += `<tr><td style="font-weight:bold; border:1px solid #ccc; padding:5px; background: #f4f4f4;">${day}</td>`;
+                    for (let p = 1; p <= PERIODS; p++) {
+                        const key = `${day}-${p}`;
+                        const slot = schedule[key];
+                        html += `<td style="border:1px solid #ccc; padding:5px; height: 40px; font-size: 0.8rem; text-align: center; background: ${slot ? '#e6fffa' : 'white'};">
+                                   ${slot ? `<strong>${slot.class}</strong><br><span style="color:#555">${slot.subject}</span>` : ''}
+                                 </td>`;
+                    }
+                    html += `</tr>`;
+                });
+
+                html += `</tbody></table></div>`;
+            }
+            return html;
+        }
+
+        // Start
+        init();
+
+    </script>
+</body>
+
+</html>

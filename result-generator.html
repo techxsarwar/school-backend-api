@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Result Generator | Sarwar Altaf Dar</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global Style -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="legal.css"> <!-- For footer consistency if needed, but mostly custom CSS here -->
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        /* Tool Interface (Dark Mode) */
+        :root {
+            --tool-bg: #0d1117;
+            --tool-card: #161b22;
+            --tool-border: #30363d;
+            --accent: #673de6;
+        }
+
+        body {
+            background-color: var(--tool-bg);
+            color: #c9d1d9;
+        }
+
+        .generator-container {
+            max-width: 1200px;
+            margin: 140px auto 100px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .config-panel {
+            background: var(--tool-card);
+            border: 1px solid var(--tool-border);
+            border-radius: 16px;
+            padding: 30px;
+            height: fit-content;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #8b949e;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: #0d1117;
+            border: 1px solid var(--tool-border);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed var(--tool-border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(103, 61, 230, 0.1);
+        }
+
+        /* Result Card Template (The White Paper Look) */
+        #cardPreviewContainer {
+            background: #21262d;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--tool-border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+        }
+
+        .result-card {
+            width: 800px;
+            /* Fixed width for HD output */
+            min-height: 600px;
+            background: white;
+            color: black;
+            padding: 40px;
+            font-family: 'Times New Roman', serif;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .card-header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .school-logo {
+            height: 80px;
+            margin-bottom: 10px;
+            object-fit: contain;
+        }
+
+        .school-name {
+            font-size: 2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #1a237e;
+            /* Academic Blue */
+        }
+
+        .school-info {
+            font-size: 1rem;
+            color: #444;
+        }
+
+        .card-body {
+            display: flex;
+            gap: 40px;
+        }
+
+        .student-details {
+            flex: 1;
+            border-right: 1px solid #ccc;
+            padding-right: 20px;
+        }
+
+        .detail-row {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+            display: inline-block;
+            width: 100px;
+        }
+
+        .marks-table {
+            flex: 1.5;
+        }
+
+        .marks-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .marks-table th,
+        .marks-table td {
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .marks-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .card-footer-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 2px solid #000;
+            padding-top: 20px;
+        }
+
+        .result-status {
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 10px 30px;
+            border: 2px solid #000;
+            border-radius: 8px;
+        }
+
+        .status-pass {
+            color: green;
+            border-color: green;
+        }
+
+        .status-fail {
+            color: red;
+            border-color: red;
+        }
+
+        .signature-box {
+            text-align: center;
+        }
+
+        .signature-line {
+            width: 200px;
+            border-bottom: 1px solid #000;
+            margin-bottom: 5px;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            font-size: 0.9rem;
+            color: #888;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* Controls */
+        .gen-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .gen-btn:hover {
+            background: #5631c4;
+            transform: scale(1.02);
+        }
+
+        .gen-btn:disabled {
+            background: #30363d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+            background: #0d1117;
+            border-radius: 8px;
+            height: 10px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #27c93f;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        .alert-error {
+            background: rgba(255, 95, 86, 0.1);
+            border: 1px solid #ff5f56;
+            color: #ff5f56;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+            .generator-container {
+                grid-template-columns: 1fr;
+            }
+
+            .result-card {
+                width: 100%;
+                min-height: auto;
+                font-size: 0.9rem;
+            }
+
+            .card-body {
+                flex-direction: column;
+            }
+
+            .student-details {
+                border-right: none;
+                border-bottom: 1px solid #ccc;
+                padding-bottom: 20px;
+                padding-right: 0;
+            }
+        }
+
+        .generator-container {
+            gap: 40px;
+            position: relative;
+            /* For overlay context */
+        }
+
+        /* Coming Soon Overlay */
+        .coming-soon-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            border: 1px solid var(--tool-border);
+        }
+
+        .cs-badge {
+            background: var(--accent);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cs-title {
+            font-size: 2.5rem;
+            color: white;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .cs-sub {
+            color: #8b949e;
+            font-size: 1.1rem;
+            max-width: 500px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pricing.html">Pricing</a></li>
+                <li><a href="tools.html" class="active">Tools</a></li>
+                <li><a href="mailto:workwith@sarwaraltaf.in" class="cta-button">Hire Me</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="generator-container">
+        <!-- Overlay -->
+        <div class="coming-soon-overlay">
+            <div class="cs-badge"><i class="fas fa-lock"></i> Premium Feature</div>
+            <h1 class="cs-title">Unlock This Tool</h1>
+            <p class="cs-sub">Buy your plan to implement this feature on your site.</p>
+            <a href="pricing.html" class="gen-btn" style="width: auto; padding: 12px 30px;">View Plans & Pricing</a>
+        </div>
+        <!-- Left: Configuration -->
+        <div class="config-panel">
+            <h2 class="section-title"><i class="fas fa-university"></i> 1. School Configuration</h2>
+
+            <div class="form-group">
+                <label class="form-label">School Name</label>
+                <input type="text" id="schoolName" class="form-input" value="Delhi Public School"
+                    oninput="updatePreview()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Address / City</label>
+                <input type="text" id="schoolAddress" class="form-input" value="Srinagar, J&K"
+                    oninput="updatePreview()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Session</label>
+                <input type="text" id="sessionYear" class="form-input" value="2025-26" oninput="updatePreview()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">School Logo</label>
+                <input type="file" id="logoInput" class="form-input" accept="image/*">
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--tool-border); margin: 30px 0;">
+
+            <h2 class="section-title"><i class="fas fa-file-excel"></i> 2. Data Ingestion</h2>
+
+            <div class="drop-zone" id="dropZone">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #8b949e; margin-bottom: 10px;"></i>
+                <p>Drag & Drop .xlsx file here</p>
+                <span style="font-size: 0.8rem; color: #58a6ff;">Required Columns: Roll No, Name, Father Name, Class,
+                    Physics, Chemistry, Math, English, Total</span>
+                <input type="file" id="excelInput" accept=".xlsx, .csv" style="display: none;">
+            </div>
+
+            <div class="alert-error" id="errorAlert">
+                <i class="fas fa-exclamation-triangle"></i> Error: Missing required columns.
+            </div>
+
+            <div id="fileInfo" style="margin-top: 10px; color: #27c93f; display: none;">
+                <i class="fas fa-check-circle"></i> File Loaded: <span id="fileName">data.xlsx</span> (<span
+                    id="rowCount">0</span> students)
+            </div>
+
+            <button class="gen-btn" id="generateBtn" onclick="startGeneration()" disabled>
+                <i class="fas fa-bolt"></i> Generate & Download ZIP
+            </button>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="progressText"
+                style="text-align: center; margin-top: 5px; font-size: 0.85rem; color: #8b949e; display: none;">
+                Processing...</p>
+        </div>
+
+        <!-- Right: Preview -->
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 class="section-title" style="margin: 0;"><i class="fas fa-eye"></i> Live Preview</h2>
+                <span
+                    style="font-size: 0.8rem; background: #238636; padding: 4px 8px; border-radius: 4px; color: white;">Sample
+                    Data</span>
+            </div>
+
+            <div id="cardPreviewContainer">
+                <!-- The Result Card HTML -->
+                <!-- The Result Card HTML -->
+                <div class="result-card" id="resultCard">
+                    <!-- Frame for border effect -->
+                    <div class="card-frame">
+                        <!-- BG Logo Watermark -->
+                        <div class="big-watermark">CONFIDENTIAL</div>
+
+                        <div class="card-content">
+                            <div class="card-header">
+                                <img src="https://via.placeholder.com/100?text=LOGO" id="previewLogo"
+                                    class="school-logo" onerror="this.style.display='none'">
+                                <div class="school-name" id="previewSchoolName">Delhi Public School</div>
+                                <div class="school-info"><span id="previewAddress">Srinagar, J&K</span> | Session: <span
+                                        id="previewSession">2025-26</span></div>
+                            </div>
+
+                            <div class="report-title">ANNUAL PROGRESS REPORT</div>
+
+                            <div class="card-body">
+                                <div class="student-details">
+                                    <div class="detail-row">
+                                        <span class="detail-label">Student Name</span>
+                                        <span class="detail-value" id="pName">Aarav Sharma</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Roll Number</span>
+                                        <span class="detail-value" id="pRoll">101</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Father's Name</span>
+                                        <span class="detail-value" id="pFather">Rajesh Sharma</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Class / Section</span>
+                                        <span class="detail-value" id="pClass">10th A</span>
+                                    </div>
+                                </div>
+
+                                <div class="marks-table">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Subject</th>
+                                                <th>Marks Obtained</th>
+                                                <th>Max Marks</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Physics</td>
+                                                <td id="mPhy">85</td>
+                                                <td>100</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Chemistry</td>
+                                                <td id="mChem">78</td>
+                                                <td>100</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Math</td>
+                                                <td id="mMath">92</td>
+                                                <td>100</td>
+                                            </tr>
+                                            <tr>
+                                                <td>English</td>
+                                                <td id="mEng">88</td>
+                                                <td>100</td>
+                                            </tr>
+                                            <tr class="total-row">
+                                                <td>GRAND TOTAL</td>
+                                                <td id="mTotal">343</td>
+                                                <td>400</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="card-footer-section">
+                                <div style="text-align: center;">
+                                    <span
+                                        style="font-size: 0.9rem; color: #666; display: block; margin-bottom: 5px;">RESULT
+                                        STATUS</span>
+                                    <div class="result-status status-pass" id="pStatus">PASS</div>
+                                </div>
+
+                                <div class="signature-box">
+                                    <div class="signature-line"></div>
+                                    <div style="font-weight: bold; font-size: 1.1rem;">Principal Signature</div>
+                                    <div style="font-size: 0.8rem; color: #666;">(Authority Stamp & Sign)</div>
+                                </div>
+                            </div>
+
+                            <div class="watermark">Generated by SarwarAltaf.in</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center; color: #8b949e; margin-top: 10px; font-size: 0.85rem;">Note: Preview shows
+                dummy data until a file is loaded.</p>
+        </div>
+    </div>
+
+    <!-- Hidden element for actual processing to avoid view jumping, but must be visible to DOM for html2canvas -->
+    <div style="position: absolute; left: -9999px; top: 0;" id="hiddenRenderZone"></div>
+
+    <!-- Mega Footer -->
+    <footer class="mega-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col footer-brand">
+                    <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms & Conditions</a></li>
+                        <li><a href="disclaimer.html">Disclaimer</a></li>
+                        <li><a href="cookies.html">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="container bottom-flex">
+                    <p>&copy; <span id="current-year"></span> Sarwar Altaf Dar. All Rights Reserved.</p>
+                    <div class="bottom-links">
+                        <a href="privacy.html">Privacy Policy</a>
+                        <a href="terms.html">Terms & Conditions</a>
+                        <a href="disclaimer.html">Disclaimer</a>
+                        <a href="cookies.html">Cookies</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        // Global State
+        let excelData = [];
+        let logoDataUrl = null;
+
+        // --- 1. Logo Handling ---
+        const logoInput = document.getElementById('logoInput');
+        logoInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (evt) {
+                    logoDataUrl = evt.target.result;
+                    document.getElementById('previewLogo').src = logoDataUrl;
+                    document.getElementById('previewLogo').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // --- 2. Live Preview Updates ---
+        function updatePreview() {
+            document.getElementById('previewSchoolName').innerText = document.getElementById('schoolName').value;
+            document.getElementById('previewAddress').innerText = document.getElementById('schoolAddress').value;
+            document.getElementById('previewSession').innerText = document.getElementById('sessionYear').value;
+        }
+
+        // --- 3. Excel Handling ---
+        const dropZone = document.getElementById('dropZone');
+        const excelInput = document.getElementById('excelInput');
+
+        dropZone.addEventListener('click', () => excelInput.click());
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleExcel(e.dataTransfer.files[0]);
+        });
+        excelInput.addEventListener('change', (e) => handleExcel(e.target.files[0]));
+
+        function handleExcel(file) {
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                // Validation Removed: Accept any structure per user request
+                if (jsonData.length === 0) return;
+
+                document.getElementById('errorAlert').style.display = 'none';
+                excelData = jsonData;
+                document.getElementById('fileName').innerText = file.name;
+                document.getElementById('rowCount').innerText = excelData.length;
+                document.getElementById('fileInfo').style.display = 'block';
+                document.getElementById('generateBtn').disabled = false;
+
+                // Update Preview with First Row
+                populateCard(jsonData[0], 'resultCard');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function populateCard(student, cardId) {
+            // Helper to safe select within a specific card container? 
+            // Since ID is unique for Preview, fine. For rendering loop, we'll clone.
+            // Actually, let's target specific IDs for preview
+            if (cardId === 'resultCard') {
+                document.getElementById('pRoll').innerText = student['Roll No'];
+                document.getElementById('pName').innerText = student['Name'];
+                document.getElementById('pFather').innerText = student['Father Name'];
+                document.getElementById('pClass').innerText = student['Class'];
+
+                document.getElementById('mPhy').innerText = student['Physics'];
+                document.getElementById('mChem').innerText = student['Chemistry'];
+                document.getElementById('mMath').innerText = student['Math'];
+                document.getElementById('mEng').innerText = student['English'];
+                document.getElementById('mTotal').innerText = student['Total'];
+
+                // Simple logic for Pass/Fail (e.g., >33%)
+                // Or assume 'Total' logic. Let's just say if Total > 130 It's Pass for now or check individual?
+                // Assuming max 400. 33% is 132.
+                let status = student['Total'] >= 132 ? 'PASS' : 'FAIL';
+                const statusEl = document.getElementById('pStatus');
+                statusEl.innerText = status;
+                statusEl.className = `result-status ${status === 'PASS' ? 'status-pass' : 'status-fail'}`;
+            }
+        }
+
+        // --- 4. Generation Logic ---
+        async function startGeneration() {
+            const btn = document.getElementById('generateBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            progressContainer.style.display = 'block';
+            progressText.style.display = 'block';
+
+            const zip = new JSZip();
+            const renderZone = document.getElementById('hiddenRenderZone');
+
+            // Clean render zone
+            renderZone.innerHTML = '';
+
+            // Clone the valid card template
+            // We need a pristine template without IDs to avoid conflicts? 
+            // Actually html2canvas reads DOM.
+            // Strategy: Create a customized card in the render zone for EACH iter, snapshot, remove.
+
+            const template = document.getElementById('resultCard').cloneNode(true);
+            // reset IDs or use class-based selection?
+            // Easy way: Just define a function that takes a DOM element and data
+
+            for (let i = 0; i < excelData.length; i++) {
+                const student = excelData[i];
+
+                // Update Progress
+                const percent = Math.round(((i + 1) / excelData.length) * 100);
+                progressBar.style.width = `${percent}%`;
+                progressText.innerText = `Processing ${i + 1} of ${excelData.length}`;
+
+                // Create clean instance
+                const card = template.cloneNode(true);
+                card.id = 'renderCard'; // Temporary ID
+
+                // Manually inject data into this clone
+                // Note: The clone has IDs from original. `querySelector` on element is safer.
+                card.querySelector('#pRoll').innerText = student['Roll No'];
+                card.querySelector('#pName').innerText = student['Name'];
+                card.querySelector('#pFather').innerText = student['Father Name'];
+                card.querySelector('#pClass').innerText = student['Class'];
+
+                card.querySelector('#mPhy').innerText = student['Physics'] || 0;
+                card.querySelector('#mChem').innerText = student['Chemistry'] || 0;
+                card.querySelector('#mMath').innerText = student['Math'] || 0;
+                card.querySelector('#mEng').innerText = student['English'] || 0;
+
+                // Smart Total Calculation
+                let total = student['Total'];
+                if (!total) {
+                    total = (Number(student['Physics']) || 0) +
+                        (Number(student['Chemistry']) || 0) +
+                        (Number(student['Math']) || 0) +
+                        (Number(student['English']) || 0);
+                    card.querySelector('#mTotal').innerText = total; // Update calculated total
+                } else {
+                    card.querySelector('#mTotal').innerText = total;
+                }
+
+                // Pass/Fail Logic (Assuming 33% of 400 = 132)
+                let status = total >= 132 ? 'PASS' : 'FAIL';
+                const statusEl = card.querySelector('#pStatus');
+                statusEl.innerText = status;
+                statusEl.className = `result-status ${status === 'PASS' ? 'status-pass' : 'status-fail'}`;
+
+                // Append to render zone (visible to html2canvas)
+                renderZone.appendChild(card);
+
+                // Capture
+                try {
+                    const canvas = await html2canvas(card, { scale: 2 }); // High res
+                    const imgData = canvas.toDataURL('image/png').split(',')[1];
+                    zip.file(`Result_${student['Roll No']}.png`, imgData, { base64: true });
+                } catch (err) {
+                    console.error("Capture failed for", student);
+                }
+
+                // Cleanup DOM
+                renderZone.removeChild(card);
+
+                // Small breathing room for UI
+                await new Promise(r => setTimeout(r, 10));
+            }
+
+            // Generate ZIP
+            progressText.innerText = "Zipping files...";
+            const content = await zip.generateAsync({ type: "blob" });
+            saveAs(content, "Student_Results.zip");
+
+            // Reset
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-bolt"></i> Generate & Download ZIP';
+            progressBar.style.background = '#27c93f';
+            progressText.innerText = "Done! Download started.";
+        }
+
+        // Year script
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>

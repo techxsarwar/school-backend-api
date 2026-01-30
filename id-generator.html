@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk ID Card Generator | Sarwar Altaf Dar</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Global Style -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="legal.css">
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* Tool Interface (Dark Mode) */
+        :root {
+            --tool-bg: #0d1117;
+            --tool-card: #161b22;
+            --tool-border: #30363d;
+            --accent: #673de6;
+        }
+
+        body {
+            background-color: var(--tool-bg);
+            color: #c9d1d9;
+        }
+
+        .generator-container {
+            max-width: 1400px;
+            margin: 140px auto 100px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 40px;
+        }
+
+        .config-panel {
+            background: var(--tool-card);
+            border: 1px solid var(--tool-border);
+            border-radius: 16px;
+            padding: 30px;
+            height: fit-content;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--tool-border);
+            padding-bottom: 10px;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #8b949e;
+            font-size: 0.85rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            background: #0d1117;
+            border: 1px solid var(--tool-border);
+            border-radius: 6px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Drop Zones */
+        .drop-zone {
+            border: 2px dashed var(--tool-border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(103, 61, 230, 0.1);
+        }
+
+        .file-status {
+            font-size: 0.8rem;
+            color: #27c93f;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Preview Area */
+        .preview-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .id-card-template {
+            width: 320px;
+            /* Scaled visual preview */
+            height: 504px;
+            /* Aspect Ratio of Vertical ID */
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #111;
+            margin: 0 auto;
+        }
+
+        /* Actual ID Card Styles (Used in Generation) */
+        .id-card {
+            width: 53.98mm;
+            /* CR80 Standard Width */
+            height: 85.60mm;
+            /* CR80 Standard Height */
+            background: white;
+            border: 1px solid #ddd;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+            /* Flex layout for content */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .id-header {
+            width: 100%;
+            background: #1a237e;
+            /* School Blue */
+            color: white;
+            padding: 10px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 20%;
+        }
+
+        .id-school-logo {
+            height: 30px;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 2px;
+            background: white;
+            /* White bg for logo visibility */
+            padding: 2px;
+            border-radius: 4px;
+        }
+
+        .id-school-name {
+            font-size: 8pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .id-body {
+            flex-grow: 1;
+            width: 100%;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .id-photo-box {
+            width: 25mm;
+            height: 25mm;
+            border-radius: 50%;
+            border: 2px solid #1a237e;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .id-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .id-name {
+            font-size: 10pt;
+            font-weight: 800;
+            color: #1a237e;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+
+        .id-detail-row {
+            font-size: 7.5pt;
+            margin-bottom: 2px;
+            color: #333;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .id-detail-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .id-qr {
+            margin-top: auto;
+            margin-bottom: 5px;
+        }
+
+        .id-footer {
+            width: 100%;
+            background: #f3f4f6;
+            font-size: 6pt;
+            color: #555;
+            padding: 4px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+        }
+
+        /* A4 Sheet Layout for Print */
+        .print-container {
+            display: none;
+            /* Hidden on screen, shown in logic */
+        }
+
+        .a4-sheet {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            margin: 0 auto;
+            padding: 10mm;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 10mm;
+            box-sizing: border-box;
+            page-break-after: always;
+            position: relative;
+        }
+
+        .gen-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .gen-btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 900px) {
+            .generator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+}
+</style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pricing.html">Pricing</a></li>
+                <li><a href="tools.html" class="active">Tools</a></li>
+                <li><a href="mailto:workwith@sarwaraltaf.in" class="cta-button">Hire Me</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="generator-container" style="position: relative;">
+        <!-- Overlay -->
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            border: 1px solid var(--tool-border);
+        ">
+            <div
+                style="background: var(--accent); color: white; padding: 8px 20px; border-radius: 50px; font-weight: bold; font-size: 0.9rem; margin-bottom: 20px; text-transform: uppercase;">
+                <i class="fas fa-lock"></i> Premium Feature
+            </div>
+            <h1 style="font-size: 2.5rem; color: white; font-weight: 800; margin-bottom: 10px;">Unlock This Tool</h1>
+            <p style="color: #8b949e; font-size: 1.1rem; max-width: 500px; text-align: center; margin-bottom: 30px;">
+                Buy your plan to implement this feature on your site.
+            </p>
+            <a href="pricing.html" class="gen-btn" style="width: auto; padding: 12px 30px; text-decoration: none;">View
+                Plans & Pricing</a>
+        </div>
+        <!-- Sidebar Config -->
+        <div class="config-panel">
+            <h2 class="section-title"><i class="fas fa-university"></i> School Setup</h2>
+            <div class="form-group">
+                <input type="text" id="schoolName" class="form-input" value="Delhi Public School"
+                    placeholder="School Name" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+                <input type="text" id="schoolAddress" class="form-input" value="Srinagar - 190001" placeholder="Address"
+                    oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+                <input type="file" id="logoInput" class="form-input" accept="image/*" style="font-size: 0.8rem;">
+            </div>
+
+            <h2 class="section-title" style="margin-top: 30px;"><i class="fas fa-user-graduate"></i> Student Data</h2>
+
+            <div class="mode-tabs">
+                <div class="mode-tab active" onclick="switchMode('manual')" id="tabManual">Manual Entry</div>
+                <div class="mode-tab" onclick="switchMode('bulk')" id="tabBulk">Bulk Upload</div>
+            </div>
+
+            <!-- Manual Mode -->
+            <div id="manualMode">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="mName" class="form-input" value="Aarav Sharma" oninput="updatePreview()">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label class="form-label">Roll Number</label>
+                        <input type="text" id="mRoll" class="form-input" value="101" oninput="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Class</label>
+                        <input type="text" id="mClass" class="form-input" value="10th A" oninput="updatePreview()">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label class="form-label">Valid Upto</label>
+                        <input type="text" id="mValid" class="form-input" value="Mar 2026" oninput="updatePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Blood Group</label>
+                        <input type="text" id="mBlood" class="form-input" value="B+" oninput="updatePreview()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Student Photo</label>
+                    <input type="file" id="mPhotoInput" class="form-input" accept="image/*">
+                </div>
+
+                <button class="gen-btn" onclick="downloadSingleCard()">
+                    <i class="fas fa-download"></i> Download Single ID
+                </button>
+            </div>
+
+            <!-- Bulk Mode -->
+            <div id="bulkMode" style="display: none;">
+                <div class="drop-zone" id="excelDrop" style="padding: 20px;">
+                    <i class="fas fa-file-excel" style="font-size: 1.5rem; color: #27c93f;"></i>
+                    <p style="margin: 5px 0;">Upload Excel / CSV</p>
+                    <span class="file-status" id="excelStatus">Data Loaded</span>
+                    <input type="file" id="excelInput" hidden accept=".xlsx, .csv">
+                </div>
+
+                <div class="drop-zone" id="photoDrop" style="padding: 20px;">
+                    <i class="fas fa-images" style="font-size: 1.5rem; color: #58a6ff;"></i>
+                    <p style="margin: 5px 0;">Drop Student Photos</p>
+                    <span class="file-status" id="photoStatus">0 Photos Loaded</span>
+                    <input type="file" id="photoInput" hidden multiple accept="image/*">
+                </div>
+
+                <button class="gen-btn" id="generateBtn" onclick="generateSheets()">
+                    <i class="fas fa-print"></i> Generate Sheets
+                </button>
+
+                <div id="loading" style="display:none; text-align: center; margin-top: 10px; color: var(--accent);">
+                    <i class="fas fa-spinner fa-spin"></i> Processing...
+                </div>
+            </div>
+
+            <button class="gen-btn" id="downloadPdfBtn" onclick="downloadPDF()"
+                style="background: #27c93f; display: none; margin-top: 10px;">
+                <i class="fas fa-file-pdf"></i> Download PDF Sheets
+            </button>
+        </div>
+
+        <!-- Preview Area -->
+        <div class="preview-area">
+            <h2 class="section-title"><i class="fas fa-eye"></i> Live Preview</h2>
+            <!-- Scaled Preview -->
+            <div
+                style="background: #21262d; padding: 50px; border-radius: 12px; display: flex; justify-content: center; position: relative;">
+
+                <!-- ID Card HTML Structure -->
+                <div class="id-card" id="previewCard"
+                    style="transform: scale(1.5); transform-origin: top center; margin-bottom: 220px;">
+                    <div class="id-top-bar"></div>
+                    <div class="id-bg-pattern"></div>
+
+                    <div class="id-header">
+                        <img src="https://via.placeholder.com/50?text=LOGO" id="pLogo" class="id-school-logo">
+                        <div class="id-school-name" id="pSchoolName">Delhi Public School</div>
+                        <div class="id-school-addr" id="pAddress">Srinagar - 190001</div>
+                    </div>
+
+                    <div class="id-photo-section">
+                        <div class="id-photo-box">
+                            <img src="https://via.placeholder.com/150" id="pPhoto" class="id-photo">
+                        </div>
+                    </div>
+
+                    <div class="id-content">
+                        <div class="id-name" id="pName">Aarav Sharma</div>
+                        <div class="id-role">Student</div>
+
+                        <div class="id-details-grid">
+                            <div class="id-info-item">
+                                <span class="id-label">Roll No</span>
+                                <span class="id-value" id="pRoll">101</span>
+                            </div>
+                            <div class="id-info-item">
+                                <span class="id-label">Class</span>
+                                <span class="id-value" id="pClass">10th A</span>
+                            </div>
+                            <div class="id-info-item">
+                                <span class="id-label">Validity</span>
+                                <span class="id-value" id="pValid">Mar 2026</span>
+                            </div>
+                            <div class="id-info-item">
+                                <span class="id-label">Blood Grp</span>
+                                <span class="id-value" id="pBlood">B+</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="id-footer">
+                        <div id="pQRCode" class="id-qr"></div>
+                        <div class="id-sign">
+                            <!-- Placeholder Sign -->
+                            <img
+                                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAASCAYAAAA+2E8DAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACZSURBVEhL7ZPBSgQxEEX9/68tguB2dG8EwY3gRlD0BwQ3gltB0B/QjSDoD+hGENwIgqA/oBtB0B+wG0HQH9CNIOgP6EYQ3AiCoD+gG0FwIwiC/oBuBMGNIPhf0B/QjSD4X9Af0I0g+F/QH9CNIPi/0B/QjSD4f0F/QDeC4H9Bf0A3gqA/oBtB8L+gP6AbQfC/oD+gG0HQH7AbQfAD53YCCJ+3iZAAAAAASUVORK5CYII=">
+                            <span>PRINCIPAL</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Hidden Grid for Generation -->
+            <div id="printOutput" style="display: none;"></div>
+        </div>
+    </div>
+
+
+    <script>
+        // State
+        let excelData = [];
+        let photoMap = new Map(); // RollNo -> BlobURL
+        let schoolConfig = {
+            name: "Delhi Public School",
+            address: "Srinagar - 190001",
+            valid: "March 2026",
+            logo: "https://via.placeholder.com/50?text=LOGO"
+        };
+
+        // --- Init Preview QR ---
+        new QRCode(document.getElementById("pQRCode"), {
+            text: "Student: Aarav Sharma | Roll: 101",
+            width: 40,
+            height: 40
+        });
+
+        // --- 1. Event Listeners for Config ---
+        document.getElementById('logoInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    schoolConfig.logo = evt.target.result;
+                    document.getElementById('pLogo').src = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function updatePreview() {
+            schoolConfig.name = document.getElementById('schoolName').value;
+            schoolConfig.address = document.getElementById('schoolAddress').value;
+            schoolConfig.valid = document.getElementById('validUpto').value;
+
+            document.getElementById('pSchoolName').innerText = schoolConfig.name;
+            document.getElementById('pAddress').innerText = schoolConfig.address;
+            document.getElementById('pValid').innerText = schoolConfig.valid;
+        }
+
+        // --- 2. Excel Handling ---
+        const excelDrop = document.getElementById('excelDrop');
+        const excelInput = document.getElementById('excelInput');
+
+        excelDrop.onclick = () => excelInput.click();
+        excelInput.onchange = (e) => handleExcel(e.target.files[0]);
+        // Drag events... (simplified for brevity, assume standard drag logic works or user clicks)
+
+        function handleExcel(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                excelData = XLSX.utils.sheet_to_json(sheet);
+
+                const status = document.getElementById('excelStatus');
+                status.style.display = 'block';
+                status.innerText = `${excelData.length} Students Loaded`;
+
+                // Update first in preview
+                if (excelData.length > 0) updateSinglePreview(excelData[0]);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- 3. Photo Handling ---
+        const photoDrop = document.getElementById('photoDrop');
+        const photoInput = document.getElementById('photoInput');
+
+        photoDrop.onclick = () => photoInput.click();
+        photoInput.onchange = (e) => handlePhotos(e.target.files);
+
+        function handlePhotos(files) {
+            let count = 0;
+            for (let file of files) {
+                const name = file.name.split('.')[0]; // Strip extension usually
+                photoMap.set(name, URL.createObjectURL(file)); // Store blob
+                count++;
+            }
+            const status = document.getElementById('photoStatus');
+            status.style.display = 'block';
+            status.innerText = `${photoMap.size} Photos Loaded`;
+        }
+
+        // --- 4. Helpers ---
+        function updateSinglePreview(student) {
+            document.getElementById('pName').innerText = student['Name'] || "Student Name";
+            document.getElementById('pRoll').innerText = student['RollNo'] || "---";
+            document.getElementById('pClass').innerText = student['Class'] || "---";
+            document.getElementById('pBlood').innerText = student['BloodGroup'] || "---";
+
+            // Photo Match
+            const roll = String(student['RollNo']);
+            if (photoMap.has(roll)) {
+                document.getElementById('pPhoto').src = photoMap.get(roll);
+            } else {
+                document.getElementById('pPhoto').src = "https://via.placeholder.com/150?text=PHOTO";
+            }
+
+            // QR
+            document.getElementById("pQRCode").innerHTML = "";
+            new QRCode(document.getElementById("pQRCode"), {
+                text: `ID: ${roll} | Name: ${student['Name']} | Class: ${student['Class']}`,
+                width: 40,
+                height: 40
+            });
+        }
+
+        // --- 5. Bulk Generation ---
+        async function generateSheets() {
+            if (excelData.length === 0) {
+                alert("Please upload student data first!");
+                return;
+            }
+
+            const output = document.getElementById('printOutput');
+            output.innerHTML = "";
+
+            document.getElementById('loading').style.display = 'block';
+
+            // Chunk data into groups of 8
+            const chunkSize = 8;
+            for (let i = 0; i < excelData.length; i += chunkSize) {
+                const chunk = excelData.slice(i, i + chunkSize);
+
+                // Create A4 Sheet
+                const sheet = document.createElement('div');
+                sheet.className = 'a4-sheet';
+
+                // Loop students in chunk
+                for (let student of chunk) {
+                    const card = createCardElement(student);
+                    sheet.appendChild(card);
+                }
+
+                output.appendChild(sheet);
+            }
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('downloadPdfBtn').style.display = 'inline-flex';
+
+            // Show output temporarily? Or just keep hidden for PDF?
+            // User requested "Print Sheets Mode". Let's scroll to it maybe?
+            // Actually, for html2pdf, keeping it hidden (display:none) might break rendering.
+            // Better to show it in a "Print Preview" modal or separate div.
+            // For now, toggle visibility.
+            output.style.display = 'block';
+
+            alert("Sheets Generated! Scroll down to see print layout or click Download PDF.");
+        }
+
+        function createCardElement(student) {
+            const div = document.createElement('div');
+            div.className = 'id-card';
+
+            const roll = String(student['RollNo'] || "");
+            const photoSrc = photoMap.has(roll) ? photoMap.get(roll) : "https://via.placeholder.com/150?text=PHOTO";
+
+            div.innerHTML = `
+                <div class="id-header">
+                    <img src="${schoolConfig.logo}" class="id-school-logo">
+                    <div class="id-school-name">${schoolConfig.name}</div>
+                </div>
+                <div class="id-body">
+                    <div class="id-photo-box">
+                        <img src="${photoSrc}" class="id-photo">
+                    </div>
+                    <div class="id-name" style="font-size: 8pt;">${student['Name'] || ""}</div>
+                    
+                    <div style="width: 100%; margin: 2px 0;">
+                        <div class="id-detail-row"><span class="id-detail-label">Roll:</span> <span>${roll}</span></div>
+                        <div class="id-detail-row"><span class="id-detail-label">Class:</span> <span>${student['Class'] || ""}</span></div>
+                        <div class="id-detail-row"><span class="id-detail-label">Blood:</span> <span>${student['BloodGroup'] || ""}</span></div>
+                         <div class="id-detail-row"><span class="id-detail-label">Valid:</span> <span>${schoolConfig.valid}</span></div>
+                    </div>
+
+                </div>
+
+                <div class="id-content">
+                    <div class="id-name">${student['Name'] || ""}</div>
+                    <div class="id-role">Student</div>
+
+                    <div class="id-details-grid">
+                        <div class="id-info-item">
+                            <span class="id-label">Roll No</span>
+                            <span class="id-value">${roll}</span>
+                        </div>
+                        <div class="id-info-item">
+                            <span class="id-label">Class</span>
+                            <span class="id-value">${student['Class'] || ""}</span>
+                        </div>
+                        <div class="id-info-item">
+                            <span class="id-label">Validity</span>
+                            <span class="id-value">${validDate}</span>
+                        </div>
+                        <div class="id-info-item">
+                            <span class="id-label">Blood Grp</span>
+                            <span class="id-value">${student['BloodGroup'] || student['Blood'] || "-"}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="id-footer">
+                     <div class="qr-container id-qr"></div>
+                     <div class="id-sign">
+                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAASCAYAAAA+2E8DAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACZSURBVEhL7ZPBSgQxEEX9/68tguB2dG8EwY3gRlD0BwQ3gltB0B/QjSDoD+hGENwIgqA/oBtB0B+wG0HQH9CNIOgP6EYQ3AiCoD+gG0FwIwiC/oBuBMGNIPhf0B/QjSD4X9Af0I0g+F/QH9CNIPi/0B/QjSD4f0F/QDeC4H9Bf0A3gqA/oBtB8L+gP6AbQfC/oD+gG0HQH7AbQfAD53YCCJ+3iZAAAAAASUVORK5CYII=">
+                         <span>PRINCIPAL</span>
+                     </div>
+                </div>
+            `;
+
+            // Generate QR
+            const qrDiv = div.querySelector('.qr-container');
+            new QRCode(qrDiv, {
+                text: `ID:${roll}|${student['Name']}|${student['Class']}`,
+                width: 30,
+                height: 30
+            });
+
+            return div;
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('printOutput');
+            const opt = {
+                margin: 0,
+                filename: 'Student_ID_Cards.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Thumbnail Previewer | Sarwar Altaf Dar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .preview-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 40px;
+            max-width: 1400px;
+            margin: 150px auto 100px;
+            padding: 0 20px;
+            align-items: start;
+        }
+
+        .controls-pane {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 100px;
+        }
+
+        .yt-preview-container {
+            background: #0f0f0f;
+            /* YouTube Dark BG */
+            padding: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #333;
+            min-height: 600px;
+        }
+
+        .device-toggle {
+            display: flex;
+            background: #222;
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 20px;
+            width: fit-content;
+        }
+
+        .toggle-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: #aaa;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: #333;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* YouTube Grid Simulation */
+        .yt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            /* Desktop */
+            gap: 20px;
+        }
+
+        /* Cards */
+        .yt-card {
+            cursor: pointer;
+        }
+
+        .thumbnail-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #2a2a2a;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .thumbnail-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-info {
+            display: flex;
+            gap: 12px;
+        }
+
+        .avatar-placeholder {
+            width: 36px;
+            height: 36px;
+            background-color: #2a2a2a;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .text-lines {
+            width: 100%;
+        }
+
+        .title-line {
+            height: 16px;
+            background-color: #2a2a2a;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            width: 90%;
+        }
+
+        .title-line.short {
+            width: 60%;
+        }
+
+        .meta-line {
+            height: 14px;
+            background-color: #2a2a2a;
+            border-radius: 4px;
+            width: 40%;
+            margin-top: 4px;
+        }
+
+        /* Real Content Styles (User Card) */
+        .yt-card.user-card .thumbnail-placeholder {
+            border: 2px solid var(--primary-accent);
+            /* Highlight user card */
+            box-sizing: border-box;
+        }
+
+        .real-title {
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            line-height: 1.4rem;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .real-meta {
+            color: #aaa;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.85rem;
+            line-height: 1.2rem;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--primary-accent);
+            background: rgba(103, 61, 230, 0.1);
+        }
+
+        /* Input Controls */
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+        }
+
+        /* Mobile View Modifier */
+        .yt-preview-container.mobile-view .yt-grid {
+            grid-template-columns: 1fr;
+            /* Single column */
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Responsive Layout for Page */
+        @media (max-width: 900px) {
+            .preview-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .controls-pane {
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#projects">Projects</a></li>
+                <li><a href="tools.html" class="active">Tools</a></li>
+                <li><a href="mailto:workwith@sarwaraltaf.in" class="cta-button">Hire Me</a></li>
+            </ul>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <div class="preview-layout">
+        <!-- Controls -->
+        <div class="controls-pane">
+            <h2 style="margin-bottom: 20px;">Thumbnail Previewer</h2>
+
+            <div class="upload-zone" id="dropZone">
+                <i class="fas fa-cloud-upload-alt"
+                    style="font-size: 3rem; color: var(--text-muted); margin-bottom: 10px;"></i>
+                <p>Drag & Drop or Click to Upload</p>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Recommended: 1280x720</span>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+
+            <div class="control-group">
+                <label>Video Title</label>
+                <input type="text" id="titleInput" value="My Awesome Video Title That Goes Viral!"
+                    placeholder="Enter title...">
+            </div>
+
+            <div class="control-group">
+                <label>Channel Name</label>
+                <input type="text" id="channelInput" value="Sarwar Altaf" placeholder="Channel Name">
+            </div>
+
+            <div class="control-group">
+                <label>Views & Time</label>
+                <input type="text" id="metaInput" value="1.2M views • 2 hours ago">
+            </div>
+
+            <button class="primary-btn" onclick="document.getElementById('fileInput').click()"
+                style="width: 100%; justify-content: center;">
+                Select Image
+            </button>
+        </div>
+
+        <!-- Preview Area -->
+        <div class="preview-area-wrapper">
+            <div class="device-toggle">
+                <button class="toggle-btn active" onclick="setView('desktop')">
+                    <i class="fas fa-desktop"></i> Desktop
+                </button>
+                <button class="toggle-btn" onclick="setView('mobile')">
+                    <i class="fas fa-mobile-alt"></i> Mobile
+                </button>
+            </div>
+
+            <div class="yt-preview-container" id="previewContainer">
+                <div class="yt-grid" id="ytGrid">
+                    <!-- Cards will be injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pre-Footer CTA -->
+    <section class="pre-footer">
+        <div class="container">
+            <h2>Ready to launch your next project?</h2>
+            <p>Let's turn your ideas into a digital reality.</p>
+            <a href="mailto:workwith@sarwaraltaf.in" class="cta-button"
+                style="padding: 15px 40px; font-size: 1.1rem;">Start a Conversation</a>
+        </div>
+    </section>
+
+    <!-- Mega Footer -->
+    <footer class="mega-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Column 1: Brand -->
+                <div class="footer-col footer-brand">
+                    <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+                    <p>Building the future of the web, one pixel at a time.</p>
+                    <div class="status-badge">
+                        <i class="fas fa-circle" style="font-size: 0.6rem;"></i> Available for Freelance
+                    </div>
+                </div>
+
+                <!-- Column 2: Explore -->
+                <div class="footer-col">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#about">About</a></li>
+                        <li><a href="index.html#projects">Portfolio</a></li>
+                        <li><a href="blog.html">Blog (IRIS)</a></li>
+                        <li><a href="mailto:workwith@sarwaraltaf.in">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Tools -->
+                <div class="footer-col">
+                    <h4>Developer Tools</h4>
+                    <ul>
+                        <li><a href="invoice.html">Invoice Maker</a></li>
+                        <li><a href="qrcode.html">QR Generator</a></li>
+                        <li><a href="codeimage.html">Snippet Studio</a></li>
+                        <li><a href="thumbnail.html">Thumbnail Preview</a></li>
+                        <li><a href="tools.html">Ad-Free Player</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Socials -->
+                <div class="footer-col">
+                    <h4>Connect</h4>
+                    <div class="social-row">
+                        <a href="https://github.com/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-github"></i></a>
+                        <a href="https://linkedin.com/in/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-linkedin-in"></i></a>
+                        <a href="https://instagram.com/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-instagram"></i></a>
+                        <a href="mailto:workwith@sarwaraltaf.in" class="social-btn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="footer-bottom">
+                <div class="container bottom-flex">
+                    <p>&copy; <span id="current-year"></span> Sarwar Altaf Dar. All Rights Reserved.</p>
+                    <div class="bottom-links">
+                        <a href="privacy.html">Privacy Policy</a>
+                        <a href="terms.html">Terms & Conditions</a>
+                        <a href="disclaimer.html">Disclaimer</a>
+                        <a href="cookies.html">Cookies</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const titleInput = document.getElementById('titleInput');
+        const channelInput = document.getElementById('channelInput');
+        const metaInput = document.getElementById('metaInput');
+
+        let uploadedImageSrc = null;
+
+        // Init Layout
+        function initGrid() {
+            const grid = document.getElementById('ytGrid');
+            grid.innerHTML = '';
+
+            // Generate 6 Dummy Cards
+            for (let i = 0; i < 6; i++) {
+                // Determine if this is the "User Card" (Middle position, e.g., index 1 or 2)
+                const isUserCard = (i === 1);
+
+                const card = document.createElement('div');
+                card.className = `yt-card ${isUserCard ? 'user-card' : ''}`;
+
+                if (isUserCard) {
+                    card.innerHTML = `
+                         <div class="thumbnail-placeholder">
+                            <img id="userThumbnail" src="${uploadedImageSrc || 'https://via.placeholder.com/1280x720/111/444?text=Upload+Image'}" alt="Preview">
+                        </div>
+                        <div class="video-info">
+                            <div class="avatar-placeholder" style="background:var(--primary-accent)"></div>
+                            <div class="text-lines">
+                                <div class="real-title" id="previewTitle">${titleInput.value}</div>
+                                <div class="real-meta" id="previewChannel">${channelInput.value}</div>
+                                <div class="real-meta" id="previewMeta">${metaInput.value}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="thumbnail-placeholder" style="opacity:0.3"></div>
+                        <div class="video-info" style="opacity:0.3">
+                            <div class="avatar-placeholder"></div>
+                            <div class="text-lines">
+                                <div class="title-line"></div>
+                                <div class="title-line short"></div>
+                                <div class="meta-line"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+                grid.appendChild(card);
+            }
+        }
+
+        // Live Editing
+        function updateText() {
+            const pTitle = document.getElementById('previewTitle');
+            const pChannel = document.getElementById('previewChannel');
+            const pMeta = document.getElementById('previewMeta');
+            if (pTitle) pTitle.innerText = titleInput.value;
+            if (pChannel) pChannel.innerText = channelInput.value;
+            if (pMeta) pMeta.innerText = metaInput.value;
+        }
+
+        titleInput.addEventListener('input', updateText);
+        channelInput.addEventListener('input', updateText);
+        metaInput.addEventListener('input', updateText);
+
+        // File Upload Handling
+        function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedImageSrc = e.target.result;
+                    const img = document.getElementById('userThumbnail');
+                    if (img) img.src = uploadedImageSrc;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        // View Toggle
+        function setView(mode) {
+            const container = document.getElementById('previewContainer');
+            const btns = document.querySelectorAll('.toggle-btn');
+
+            btns.forEach(b => b.classList.remove('active'));
+
+            if (mode === 'mobile') {
+                container.classList.add('mobile-view');
+                btns[1].classList.add('active');
+            } else {
+                container.classList.remove('mobile-view');
+                btns[0].classList.add('active');
+            }
+        }
+
+        // Initialize
+        initGrid();
+
+        // Dynamic Year (from script.js usually, but redundant here for safety)
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>

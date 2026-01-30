@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Plans | Sarwar Altaf Dar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Pricing Specific Styles */
+        .pricing-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 150px auto 60px;
+            padding: 0 20px;
+        }
+
+        .pricing-header h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .pricing-header p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto 100px;
+            padding: 0 20px;
+        }
+
+        .pricing-card {
+            background: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .pricing-card.featured {
+            background: linear-gradient(145deg, #161b22 0%, #0d1117 100%);
+            border: 1px solid var(--primary-accent);
+            box-shadow: 0 0 30px rgba(103, 61, 230, 0.1);
+        }
+
+        .badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(103, 61, 230, 0.15);
+            color: var(--primary-accent);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(103, 61, 230, 0.3);
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            color: white;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .plan-price span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .plan-desc {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            min-height: 50px;
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 40px 0;
+            flex-grow: 1;
+        }
+
+        .features-list li {
+            color: #b0b5c1;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .features-list li i {
+            color: var(--secondary-accent);
+        }
+
+        .whatsapp-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #25D366;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .whatsapp-btn:hover {
+            background: #20bd5a;
+            transform: scale(1.02);
+        }
+
+        .trust-signal {
+            font-size: 0.85rem;
+            color: #27c93f;
+            margin-top: 15px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .pricing-header h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="pricing.html" class="active">Pricing</a></li>
+                <li><a href="tools.html">Tools</a></li>
+                <li><a href="mailto:workwith@sarwaraltaf.in" class="cta-button">Hire Me</a></li>
+            </ul>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pricing-header">
+        <h1>Transform Your Identity</h1>
+        <p>Premium digital solutions for Professionals and Educational Institutions. Tailored for the Indian Education
+            Sector.</p>
+    </div>
+
+    <div class="pricing-grid">
+        <!-- Tier 1: Pro Portfolio -->
+        <div class="pricing-card">
+            <h3 class="plan-name">The Pro Portfolio</h3>
+            <div class="plan-price">₹19,999 <span>/ one-time</span></div>
+            <p class="plan-desc">Showcase your work with a high-performance personal website. Ideal for Doctors,
+                Architects, Lawyers, and Senior Developers.</p>
+
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> Custom Premium Design</li>
+                <li><i class="fas fa-check-circle"></i> 'Download Resume' Feature</li>
+                <li><i class="fas fa-check-circle"></i> Blog & Articles Section</li>
+                <li><i class="fas fa-check-circle"></i> Social Media Integration</li>
+                <li><i class="fas fa-check-circle"></i> SEO Optimized Structure</li>
+            </ul>
+
+            <a href="https://wa.me/919149847965?text=Hi%20Sarwar,%20I%20am%20interested%20in%20building%20a%20Pro%20Portfolio."
+                class="whatsapp-btn" target="_blank">
+                <i class="fab fa-whatsapp"></i> Build My Brand
+            </a>
+        </div>
+
+        <!-- Tier 2: Official Institution -->
+        <div class="pricing-card featured">
+            <div class="badge">MOST POPULAR</div>
+            <h3 class="plan-name">The Official Institution</h3>
+            <div class="plan-price">₹49,999 <span>/ one-time</span></div>
+            <p class="plan-desc">A complete digital campus for CBSE/JKBOSE Schools and Coaching Centers.</p>
+
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> <strong>Everything in Portfolio</strong></li>
+                <li><i class="fas fa-check-circle"></i> Dynamic Notice Board (Admin Control)</li>
+                <li><i class="fas fa-check-circle"></i> Event Image Gallery</li>
+                <li><i class="fas fa-check-circle"></i> 'Admission Enquiry' Form</li>
+                <li><i class="fas fa-check-circle"></i> Google Maps Integration</li>
+            </ul>
+
+            <a href="https://wa.me/919149847965?text=Hi%20Sarwar,%20I%20am%20interested%20in%20digitizing%20my%20school."
+                class="whatsapp-btn" target="_blank">
+                <i class="fab fa-whatsapp"></i> Digitize My School
+            </a>
+        </div>
+
+        <!-- Tier 3: School Management System -->
+        <div class="pricing-card">
+            <div class="badge"
+                style="background: rgba(39, 201, 63, 0.15); color: #27c93f; border-color: rgba(39, 201, 63, 0.3);">FULL
+                STACK</div>
+            <h3 class="plan-name">School Management</h3>
+            <div class="plan-price">₹90,000+ <span>/ custom quote</span></div>
+            <p class="plan-desc">Complete automation. Goodbye paperwork. A robust system for Principals and Admins.</p>
+
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> Student Login Portal (Results/Attendance)</li>
+                <li><i class="fas fa-check-circle"></i> Admin Dashboard (Fees, Staff, Data)</li>
+                <li><i class="fas fa-check-circle"></i> PDF Report Card Generation</li>
+                <li><i class="fas fa-check-circle"></i> Secure Database (MongoDB/SQL)</li>
+                <li><i class="fas fa-check-circle"></i> Role-Based Access Control</li>
+            </ul>
+
+            <a href="https://wa.me/919149847965?text=Hi%20Sarwar,%20I%20am%20interested%20in%20a%20School%20Management%20System."
+                class="whatsapp-btn" target="_blank">
+                <i class="fab fa-whatsapp"></i> Book Demo
+            </a>
+
+            <div class="trust-signal">
+                <i class="fas fa-shield-alt"></i> Secure Data Encryption & Daily Backups
+            </div>
+        </div>
+    </div>
+
+    <!-- School Tools Integration CTA -->
+    <!-- School Tools Integration CTA -->
+    <div style="text-align: center; margin-bottom: 100px; padding: 0 20px;">
+        <h3 style="color: white; margin-bottom: 30px; font-size: 1.8rem;">Want to see what's possible?</h3>
+
+        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <!-- Tool 1 -->
+            <div
+                style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; max-width: 300px; text-align: left;">
+                <div style="margin-bottom: 15px; color: var(--secondary-accent); font-size: 1.5rem;"><i
+                        class="fas fa-flask"></i></div>
+                <h4 style="color: white; margin-bottom: 10px;">Result Generator</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Automate report cards.
+                    Auto-calculates totals and ranks.</p>
+                <a href="result-generator.html" class="cta-button"
+                    style="width: 100%; text-align: center; display: block; font-size: 0.9rem;">Try Demo</a>
+            </div>
+
+            <!-- Tool 2 -->
+            <div
+                style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; max-width: 300px; text-align: left;">
+                <div style="margin-bottom: 15px; color: #58a6ff; font-size: 1.5rem;"><i class="fas fa-id-card"></i>
+                </div>
+                <h4 style="color: white; margin-bottom: 10px;">Bulk ID Cards</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Generate A4 printable ID
+                    sheets with logic mapping.</p>
+                <a href="id-generator.html" class="cta-button"
+                    style="width: 100%; text-align: center; display: block; background: #58a6ff; font-size: 0.9rem;">Create
+                    IDs</a>
+            </div>
+
+            <!-- Tool 3 -->
+            <div
+                style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; max-width: 300px; text-align: left;">
+                <div style="margin-bottom: 15px; color: #ff5f56; font-size: 1.5rem;"><i class="fas fa-chart-pie"></i>
+                </div>
+                <h4 style="color: white; margin-bottom: 10px;">Attendance Analyzer</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Identify defaulters and
+                    generate SMS alerts instantly.</p>
+                <a href="attendance.html" class="cta-button"
+                    style="width: 100%; text-align: center; display: block; background: #ff5f56; font-size: 0.9rem;">Analyze
+                    Data</a>
+            </div>
+
+            <!-- Tool 4 -->
+            <div
+                style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; max-width: 300px; text-align: left;">
+                <div style="margin-bottom: 15px; color: var(--accent); font-size: 1.5rem;"><i class="fas fa-th"></i>
+                </div>
+                <h4 style="color: white; margin-bottom: 10px;">Exam Seating</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Generate Room Maps, Door
+                    Lists, and Desk Slips.</p>
+                <a href="seating.html" class="cta-button"
+                    style="width: 100%; text-align: center; display: block; background: var(--accent); font-size: 0.9rem;">Map
+                    Seats</a>
+            </div>
+
+            <!-- Tool 5 -->
+            <div
+                style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; max-width: 300px; text-align: left;">
+                <div style="margin-bottom: 15px; color: #e3b341; font-size: 1.5rem;"><i class="fas fa-calendar-alt"></i>
+                </div>
+                <h4 style="color: white; margin-bottom: 10px;">Time-Table Manager</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Detect teacher assignment
+                    conflicts in real-time.</p>
+                <a href="timetable.html" class="cta-button"
+                    style="width: 100%; text-align: center; display: block; background: #e3b341; font-size: 0.9rem;">Schedule</a>
+            </div>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 30px;">These tools are included in the
+            <strong>School Management Plan</strong>.
+        </p>
+    </div>
+
+    <!-- Pre-Footer CTA -->
+    <section class="pre-footer">
+        <div class="container">
+            <h2>Not sure which plan fits?</h2>
+            <p>Let's have a quick chat discussion to understand your needs.</p>
+            <a href="mailto:workwith@sarwaraltaf.in" class="cta-button"
+                style="padding: 15px 40px; font-size: 1.1rem;">Start a Conversation</a>
+        </div>
+    </section>
+
+    <!-- Mega Footer -->
+    <footer class="mega-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col footer-brand">
+                    <a href="index.html" class="logo">SarwarAltaf<span class="accent">.in</span></a>
+                    <p>Building the future of the web, one pixel at a time.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                        <li><a href="index.html#projects">Portfolio</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms & Conditions</a></li>
+                        <li><a href="disclaimer.html">Disclaimer</a></li>
+                        <li><a href="cookies.html">Cookies</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect</h4>
+                    <div class="social-row">
+                        <a href="https://github.com/darsarwaraltaf" target="_blank" class="social-btn"><i
+                                class="fab fa-github"></i></a>
+                        <a href="mailto:workwith@sarwaraltaf.in" class="social-btn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="container bottom-flex">
+                    <p>&copy; <span id="current-year"></span> Sarwar Altaf Dar. All Rights Reserved.</p>
+                    <div class="bottom-links">
+                        <a href="privacy.html">Privacy Policy</a>
+                        <a href="terms.html">Terms & Conditions</a>
+                        <a href="disclaimer.html">Disclaimer</a>
+                        <a href="cookies.html">Cookies</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+</body>
+
+</html>

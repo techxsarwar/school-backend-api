@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-LXY4W1Z5TD');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Villain Mode | Focus Timer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* specialized timer styles */
+        body {
+            background-color: #050505;
+            /* Pitch black for focus */
+            overflow: hidden;
+            /* Prevent scrolling in focus mode */
+        }
+
+        .timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .timer-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 15vw;
+            /* Massive responsive font */
+            color: var(--text-main);
+            line-height: 1;
+            text-shadow: 0 0 30px rgba(103, 61, 230, 0.3);
+            margin: 20px 0;
+            font-weight: 400;
+            letter-spacing: -5px;
+            transition: color 0.3s ease;
+        }
+
+        .timer-display.active {
+            color: var(--primary-accent);
+            text-shadow: 0 0 50px rgba(103, 61, 230, 0.6);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            padding: 10px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+
+        .mode-btn:hover,
+        .mode-btn.active {
+            border-color: var(--primary-accent);
+            color: white;
+            box-shadow: 0 0 15px rgba(103, 61, 230, 0.2);
+            background: rgba(103, 61, 230, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-btn:hover {
+            background: var(--primary-accent);
+            border-color: var(--primary-accent);
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(103, 61, 230, 0.4);
+        }
+
+        .status-text {
+            position: absolute;
+            bottom: 50px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.5;
+        }
+
+        /* Back Button */
+        .back-nav {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+            z-index: 100;
+        }
+
+        .back-nav:hover {
+            color: white;
+        }
+
+        /* Ambient Glow */
+        .ambient-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: radial-gradient(circle at center, rgba(103, 61, 230, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .timer-display {
+                font-size: 25vw;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="tools.html" class="back-nav"><i class="fas fa-arrow-left"></i> Architecture</a>
+
+    <div class="ambient-glow"></div>
+
+    <div class="timer-container">
+        <div class="mode-selector">
+            <button class="mode-btn" onclick="setMode(25, 'grind', this)">Grind (25m)</button>
+            <button class="mode-btn active" onclick="setMode(50, 'deep', this)">Deep Work (50m)</button>
+            <button class="mode-btn" onclick="setMode(5, 'reset', this)">Reset (5m)</button>
+        </div>
+
+        <div id="timer" class="timer-display">50:00</div>
+
+        <div class="controls">
+            <button class="control-btn" id="startBtn" onclick="toggleTimer()">
+                <i class="fas fa-play" style="padding-left: 5px;"></i>
+            </button>
+            <button class="control-btn" onclick="resetTimer()">
+                <i class="fas fa-redo"></i>
+            </button>
+        </div>
+
+        <div class="status-text" id="statusText">System Idle</div>
+    </div>
+
+    <script>
+        let timeLeft = 50 * 60; // seconds
+        let initialTime = 50 * 60;
+        let timerId = null;
+        let isRunning = false;
+
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const statusText = document.getElementById('statusText');
+
+        // Web Audio Context
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        function playNotification() {
+            // Create oscillator
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // Hz
+            oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 1.5);
+        }
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const displayStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            timerDisplay.textContent = displayStr;
+            document.title = `${displayStr} - Villain Mode`;
+        }
+
+        function setMode(minutes, modeName, btn) {
+            pauseTimer();
+            initialTime = minutes * 60;
+            timeLeft = initialTime;
+            updateDisplay();
+
+            // Update UI
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            statusText.textContent = modeName === 'deep' ? 'Deep Work Protocol Initialized' :
+                modeName === 'grind' ? 'Grind Mode Engaged' : 'System Recovery';
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            isRunning = true;
+            timerDisplay.classList.add('active');
+            startBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            statusText.textContent = 'Focus in progress...';
+
+            timerId = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                } else {
+                    completeTimer();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            timerDisplay.classList.remove('active');
+            startBtn.innerHTML = '<i class="fas fa-play" style="padding-left: 5px;"></i>';
+            statusText.textContent = 'System Paused';
+            clearInterval(timerId);
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timeLeft = initialTime;
+            updateDisplay();
+            statusText.textContent = 'Timer Reset';
+        }
+
+        function completeTimer() {
+            pauseTimer();
+            statusText.textContent = 'Objective Complete';
+            playNotification();
+            timerDisplay.style.color = '#27c93f'; // Summary Green
+            setTimeout(() => {
+                timerDisplay.style.color = ''; // Reset color
+            }, 3000);
+        }
+
+        // Init
+        updateDisplay();
+    </script>
+</body>
+
+</html>
