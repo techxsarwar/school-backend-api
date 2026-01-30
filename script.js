@@ -7,46 +7,94 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Admin Connection (Traffic & Ads) ---
-    function connectToAdmin() {
-        const DB_KEY_METRICS = 'portfolio_metrics';
-        const DB_KEY_AD = 'portfolio_ad_settings';
+    // --- CMS API Integration ---
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? "http://127.0.0.1:5000/api"
+        : "https://school-backend-api-5hkh.onrender.com/api";
 
-        // 1. Track Visit
-        let metrics = JSON.parse(localStorage.getItem(DB_KEY_METRICS) || '{"visits": 0, "unique": 0, "clicks": 0}');
-        metrics.visits++;
+    async function initCMS() {
+        try {
+            // 1. Track Visit
+            fetch(`${API_BASE}/track-visit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ page: document.title })
+            });
 
-        // Simple Unique Visitor Check (Session based)
-        if (!sessionStorage.getItem('visited')) {
-            metrics.unique++;
-            sessionStorage.setItem('visited', 'true');
-        }
-        localStorage.setItem(DB_KEY_METRICS, JSON.stringify(metrics));
+            // 2. Fetch Settings
+            const res = await fetch(`${API_BASE}/settings`);
+            const settings = await res.json();
 
-        // 2. Render Ad Banner
-        const adSettings = JSON.parse(localStorage.getItem(DB_KEY_AD) || '{"active": false}');
+            // Check Maintenance Mode
+            if (settings.maintenance_mode === 'true') {
+                document.body.innerHTML = `
+                    <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#050505;color:white;text-align:center;font-family:sans-serif;">
+                        <i class="fas fa-tools" style="font-size:3rem;color:#ff4747;margin-bottom:20px;"></i>
+                        <h1>Under Maintenance</h1>
+                        <p style="color:#888;margin-top:10px;">We are upgrading the system. Please check back later.</p>
+                    </div>
+                `;
+                return; // Stop execution
+            }
 
-        if (adSettings.active && adSettings.text) {
-            const banner = document.createElement('div');
-            banner.className = 'ad-banner';
-            banner.innerHTML = `
-                <span>${adSettings.text}</span>
-                ${adSettings.link ? `<a href="${adSettings.link}" class="ad-btn" target="_blank" onclick="trackClick()">Check it out <i class="fas fa-arrow-right"></i></a>` : ''}
-                <button class="ad-close" onclick="this.parentElement.remove()">&times;</button>
-            `;
-            document.body.prepend(banner);
-            document.body.classList.add('has-ad'); // For CSS adjustment
-        }
+            // Announcement Bar
+            if (settings.announcement_active === 'true' && settings.announcement_text) {
+                const banner = document.createElement('div');
+                banner.className = 'ad-banner';
+                banner.innerHTML = `
+                    <span>${settings.announcement_text}</span>
+                    <button class="ad-close" onclick="this.parentElement.remove()">&times;</button>
+                `;
+                document.body.prepend(banner);
+                document.body.classList.add('has-ad');
+            }
 
-        // Track Ad Click
-        window.trackClick = function () {
-            metrics = JSON.parse(localStorage.getItem(DB_KEY_METRICS) || '{"clicks":0}');
-            metrics.clicks++;
-            localStorage.setItem(DB_KEY_METRICS, JSON.stringify(metrics));
+        } catch (error) {
+            console.error("CMS Connection Failed", error);
         }
     }
 
-    // Run Connection
-    connectToAdmin();
+    // Run connection
+    initCMS();
+
+    // Contact Form Handler (Global)
+    window.submitContact = async function (e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const originalText = btn.innerText;
+        btn.innerText = "Sending...";
+
+        const formData = {
+            name: document.getElementById('contact-name').value,
+            email: document.getElementById('contact-email').value,
+            message: document.getElementById('contact-message').value
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                btn.innerText = "Message Sent!";
+                btn.style.background = "#27c93f";
+                e.target.reset();
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "";
+                }, 3000);
+            } else {
+                alert("Error sending message.");
+                btn.innerText = originalText;
+            }
+        } catch (err) {
+            alert("Network Error");
+            btn.innerText = originalText;
+        }
+    }
 
     // 2. Preloader Logic - REMOVED
 
