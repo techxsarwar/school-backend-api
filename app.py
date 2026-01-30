@@ -85,7 +85,7 @@ def init_db():
             "announcement_text": "Welcome to my official portfolio!",
             "announcement_active": "0",
             "announcement_type": "bar",
-            "announcement_color":="#000000",
+            "announcement_color": "#000000",
             "announcement_position": "top",
             "maintenance_mode": "0",
             "maintenance_end_time": "null"
