@@ -518,38 +518,80 @@
 
         <!-- SETTINGS -->
         <section id="settings" class="section">
-            <div class="card" style="max-width: 600px;">
-                <h3>Global Configuration</h3>
-
-                <div class="form-group" style="margin-top: 20px;">
-                    <label>Announcement Bar Text</label>
-                    <input type="text" id="announcement-text" class="input-field" placeholder="Alert message...">
-                    <button class="action-btn" style="margin-top:10px;" onclick="saveAnnouncement()">Save Text</button>
+            <div class="grid-2">
+                <!-- Maintenance Control -->
+                <div class="card">
+                    <h3>Maintenance Mode</h3>
+                    <div class="setting-row">
+                        <div>
+                            <div style="font-weight: 600; color: var(--danger);">Activator</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Shut down public site</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" class="danger" id="toggle-maint">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Expected Duration (Countdown)</label>
+                        <select id="maint-duration" class="input-field">
+                            <option value="indefinite">Indefinite (No Timer)</option>
+                            <option value="15">15 Minutes</option>
+                            <option value="60">1 Hour</option>
+                            <option value="360">6 Hours</option>
+                            <option value="1440">24 Hours</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="setting-row">
-                    <div>
-                        <div style="font-weight: 600;">Show Announcement Bar</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Display the top banner on homepage
+                <!-- Announcement Control -->
+                <div class="card">
+                    <h3>Advanced Announcement</h3>
+                    <div class="setting-row">
+                        <div>
+                            <div style="font-weight: 600;">Show Announcement</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="announce-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <input type="text" id="announce-text" class="input-field" placeholder="Big News...">
+                    </div>
+                    <div class="grid-2" style="gap: 15px; margin-bottom: 0;">
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select id="announce-type" class="input-field">
+                                <option value="bar">Top Bar</option>
+                                <option value="popup">Floating Popup</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Position</label>
+                            <select id="announce-pos" class="input-field">
+                                <option value="top">Top (Full Width)</option>
+                                <option value="bottom-right">Bottom Right</option>
+                                <option value="center">Center Screen</option>
+                                <option value="bottom-left">Bottom Left</option>
+                            </select>
                         </div>
                     </div>
-                    <label class="switch">
-                        <input type="checkbox" id="announcement-toggle" onchange="saveAnnouncement()">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="setting-row">
-                    <div>
-                        <div style="font-weight: 600; color: var(--danger);">Maintenance Mode</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Shut down public access immediately
+                    <div class="form-group">
+                        <label>Accent Color</label>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <input type="color" id="announce-color" value="#000000"
+                                style="height:40px; width:60px; border:none; background:none;">
+                            <span style="font-size:0.8rem; color:var(--text-muted);">Pick a color</span>
                         </div>
                     </div>
-                    <label class="switch">
-                        <input type="checkbox" class="danger" id="toggle-maint" onchange="saveSettings()">
-                        <span class="slider"></span>
-                    </label>
                 </div>
+            </div>
+
+            <div style="margin-top: 30px; text-align: right;">
+                <button class="btn-primary" style="width: auto; padding: 15px 40px;" onclick="saveSettings()">Save
+                    Configuration</button>
             </div>
         </section>
 

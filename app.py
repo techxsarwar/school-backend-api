@@ -83,8 +83,12 @@ def init_db():
         # Seed default settings if not exist
         defaults = {
             "announcement_text": "Welcome to my official portfolio!",
-            "announcement_active": "false",
-            "maintenance_mode": "false"
+            "announcement_active": "0",
+            "announcement_type": "bar",
+            "announcement_color":="#000000",
+            "announcement_position": "top",
+            "maintenance_mode": "0",
+            "maintenance_end_time": "null"
         }
         for key, val in defaults.items():
             cursor.execute('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)', (key, val))

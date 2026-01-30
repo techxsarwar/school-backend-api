@@ -14,44 +14,129 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function initCMS() {
         try {
-            // 1. Track Visit
+            // 1. Fetch Settings
+            const res = await fetch(`${API_BASE}/settings`);
+            const settings = await res.json();
+
+            // --- MAINTENANCE MODE ---
+            const isMaint = (settings.maintenance_mode === 'true' || settings.maintenance_mode === '1');
+
+            if (isMaint) {
+                // If maintenance is ON, check end_time
+                let timerHtml = '';
+                let endTime = settings.maintenance_end_time;
+
+                // If endTime is "null" or invalid, we show no timer (Indefinite)
+                // If it exists, we show countdown.
+                if (endTime && endTime !== 'null') {
+                    // Check if time passed
+                    const end = new Date(endTime).getTime();
+                    if (new Date().getTime() > end) {
+                        // Time passed -> Refresh to see if maintenance is off? 
+                        // Or maybe admin just hasn't turned it off. 
+                        // We will technically keep showing maintenance unless maintenance_mode=0
+                        // But the timer will be at 00:00:00
+                    }
+                    timerHtml = `<div id="maint-timer" class="countdown-box">Loading...</div>`;
+                }
+
+                document.body.innerHTML = `
+                    <div class="maintenance-overlay">
+                        <i class="fas fa-hammer maint-icon"></i>
+                        <h1 class="maint-title">System Upgrade in Progress</h1>
+                        <p class="maint-desc">We are implementing significant improvements to the Command Center. Access is temporarily restricted.</p>
+                        ${timerHtml}
+                    </div>
+                `;
+
+                // Start Timer Logic
+                if (endTime && endTime !== 'null') {
+                    const countDownDate = new Date(endTime).getTime();
+
+                    const x = setInterval(function () {
+                        const now = new Date().getTime();
+                        const distance = countDownDate - now;
+
+                        // Time calculations
+                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                        // Output
+                        const timerEl = document.getElementById("maint-timer");
+                        if (timerEl) {
+                            timerEl.innerHTML = `
+                                <div>${hours}h</div>
+                                <div>${minutes}m</div>
+                                <div>${seconds}s</div>
+                            `;
+                        }
+
+                        // If the count down is over
+                        if (distance < 0) {
+                            clearInterval(x);
+                            if (timerEl) timerEl.innerHTML = "Submitting Changes...";
+                            // Auto Refresh
+                            setTimeout(() => location.reload(), 2000);
+                        }
+                    }, 1000);
+                }
+                return; // Stop execution
+            }
+
+            // --- TRACK VISIT ---
             fetch(`${API_BASE}/track-visit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ page: document.title })
             });
 
-            // 2. Fetch Settings
-            const res = await fetch(`${API_BASE}/settings`);
-            const settings = await res.json();
+            // --- ANNOUNCEMENTS ---
+            const annActive = (settings.announcement_active === 'true' || settings.announcement_active === '1');
+            const annText = settings.announcement_text;
 
-            // Check Maintenance Mode
-            if (settings.maintenance_mode === 'true' || settings.maintenance_mode === '1') {
-                document.body.innerHTML = `
-                    <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#050505;color:white;text-align:center;font-family:sans-serif;">
-                        <i class="fas fa-tools" style="font-size:3rem;color:#ff4747;margin-bottom:20px;"></i>
-                        <h1>Under Maintenance</h1>
-                        <p style="color:#888;margin-top:10px;">We are upgrading the system. Please check back later.</p>
-                    </div>
-                `;
-                return; // Stop execution
-            }
+            // Check session storage for "closed" flag
+            const isClosed = sessionStorage.getItem('announcement_closed') === annText;
 
-            // Announcement Bar
-            if ((settings.announcement_active === 'true' || settings.announcement_active === '1') && settings.announcement_text) {
-                const banner = document.createElement('div');
-                banner.className = 'ad-banner';
-                banner.innerHTML = `
-                    <span>${settings.announcement_text}</span>
-                    <button class="ad-close" onclick="this.parentElement.remove()">&times;</button>
-                `;
-                document.body.prepend(banner);
-                document.body.classList.add('has-ad');
+            if (annActive && annText && !isClosed) {
+                const type = settings.announcement_type || 'bar';
+                const pos = settings.announcement_position || 'top';
+                const color = settings.announcement_color || '#ff0000';
+
+                const el = document.createElement('div');
+
+                if (type === 'bar') {
+                    el.className = 'ad-banner';
+                    el.style.background = color; // Override default
+                    el.innerHTML = `
+                        <span>${annText}</span>
+                        <button class="ad-close-btn" onclick="closeAnnouncement(this, '${annText}')">&times;</button>
+                    `;
+                    document.body.prepend(el);
+                    document.body.classList.add('has-ad');
+                } else {
+                    el.className = `ad-popup ${pos}`;
+                    el.style.borderLeft = `4px solid ${color}`;
+                    el.innerHTML = `
+                        <div>
+                            <div style="font-weight:bold;margin-bottom:5px;color:${color}">Announcement</div>
+                            <div>${annText}</div>
+                        </div>
+                        <button class="ad-close-btn" style="color:${color}" onclick="closeAnnouncement(this, '${annText}')">&times;</button>
+                    `;
+                    document.body.appendChild(el);
+                }
             }
 
         } catch (error) {
             console.error("CMS Connection Failed", error);
         }
+    }
+
+    window.closeAnnouncement = function (btn, id) {
+        btn.parentElement.remove();
+        sessionStorage.setItem('announcement_closed', id);
+        document.body.classList.remove('has-ad');
     }
 
     // Run connection

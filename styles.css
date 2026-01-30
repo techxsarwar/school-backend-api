@@ -865,9 +865,138 @@ p {
 
 .submit-btn:hover {
     background: #5630c2;
-    transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(103, 61, 230, 0.4);
 }
+
+/* --- ADVANCED CMS FEATURES --- */
+
+/* Maintenance Overlay */
+.maintenance-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #050505;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.maint-icon {
+    font-size: 4rem;
+    color: var(--danger-color);
+    margin-bottom: 20px;
+    animation: pulseGlow 2s infinite;
+}
+
+.maint-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.maint-desc {
+    color: #888;
+    margin-bottom: 30px;
+    max-width: 500px;
+}
+
+.countdown-box {
+    display: flex;
+    gap: 20px;
+    font-family: 'Space Grotesk', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-accent);
+}
+
+/* Announcement Styles */
+.ad-banner {
+    background: var(--bg-card);
+    /* Default fallback */
+    color: white;
+    padding: 12px 20px;
+    text-align: center;
+    position: relative;
+    z-index: 9000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.ad-popup {
+    position: fixed;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: 12px;
+    z-index: 9000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    max-width: 350px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ad-popup.bottom-right {
+    bottom: 30px;
+    right: 30px;
+}
+
+.ad-popup.bottom-left {
+    bottom: 30px;
+    left: 30px;
+}
+
+.ad-popup.top {
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.ad-popup.center {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.ad-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: 0.2s;
+    margin-left: auto;
+}
+
+.ad-close-btn:hover {
+    opacity: 1;
+    color: var(--danger-color);
+}
+
 
 .project-card {
     background: var(--bg-card);
