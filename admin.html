@@ -570,7 +570,7 @@
                             <option value="Admin">Admin</option>
                         </select>
                     </div>
-                    <button class="btn-primary" onclick="inviteUser()">Send Invite</button>
+                    <button class="btn-primary" onclick="sendInvite()">Send Invite</button>
                     <p style="margin-top:10px; font-size:0.8rem; color:#666;">Default password will be <b>welcome123</b>
                     </p>
                 </div>
@@ -938,7 +938,7 @@
             }
         }
 
-        async function inviteUser() {
+        async function sendInvite() {
             await API.post('/api/team/invite', {
                 username: document.getElementById('inv-user').value,
                 email: document.getElementById('inv-email').value,
@@ -951,7 +951,9 @@
         async function loadActivity() {
             try {
                 const d = await API.get('/api/activity');
-                document.getElementById('activity-log').innerHTML = d.map(a => `
+                // Slice last 10 just in case backend returns more
+                const recent = d.slice(0, 10);
+                document.getElementById('activity-log').innerHTML = recent.map(a => `
                     <div style="padding:10px; border-bottom:1px solid #222; font-size:0.9rem;">
                         <span style="color:var(--success)">${a.username}</span> 
                         <span style="color:#888;">${a.action}</span> 

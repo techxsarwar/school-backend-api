@@ -77,6 +77,27 @@
             box-shadow: 0 0 30px rgba(103, 61, 230, 0.1);
         }
 
+        .pricing-card.enterprise {
+            background: linear-gradient(145deg, #1a1600 0%, #000000 100%);
+            border: 1px solid #ffd700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+        }
+
+        .pricing-card.enterprise .plan-name,
+        .pricing-card.enterprise .plan-price {
+            color: #ffd700;
+        }
+
+        .pricing-card.enterprise .badge {
+            background: rgba(255, 215, 0, 0.15);
+            color: #ffd700;
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .pricing-card.enterprise .features-list li i {
+            color: #ffd700;
+        }
+
         .badge {
             position: absolute;
             top: 20px;
@@ -197,72 +218,73 @@
     </div>
 
     <div class="pricing-grid">
-        <!-- Tier 1: Pro Portfolio -->
+        <!-- Tier 1: Starter -->
         <div class="pricing-card">
-            <h3 class="plan-name">The Pro Portfolio</h3>
-            <div class="plan-price">₹19,999 <span>/ one-time</span></div>
-            <p class="plan-desc">Showcase your work with a high-performance personal website. Ideal for Doctors,
-                Architects, Lawyers, and Senior Developers.</p>
+            <h3 class="plan-name">Starter</h3>
+            <div class="plan-price">₹14,999 <span>/ one-time</span></div>
+            <p class="plan-desc">Perfect for individuals needing a strong digital presence. Quick, beautiful, and
+                functional.</p>
 
             <ul class="features-list">
-                <li><i class="fas fa-check-circle"></i> Custom Premium Design</li>
-                <li><i class="fas fa-check-circle"></i> 'Download Resume' Feature</li>
-                <li><i class="fas fa-check-circle"></i> Blog & Articles Section</li>
-                <li><i class="fas fa-check-circle"></i> Social Media Integration</li>
-                <li><i class="fas fa-check-circle"></i> SEO Optimized Structure</li>
+                <li><i class="fas fa-check-circle"></i> Single Page Portfolio</li>
+                <li><i class="fas fa-check-circle"></i> Basic SEO Setup</li>
+                <li><i class="fas fa-check-circle"></i> Mobile Responsive</li>
+                <li><i class="fas fa-check-circle"></i> 1 Month Support</li>
+                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No Team Panel</li>
+                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No CMS Access</li>
             </ul>
 
-            <button onclick="selectPlan('The Pro Portfolio', '19,999')" class="whatsapp-btn"
+            <button onclick="selectPlan('Starter', '14,999')" class="whatsapp-btn"
                 style="border:none; width:100%; cursor:pointer; font-size:1rem;">
-                <i class="fab fa-whatsapp"></i> Build My Brand
+                <i class="fab fa-whatsapp"></i> Get Started
             </button>
         </div>
 
-        <!-- Tier 2: Official Institution -->
+        <!-- Tier 2: Professional -->
         <div class="pricing-card featured">
             <div class="badge">MOST POPULAR</div>
-            <h3 class="plan-name">The Official Institution</h3>
-            <div class="plan-price">₹49,999 <span>/ one-time</span></div>
-            <p class="plan-desc">A complete digital campus for CBSE/JKBOSE Schools and Coaching Centers.</p>
+            <h3 class="plan-name">Professional</h3>
+            <div class="plan-price">₹39,999 <span>/ one-time</span></div>
+            <p class="plan-desc">For growing businesses and professionals requiring more pages and control.</p>
 
             <ul class="features-list">
-                <li><i class="fas fa-check-circle"></i> <strong>Everything in Portfolio</strong></li>
-                <li><i class="fas fa-check-circle"></i> Dynamic Notice Board (Admin Control)</li>
-                <li><i class="fas fa-check-circle"></i> Event Image Gallery</li>
-                <li><i class="fas fa-check-circle"></i> 'Admission Enquiry' Form</li>
-                <li><i class="fas fa-check-circle"></i> Google Maps Integration</li>
+                <li><i class="fas fa-check-circle"></i> Multi-page (Up to 5)</li>
+                <li><i class="fas fa-check-circle"></i> Advanced SEO</li>
+                <li><i class="fas fa-check-circle"></i> Contact Forms</li>
+                <li><i class="fas fa-check-circle"></i> Admin Panel (Basic)</li>
+                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No Activity Logs</li>
+                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No Team Management
+                </li>
             </ul>
 
-            <button onclick="selectPlan('The Official Institution', '49,999')" class="whatsapp-btn"
+            <button onclick="selectPlan('Professional', '39,999')" class="whatsapp-btn"
                 style="border:none; width:100%; cursor:pointer; font-size:1rem;">
-                <i class="fab fa-whatsapp"></i> Digitize My School
+                <i class="fab fa-whatsapp"></i> Go Professional
             </button>
         </div>
 
-        <!-- Tier 3: School Management System -->
-        <div class="pricing-card">
-            <div class="badge"
-                style="background: rgba(39, 201, 63, 0.15); color: #27c93f; border-color: rgba(39, 201, 63, 0.3);">FULL
-                STACK</div>
-            <h3 class="plan-name">School Management</h3>
-            <div class="plan-price">₹90,000+ <span>/ custom quote</span></div>
-            <p class="plan-desc">Complete automation. Goodbye paperwork. A robust system for Principals and Admins.</p>
+        <!-- Tier 3: Enterprise -->
+        <div class="pricing-card enterprise">
+            <div class="badge">PREMIUM</div>
+            <h3 class="plan-name">Enterprise</h3>
+            <div class="plan-price">₹99,999+ <span>/ one-time</span></div>
+            <p class="plan-desc">The ultimate solution. Full control, zero limitations, and premium support.</p>
 
             <ul class="features-list">
-                <li><i class="fas fa-check-circle"></i> Student Login Portal (Results/Attendance)</li>
-                <li><i class="fas fa-check-circle"></i> Admin Dashboard (Fees, Staff, Data)</li>
-                <li><i class="fas fa-check-circle"></i> PDF Report Card Generation</li>
-                <li><i class="fas fa-check-circle"></i> Secure Database (MongoDB/SQL)</li>
-                <li><i class="fas fa-check-circle"></i> Role-Based Access Control</li>
+                <li><i class="fas fa-check-circle"></i> Unlimited Pages</li>
+                <li><i class="fas fa-check-circle"></i> Full Modular CMS</li>
+                <li><i class="fas fa-check-circle"></i> <strong>Team Panel with RBAC</strong></li>
+                <li><i class="fas fa-check-circle"></i> <strong>Activity Logs</strong></li>
+                <li><i class="fas fa-check-circle"></i> Priority Support & Integrations</li>
             </ul>
 
-            <button onclick="selectPlan('School Management System', '90,000+')" class="whatsapp-btn"
-                style="border:none; width:100%; cursor:pointer; font-size:1rem;">
-                <i class="fab fa-whatsapp"></i> Book Demo
+            <button onclick="selectPlan('Enterprise', '99,999+')" class="whatsapp-btn"
+                style="border:none; width:100%; cursor:pointer; font-size:1rem; background: #ffd700; color: black;">
+                <i class="fab fa-whatsapp"></i> Contact Sales
             </button>
 
-            <div class="trust-signal">
-                <i class="fas fa-shield-alt"></i> Secure Data Encryption & Daily Backups
+            <div class="trust-signal" style="color: #ffd700;">
+                <i class="fas fa-shield-alt"></i> Reserved for High-Scale Clients
             </div>
         </div>
     </div>

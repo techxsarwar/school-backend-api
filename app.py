@@ -13,7 +13,8 @@ app = Flask(__name__)
 app.config['ADMIN_USER'] = "admin"
 app.config['ADMIN_PASS'] = "sarwar123"
 
-CORS(app)
+# Update CORS to allow specific headers and origins
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True, allow_headers=["Content-Type", "Authorization", "X-Role", "X-User"])
 
 # Register Blueprints
 app.register_blueprint(auth_bp)
@@ -216,9 +217,20 @@ def manage_settings():
         return jsonify({row['key']: row['value'] for row in cursor.fetchall()})
 
     if request.method == 'POST':
-        for key, value in request.json.items():
-            val_str = str(value).lower() if isinstance(value, bool) else str(value)
-            DB.save_setting(key, val_str)
+        data = request.json
+        user_name = request.headers.get('X-User', 'Admin')
+        
+        # Log Maintenance trigger
+        if 'maintenance_mode' in data:
+            new_mode = data['maintenance_mode']
+            # DB returns string '0' or '1' usually, or boolean if json
+            # Simplify log message
+            log_detail = "Enabled Maintenance" if str(new_mode) in ['1', 'true', 'True'] else "Disabled Maintenance"
+            DB.log_activity(1, user_name, 'SETTINGS', log_detail)
+
+        for key, val in data.items():
+            get_db().execute('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', (key, str(val)))
+        get_db().commit()
         return jsonify({"success": True, "message": "Settings updated"})
 
 # 🌟 TESTIMONIALS & POSTS
@@ -247,10 +259,19 @@ def manage_posts():
         d = request.json
         date_posted = d.get('date_posted') or datetime.now().strftime("%Y-%m-%d")
         get_db().execute('INSERT INTO posts (title, content, image_url, date_posted, status) VALUES (?,?,?,?,?)',
-                   (d.get('title'), d.get('content'), d.get('image_url'), date_posted, d.get('status', 'Published')))
+                         (d.get('title'), d.get('content'), d.get('image_url'), date_posted, d.get('status', 'Published')))
         get_db().commit()
+        
+        # Log Activity
+        user_name = request.headers.get('X-User', 'Editor')
+        DB.log_activity(1, user_name, 'BLOG', f"Posted: {d['title']}")
+        
         return jsonify({"success": True})
     if request.method == 'DELETE':
+        # Log before delete
+        user_name = request.headers.get('X-User', 'Admin')
+        DB.log_activity(1, user_name, 'BLOG', f"Deleted Post ID: {request.args.get('id')}")
+
         get_db().execute('DELETE FROM posts WHERE id = ?', (request.args.get('id'),))
         get_db().commit()
         return jsonify({"success": True})

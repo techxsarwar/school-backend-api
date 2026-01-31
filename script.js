@@ -409,7 +409,18 @@ async function confirmPlan() {
 
         // Step B: Redirect to WhatsApp
         const phone = "919149847965";
-        const text = `Hi, I want to start the ${selectedPlan} project and I agree to the 30% deposit terms.`;
+
+        // Calculate Deposit
+        let depositAmount = "custom";
+        if (selectedPrice && selectedPrice.includes(',')) {
+            const num = parseInt(selectedPrice.replace(/,/g, '').replace('+', ''));
+            if (!isNaN(num)) {
+                const deposit = Math.round(num * 0.3);
+                depositAmount = "₹" + deposit.toLocaleString('en-IN');
+            }
+        }
+
+        const text = `Hi, I want to start the ${selectedPlan} project and I agree to the 30% deposit (${depositAmount}) terms.`;
         const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
 
         window.location.href = url;
