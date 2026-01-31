@@ -9,14 +9,28 @@
     window.API = {
         base: BASE_URL,
 
+        _headers() {
+            const h = { 'Content-Type': 'application/json' };
+            const role = localStorage.getItem('role');
+            const user = localStorage.getItem('username');
+            const token = localStorage.getItem('token');
+
+            if (role) h['X-Role'] = role;
+            if (user) h['X-User'] = user;
+            if (token) h['Authorization'] = `Bearer ${token}`; // Future proofing
+            return h;
+        },
+
         async get(endpoint) {
             try {
-                const res = await fetch(`${BASE_URL}${endpoint}`);
+                const res = await fetch(`${BASE_URL}${endpoint}`, {
+                    headers: this._headers()
+                });
                 if (!res.ok) throw new Error(`API Error: ${res.status}`);
                 return await res.json();
             } catch (err) {
                 console.error(err);
-                window.showToast(err.message, 'error');
+                if (window.showToast) window.showToast(err.message, 'error');
                 throw err;
             }
         },
@@ -25,15 +39,16 @@
             try {
                 const res = await fetch(`${BASE_URL}${endpoint}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: this._headers(),
                     body: JSON.stringify(data)
                 });
                 const d = await res.json();
-                if (!d.success && !res.ok) throw new Error(d.message || 'Request failed');
+                if (!d.success && !d.token && !res.ok) throw new Error(d.message || 'Request failed');
+                // Note: login returns success=True but token provided.
                 return d;
             } catch (err) {
                 console.error(err);
-                window.showToast(err.message, 'error');
+                if (window.showToast) window.showToast(err.message, 'error');
                 throw err;
             }
         },
@@ -42,7 +57,7 @@
             try {
                 const res = await fetch(`${BASE_URL}${endpoint}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: this._headers(),
                     body: JSON.stringify(data)
                 });
                 return await res.json();
@@ -55,7 +70,10 @@
         async delete(endpoint, id) {
             try {
                 const url = id ? `${BASE_URL}${endpoint}?id=${id}` : `${BASE_URL}${endpoint}`;
-                const res = await fetch(url, { method: 'DELETE' });
+                const res = await fetch(url, {
+                    method: 'DELETE',
+                    headers: this._headers()
+                });
                 return await res.json();
             } catch (err) {
                 console.error(err);
