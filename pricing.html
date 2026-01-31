@@ -212,10 +212,10 @@
                 <li><i class="fas fa-check-circle"></i> SEO Optimized Structure</li>
             </ul>
 
-            <a href="https://wa.me/919149847965?text=Hi%20Sarwar,%20I%20am%20interested%20in%20building%20a%20Pro%20Portfolio."
-                class="whatsapp-btn" target="_blank">
+            <button onclick="selectPlan('The Pro Portfolio', '19,999')" class="whatsapp-btn"
+                style="border:none; width:100%; cursor:pointer; font-size:1rem;">
                 <i class="fab fa-whatsapp"></i> Build My Brand
-            </a>
+            </button>
         </div>
 
         <!-- Tier 2: Official Institution -->
@@ -233,10 +233,10 @@
                 <li><i class="fas fa-check-circle"></i> Google Maps Integration</li>
             </ul>
 
-            <a href="https://wa.me/919149847965?text=Hi%20Sarwar,%20I%20am%20interested%20in%20digitizing%20my%20school."
-                class="whatsapp-btn" target="_blank">
+            <button onclick="selectPlan('The Official Institution', '49,999')" class="whatsapp-btn"
+                style="border:none; width:100%; cursor:pointer; font-size:1rem;">
                 <i class="fab fa-whatsapp"></i> Digitize My School
-            </a>
+            </button>
         </div>
 
         <!-- Tier 3: School Management System -->
@@ -256,10 +256,10 @@
                 <li><i class="fas fa-check-circle"></i> Role-Based Access Control</li>
             </ul>
 
-            <a href="https://wa.me/919149847965?text=Hi%20Sarwar,%20I%20am%20interested%20in%20a%20School%20Management%20System."
-                class="whatsapp-btn" target="_blank">
+            <button onclick="selectPlan('School Management System', '90,000+')" class="whatsapp-btn"
+                style="border:none; width:100%; cursor:pointer; font-size:1rem;">
                 <i class="fab fa-whatsapp"></i> Book Demo
-            </a>
+            </button>
 
             <div class="trust-signal">
                 <i class="fas fa-shield-alt"></i> Secure Data Encryption & Daily Backups
@@ -340,6 +340,31 @@
         <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 30px;">These tools are included in the
             <strong>School Management Plan</strong>.
         </p>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Your Selection</h2>
+            </div>
+            <div class="modal-body">
+                <div style="font-size: 3rem; margin-bottom: 20px; color: var(--primary-accent);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <p>You have selected <strong id="modal-plan-name" style="color: white;">[Plan Name]</strong>.</p>
+                <p
+                    style="background: rgba(103, 61, 230, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(103, 61, 230, 0.3);">
+                    To proceed, you must agree to the <strong>30% non-refundable security deposit</strong> as per our <a
+                        href="terms.html" target="_blank" style="color: white; text-decoration: underline;">Terms &
+                        Conditions</a>.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-confirm" onclick="confirmPlan()">Yes, I Agree</button>
+            </div>
+        </div>
     </div>
 
     <!-- Pre-Footer CTA -->

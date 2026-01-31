@@ -105,6 +105,13 @@ def init_db(app):
             check_and_add_column('projects', 'priority', "INTEGER DEFAULT 0")
             check_and_add_column('posts', 'status', "TEXT DEFAULT 'Published'")
             
+            # 11. Leads (New)
+            cursor.execute('''CREATE TABLE IF NOT EXISTS leads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                plan_name TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )''')
+            
             # --- SEEDING ---
             defaults = {
                 "announcement_text": "Welcome to my official portfolio!",

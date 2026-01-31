@@ -368,3 +368,58 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleBtn.addEventListener('click', toggleSidebar);
     }
 });
+
+/* --- PLAN SELECTION & LEADS --- */
+let selectedPlan = null;
+let selectedPrice = null;
+
+function selectPlan(planName, price) {
+    selectedPlan = planName;
+    selectedPrice = price;
+
+    // Open Modal
+    const modal = document.getElementById('confirmation-modal');
+    if (modal) {
+        document.getElementById('modal-plan-name').textContent = planName;
+        modal.classList.add('active');
+    }
+}
+
+function closeModal() {
+    const modal = document.getElementById('confirmation-modal');
+    if (modal) modal.classList.remove('active');
+    selectedPlan = null;
+    selectedPrice = null;
+}
+
+async function confirmPlan() {
+    if (!selectedPlan) return;
+
+    const btn = document.querySelector('.btn-confirm');
+    const oldText = btn.innerText;
+    btn.innerText = "Processing...";
+
+    try {
+        // Step A: Log Lead
+        await API.post('/api/leads', {
+            plan_name: selectedPlan
+        });
+
+        // Step B: Redirect to WhatsApp
+        const phone = "919149847965";
+        const text = `Hi, I want to start the ${selectedPlan} project and I agree to the 30% deposit terms.`;
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+
+        window.location.href = url;
+
+    } catch (err) {
+        console.error("Lead Error", err);
+        // Fallback Redirect
+        const phone = "919149847965";
+        const text = `Hi, I want to start the ${selectedPlan} project and I agree to the 30% deposit terms. (Error Logging)`;
+        window.location.href = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    } finally {
+        btn.innerText = oldText;
+        closeModal();
+    }
+}

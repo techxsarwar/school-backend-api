@@ -255,6 +255,14 @@ def manage_projects():
         get_db().commit()
         return jsonify({"success": True})
 
+# 📈 LEADS
+@app.route('/api/leads', methods=['POST'])
+def log_lead():
+    d = request.json
+    get_db().execute('INSERT INTO leads (plan_name) VALUES (?)', (d.get('plan_name'),))
+    get_db().commit()
+    return jsonify({"success": True, "message": "Lead logged"})
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
