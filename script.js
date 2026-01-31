@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. CONFIG & LIBRARIES ---
-    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? "http://127.0.0.1:5000/api"
-        : "https://school-backend-api-5hkh.onrender.com/api";
+    const API_BASE = "https://school-backend-api-5hkh.onrender.com";
 
     // AOS Init
     if (typeof AOS !== 'undefined') AOS.init({ duration: 1000, once: true });
@@ -12,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // A. Identity (SEO & Profile)
     async function loadIdentity() {
         try {
-            const res = await fetch(`${API_BASE}/settings`);
+            const res = await fetch(`${API_BASE}/api/settings`);
             const s = await res.json();
 
             // Profile
@@ -42,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const grid = document.getElementById('projects-grid');
             if (!grid) return;
 
-            const res = await fetch(`${API_BASE}/projects`);
+            const res = await fetch(`${API_BASE}/api/projects`);
             const data = await res.json();
 
             if (data.length === 0) {
@@ -72,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const container = document.getElementById('testimonials-container');
             if (!container) return;
-            const data = await (await fetch(`${API_BASE}/testimonials`)).json();
+            const data = await (await fetch(`${API_BASE}/api/testimonials`)).json();
 
             if (data.length === 0) return; // Hide if empty
 
@@ -96,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const container = document.getElementById('blog-container');
             if (!container) return;
-            const data = await (await fetch(`${API_BASE}/posts`)).json();
+            const data = await (await fetch(`${API_BASE}/api/posts`)).json();
 
             if (data.length === 0) {
                 container.innerHTML = '<p style="text-align:center;color:#666;grid-column:1/-1;">Writing new thoughts...</p>';
@@ -193,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. EXECUTE ---
     // Track Visit
-    fetch(`${API_BASE}/track-visit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page: document.title }) });
+    fetch(`${API_BASE}/api/track-visit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page: document.title }) });
 
     // Load Modules
     loadIdentity(); // Also checks maintenance
@@ -208,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const oldText = btn.innerHTML;
         btn.innerHTML = 'Sending...';
 
-        await fetch(`${API_BASE}/messages`, {
+        await fetch(`${API_BASE}/api/messages`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
