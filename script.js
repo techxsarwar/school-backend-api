@@ -32,7 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
             // Announcement Check
             checkAnnouncement(s);
 
+            // Socials
+            if (s.social_github) updateLink('social-github', s.social_github);
+            if (s.social_linkedin) updateLink('social-linkedin', s.social_linkedin);
+            if (s.social_instagram) updateLink('social-instagram', s.social_instagram);
+            if (s.social_twitter) updateLink('social-twitter', s.social_twitter);
+
         } catch (e) { console.error("Identity Error", e); }
+    }
+
+    function updateLink(id, url) {
+        const el = document.getElementById(id);
+        if (el) el.href = url;
     }
 
     // B. Projects (Portfolio)
@@ -102,7 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            container.innerHTML = data.map(p => `
+            const published = data.filter(p => p.status === 'Published');
+
+            container.innerHTML = published.map(p => `
                 <div class="glass-card" style="border-radius:12px; overflow:hidden;" data-aos="fade-up">
                     <div style="height:180px; background:url('${p.image_url}') center/cover;"></div>
                     <div style="padding:20px;">
@@ -200,6 +213,36 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTestimonials();
     loadBlog();
 
+    // Mobile Menu Logic
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+
+    if (hamburger && navLinks) {
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+
+            // Optional: Toggle icon from bars to times
+            const icon = hamburger.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // Close menu when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                const icon = hamburger.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            });
+        });
+    }
+
     // Interactive Elements
     window.submitContact = async function (e) {
         e.preventDefault();
@@ -223,9 +266,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Mobile Menu
+// Mobile Menu Helper (Global Fallback)
 function toggleMenu() {
-    document.querySelector('.nav-links').classList.toggle('active');
+    const nav = document.querySelector('.nav-links');
+    if (nav) nav.classList.toggle('active');
 }
 
 /* --- LOGIN LOGIC --- */

@@ -287,7 +287,7 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-        <div class="logo"><i class="fas fa-layer-group"></i> CMS Control</div>
+        <div class="logo"><i class="fas fa-layer-group"></i> CMS Control </div>
 
         <div class="nav-link active" onclick="nav('dashboard', this)">
             <i class="fas fa-chart-pie"></i> Dashboard
@@ -334,15 +334,41 @@
                 <div class="card">
                     <h3>Messages</h3>
                     <h1 id="stat-msgs">0</h1>
+                    <small id="stat-unread" style="color:var(--danger)">0 Unread</small>
                 </div>
                 <div class="card">
-                    <h3>Active Ads</h3>
-                    <h1 id="stat-ads">0</h1>
+                    <h3>Live Projects</h3>
+                    <h1 id="stat-projects" style="color:var(--success)">0</h1>
                 </div>
             </div>
-            <div class="card">
-                <h3>Recent Visitors</h3>
-                <div id="recent-visitors">Looking for data...</div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Recent Visitors</h3>
+                    <div id="recent-visitors">Looking for data...</div>
+                </div>
+                <!-- Quick Note & Health -->
+                <div class="card">
+                    <h3>Quick Note <small style="font-size:0.7rem; font-weight:400; color:#888;"
+                            id="note-status"></small></h3>
+                    <textarea id="quick-note" class="input-field" rows="6" placeholder="Jot down ideas..."
+                        oninput="saveNote()"></textarea>
+
+                    <div style="margin-top:20px; border-top:1px solid #333; padding-top:15px;">
+                        <h3>System Health</h3>
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span>Database:</span>
+                            <span id="health-db" class="status-badge"
+                                style="background:#222; color:#888;">Checking...</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Server Time:</span>
+                            <span id="health-time"
+                                style="font-family:monospace; color:var(--accent-dim);">--:--:--</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -356,6 +382,14 @@
 
         <!-- 3. MARKETING (Ads & Coupons) -->
         <section id="marketing" class="section">
+            <div class="card" style="margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>Campaign Tools</h3>
+                    <button class="btn-primary" onclick="window.location.href='/api/export-contacts'">Export Contacts
+                        (CSV)</button>
+                </div>
+            </div>
+
             <div class="grid-2">
                 <div class="card">
                     <h3>Create Ad Campaign</h3>
@@ -382,6 +416,17 @@
                     <h3>Add Project</h3>
                     <div class="form-group"><label>Project Title</label><input id="proj-title" class="input-field">
                     </div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Priority (10=High)</label><input type="number" id="proj-priority"
+                                class="input-field" value="0"></div>
+                        <div class="form-group"><label>Status</label>
+                            <select id="proj-status" class="input-field">
+                                <option value="Live">Live (Green)</option>
+                                <option value="Development">Development (Blue)</option>
+                                <option value="Maintenance">Maintenance (Yellow)</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-group"><label>Thumbnail URL</label><input id="proj-img" class="input-field"></div>
                     <div class="form-group"><label>Live Link</label><input id="proj-link" class="input-field"></div>
                     <div class="form-group"><label>Tech Stack (Comma sep)</label><input id="proj-tags"
@@ -404,7 +449,17 @@
                 <div class="card">
                     <h3>Write Blog Post</h3>
                     <div class="form-group"><label>Title</label><input id="post-title" class="input-field"></div>
-                    <div class="form-group"><label>Cover Image</label><input id="post-img" class="input-field"></div>
+                    <div class="grid-2">
+                        <div class="form-group"><label>Cover Image</label><input id="post-img" class="input-field">
+                        </div>
+                        <div class="form-group"><label>Status</label>
+                            <select id="post-status" class="input-field">
+                                <option value="Published">Published</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Archived">Archived</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-group"><label>Content</label><textarea id="post-content" class="input-field"
                             rows="6"></textarea></div>
                     <button class="btn-primary" onclick="createPost()">Publish</button>
@@ -442,7 +497,18 @@
                     <div class="form-group"><label>About Me (Timeline)</label><textarea id="prof-about"
                             class="input-field" rows="5"></textarea></div>
                     <div class="form-group"><label>Resume URL</label><input id="prof-resume" class="input-field"></div>
-                    <button class="btn-primary" onclick="saveProfile()">Update Profile</button>
+
+                    <h4 style="margin-top:20px; color:#888; border-top:1px solid #333; padding-top:10px;">Social Media
+                    </h4>
+                    <div class="grid-2">
+                        <div class="form-group"><label>GitHub</label><input id="s-github" class="input-field"></div>
+                        <div class="form-group"><label>LinkedIn</label><input id="s-linkedin" class="input-field"></div>
+                        <div class="form-group"><label>Instagram</label><input id="s-instagram" class="input-field">
+                        </div>
+                        <div class="form-group"><label>Twitter/X</label><input id="s-twitter" class="input-field"></div>
+                    </div>
+
+                    <button class="btn-primary" onclick="saveProfile()" style="margin-top:10px;">Update Profile</button>
                 </div>
                 <!-- SEO -->
                 <div class="card">
@@ -493,13 +559,20 @@
                     </select>
                 </div>
                 <button class="btn-primary" onclick="saveSettings()">Activate Maintenance</button>
+
+                <div style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
+                    <button onclick="clearLogs()" class="btn-danger" style="width:100%">🗑 Clear All Analytics
+                        Logs</button>
+                    <p style="color:#666; font-size:0.8rem; margin-top:5px; text-align:center;">This action cannot be
+                        undone.</p>
+                </div>
             </div>
         </section>
     </div>
 
     <!-- ADMIN LOGIC -->
     <script>
-        const API = window.location.hostname === 'localhost' ? "http://127.0.0.1:5000/api" : "/api";
+        const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? "http://127.0.0.1:5000/api" : "/api";
 
         // Navigation
         function nav(id, el) {
@@ -527,23 +600,79 @@
             const d = await res.json();
             document.getElementById('stat-visits').innerText = d.total_visits;
             document.getElementById('stat-msgs').innerText = d.total_messages;
-            document.getElementById('stat-ads').innerText = d.active_ads;
+            document.getElementById('stat-unread').innerText = `${d.unread_messages} Unread`;
+            document.getElementById('stat-projects').innerText = d.live_projects;
             document.getElementById('recent-visitors').innerHTML = d.recent_visitors.map(v =>
                 `<div style="padding:10px; border-bottom:1px solid #222;">${v.page} <span style="float:right;color:#666">${new Date(v.timestamp).toLocaleTimeString()}</span></div>`
             ).join('');
+
+            checkHealth();
+            loadNote();
+        }
+
+        async function checkHealth() {
+            const res = await fetch(`${API}/system-health`);
+            const d = await res.json();
+            document.getElementById('health-time').innerText = d.time.split(' ')[1]; // show time only
+            const dbEl = document.getElementById('health-db');
+            if (d.db_status === 'OK') {
+                dbEl.innerText = 'OK';
+                dbEl.style.color = 'var(--success)';
+            } else {
+                dbEl.innerText = 'Error';
+                dbEl.style.color = 'var(--danger)';
+            }
+        }
+
+        let noteTimeout;
+        async function loadNote() {
+            const d = await (await fetch(`${API}/settings`)).json();
+            document.getElementById('quick-note').value = d.quick_note || '';
+        }
+        function saveNote() {
+            document.getElementById('note-status').innerText = 'Saving...';
+            clearTimeout(noteTimeout);
+            noteTimeout = setTimeout(async () => {
+                const val = document.getElementById('quick-note').value;
+                await fetch(`${API}/settings`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quick_note: val })
+                });
+                document.getElementById('note-status').innerText = 'Saved';
+                setTimeout(() => document.getElementById('note-status').innerText = '', 2000);
+            }, 1000);
         }
 
         // 2. Inbox
         async function loadMsgs() {
             const res = await fetch(`${API}/messages`);
             const d = await res.json();
-            document.getElementById('messages-list').innerHTML = d.map(m => `
-                <div class="card" style="border-left:4px solid var(--accent)">
-                    <div style="display:flex;justify-content:space-between"><b>${m.name}</b> <small>${m.email}</small></div>
+            document.getElementById('messages-list').innerHTML = d.map(m => {
+                const isRead = m.read_status === 1;
+                const borderStyle = isRead ? 'border-left:4px solid #444' : 'border-left:4px solid var(--accent)';
+                const readBtn = isRead ? `<button onclick="toggleRead(${m.id}, 0)" style="font-size:0.8rem;">Mark Unread</button>` : `<button onclick="toggleRead(${m.id}, 1)" class="btn-primary" style="font-size:0.8rem; padding:2px 8px;">Mark Read</button>`;
+
+                return `
+                <div class="card" style="${borderStyle}; opacity:${isRead ? 0.7 : 1}">
+                    <div style="display:flex;justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <b>${m.name}</b> <small>${m.email}</small> <small style="color:#666; margin-left:10px;">${new Date(m.timestamp).toLocaleDateString()}</small>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            ${readBtn}
+                            <button onclick="del('messages', ${m.id}, loadMsgs)" class="btn-danger" style="font-size:0.8rem; padding:2px 8px;">Delete</button>
+                        </div>
+                    </div>
                     <p style="margin-top:10px;color:#ccc;">${m.message}</p>
-                    <button onclick="del('messages', ${m.id}, loadMsgs)" class="btn-danger" style="margin-top:10px;">Delete</button>
                 </div>
-            `).join('');
+            `}).join('');
+        }
+
+        async function toggleRead(id, status) {
+            await fetch(`${API}/messages`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, read_status: status })
+            });
+            loadMsgs();
+            loadStats(); // Update dashboard count
         }
 
         // 3. Marketing
@@ -585,20 +714,54 @@
                     image_url: document.getElementById('proj-img').value,
                     link_url: document.getElementById('proj-link').value,
                     tags: document.getElementById('proj-tags').value,
-                    description: document.getElementById('proj-desc').value
+                    description: document.getElementById('proj-desc').value,
+                    status: document.getElementById('proj-status').value,
+                    priority: document.getElementById('proj-priority').value
                 })
             });
             loadProjects();
         }
         async function loadProjects() {
             const d = await (await fetch(`${API}/projects`)).json();
-            document.getElementById('projects-list').innerHTML = d.map(p => `
-                <div style="padding:10px;border:1px solid #333;margin-bottom:10px;display:flex;align-items:center;gap:10px;">
-                    <img src="${p.image_url}" style="width:40px;height:40px;object-fit:cover;">
-                    <div><b>${p.title}</b><br><small>${p.tags}</small></div>
-                    <button onclick="del('projects', ${p.id}, loadProjects)" class="btn-danger" style="margin-left:auto;">Delete</button>
+            document.getElementById('projects-list').innerHTML = d.map(p => {
+                let badgeColor = '#27c93f'; // Live (Green)
+                if (p.status === 'Development') badgeColor = '#3b82f6'; // Blue
+                if (p.status === 'Maintenance') badgeColor = '#eab308'; // Yellow
+
+                return `
+                <div style="padding:15px; border:1px solid #333; margin-bottom:15px; border-radius:8px; background:var(--bg-hover);">
+                    <div style="display:flex; align-items:center; gap:15px; margin-bottom:10px;">
+                        <img src="${p.image_url}" style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
+                        <div>
+                            <h4 style="margin:0; color:white;">${p.title} <small style="color:#666; font-weight:normal;">(Pri: ${p.priority || 0})</small></h4>
+                            <div style="font-size:0.8rem; margin-top:5px;">
+                                <span style="background:${badgeColor}20; color:${badgeColor}; padding:2px 8px; border-radius:4px; font-weight:600;">${p.status || 'Live'}</span>
+                                <span style="color:#666; margin-left:10px;">${p.tags}</span>
+                            </div>
+                        </div>
+                        <a href="${p.link_url}" target="_blank" style="margin-left:auto; color:var(--accent);"><i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                    
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <select onchange="updateProjectStatus(${p.id}, this.value)" style="background:#222; color:white; border:1px solid #444; padding:5px; border-radius:4px; font-size:0.8rem;">
+                            <option value="Live" ${p.status === 'Live' ? 'selected' : ''}>Set Live</option>
+                            <option value="Development" ${p.status === 'Development' ? 'selected' : ''}>Set Dev</option>
+                            <option value="Maintenance" ${p.status === 'Maintenance' ? 'selected' : ''}>Set Maint</option>
+                        </select>
+                        <button onclick="del('projects', ${p.id}, loadProjects)" class="btn-danger" style="font-size:0.8rem; padding:5px 10px;">Delete</button>
+                    </div>
                 </div>
-            `).join('');
+            `}).join('');
+        }
+
+        async function updateProjectStatus(id, newStatus) {
+            await fetch(`${API}/projects`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, status: newStatus })
+            });
+            // Optional: Show toast or simple reload
+            loadProjects();
         }
 
         // 5. Content
@@ -607,14 +770,22 @@
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
                     title: document.getElementById('post-title').value,
                     content: document.getElementById('post-content').value,
-                    image_url: document.getElementById('post-img').value
+                    image_url: document.getElementById('post-img').value,
+                    status: document.getElementById('post-status').value
                 })
             });
             loadPosts();
         }
         async function loadPosts() {
             const d = await (await fetch(`${API}/posts`)).json();
-            document.getElementById('posts-list').innerHTML = d.map(p => `<div>${p.title} <button onclick="del('posts', ${p.id}, loadPosts)" style="color:red;float:right;">&times;</button></div>`).join('');
+            document.getElementById('posts-list').innerHTML = d.map(p => `
+            <div style="padding:10px; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <b>${p.title}</b> <br>
+                    <small style="color:#666">${p.status || 'Published'} - ${p.date_posted || ''}</small>
+                </div>
+                <button onclick="del('posts', ${p.id}, loadPosts)" style="color:red;background:none;border:none;">&times;</button>
+            </div>`).join('');
         }
         async function createTestimonial() {
             await fetch(`${API}/testimonials`, {
@@ -640,6 +811,12 @@
             document.getElementById('prof-head').value = d.profile_headline || '';
             document.getElementById('prof-about').value = d.profile_about || '';
             document.getElementById('prof-resume').value = d.resume_link || '';
+
+            // Socials
+            document.getElementById('s-github').value = d.social_github || '';
+            document.getElementById('s-linkedin').value = d.social_linkedin || '';
+            document.getElementById('s-instagram').value = d.social_instagram || '';
+            document.getElementById('s-twitter').value = d.social_twitter || '';
         }
         async function saveProfile() {
             await fetch(`${API}/settings`, {
@@ -647,7 +824,11 @@
                     profile_name: document.getElementById('prof-name').value,
                     profile_headline: document.getElementById('prof-head').value,
                     profile_about: document.getElementById('prof-about').value,
-                    resume_link: document.getElementById('prof-resume').value
+                    resume_link: document.getElementById('prof-resume').value,
+                    social_github: document.getElementById('s-github').value,
+                    social_linkedin: document.getElementById('s-linkedin').value,
+                    social_instagram: document.getElementById('s-instagram').value,
+                    social_twitter: document.getElementById('s-twitter').value
                 })
             });
             alert('Profile Saved');
@@ -682,8 +863,8 @@
             const maint = document.getElementById('maint-active').checked ? "1" : "0";
             let endObj = "null";
             if (maint === "1") {
-                const dur = document.getElementById('maint-dur').value;
-                if (dur !== 'indefinite') {
+                const dur = document.getElementById('maintenance-duration').value;
+                if (dur !== '0') {
                     const now = new Date();
                     now.setMinutes(now.getMinutes() + parseInt(dur));
                     endObj = now.toISOString();
@@ -701,6 +882,14 @@
                 })
             });
             alert('Settings Saved');
+        }
+
+        async function clearLogs() {
+            if (confirm('Are you sure you want to clear all analytics logs? This cannot be undone.')) {
+                await fetch(`${API}/logs`, { method: 'DELETE' });
+                alert('Logs Cleared');
+                loadStats();
+            }
         }
 
         // Helper
