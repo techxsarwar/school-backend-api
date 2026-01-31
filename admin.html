@@ -260,26 +260,7 @@
             cursor: pointer;
         }
 
-        @media(max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: -100%;
-                height: 100%;
-                z-index: 1000;
-            }
-
-            .sidebar.active {
-                left: 0;
-            }
-
-            .hamburger {
-                display: block;
-            }
-
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
+        /* Media queries moved to styles.css */
     </style>
 </head>
 
@@ -316,8 +297,7 @@
     <div class="main-content">
         <div class="header">
             <div style="display:flex;align-items:center;gap:15px;">
-                <div class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('active')"><i
-                        class="fas fa-bars"></i></div>
+                <button id="menu-toggle" class="hamburger" style="display:none;"><i class="fas fa-bars"></i></button>
                 <h1 class="page-title" id="page-title">Dashboard</h1>
             </div>
             <a href="index.html" target="_blank" class="btn-primary"
@@ -844,9 +824,10 @@
             if (maint === "1") {
                 const dur = document.getElementById('maintenance-duration').value;
                 if (dur !== '0') {
-                    const now = new Date();
-                    now.setMinutes(now.getMinutes() + parseInt(dur));
-                    endObj = now.toISOString();
+                    // Use UTC to ensure consistency between server and client
+                    const now = Date.now();
+                    const durationMs = parseInt(dur) * 60 * 1000;
+                    endObj = new Date(now + durationMs).toISOString();
                 }
             }
 

@@ -151,29 +151,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkMaintenance(s) {
         if (s.maintenance_mode === '1' || s.maintenance_mode === 'true') {
-            // Calculate time
-            let timeHtml = '';
-            let isTimeUp = false;
-            if (s.maintenance_end_time && s.maintenance_end_time !== 'null') {
-                const end = new Date(s.maintenance_end_time).getTime();
-                const now = new Date().getTime();
-                if (now > end) { isTimeUp = true; } // Expired
-                else {
-                    timeHtml = '<div style="margin-top:20px; color:#27c93f;">Updating system...</div>';
+            document.body.innerHTML = ''; // Clear Body
+
+            // Add Font
+            const fontLink = document.createElement('link');
+            fontLink.href = 'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap';
+            fontLink.rel = 'stylesheet';
+            document.head.appendChild(fontLink);
+
+            // Container
+            const container = document.createElement('div');
+            container.style.cssText = `
+                height: 100vh; width: 100%; background: #000; color: white;
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                font-family: 'Share Tech Mono', monospace; text-align: center;
+            `;
+
+            // Timer Logic
+            let timeDisplay = '00:00';
+            const end = s.maintenance_end_time && s.maintenance_end_time !== 'null' ? new Date(s.maintenance_end_time).getTime() : null;
+
+            function updateTimer() {
+                if (!end) {
+                    timeDisplay = "MAINTENANCE";
+                } else {
+                    const now = new Date().getTime();
+                    const dist = end - now;
+
+                    if (dist < 0) {
+                        timeDisplay = "00:00";
+                        location.reload(); // Auto refresh
+                        return;
+                    }
+
+                    const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+                    const sec = Math.floor((dist % (1000 * 60)) / 1000);
+                    timeDisplay = `${m < 10 ? '0' + m : m}:${sec < 10 ? '0' + sec : sec}`;
                 }
+
+                // Render UI
+                renderUI();
             }
 
-            if (!isTimeUp) {
-                document.body.innerHTML = `
-                    <div style="height:100vh; background:#050505; color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-family:sans-serif;">
-                        <i class="fas fa-hammer" style="font-size:3rem; color:#ff4747; margin-bottom:20px;"></i>
-                        <h1>Under Maintenance</h1>
-                        <p style="color:#888;">We are improving the experience.</p>
-                        ${timeHtml}
+            function renderUI() {
+                container.innerHTML = `
+                    <div style="font-size: 1.5rem; letter-spacing: 5px; margin-bottom: 20px; color: #666;">SYSTEM LOCKED</div>
+                    <div style="font-size: 8rem; font-weight: 700; line-height: 1;">${timeDisplay}</div>
+                    
+                    <div style="display: flex; gap: 20px; margin-top: 40px;">
+                        <div style="border: 1px solid #333; padding: 10px 20px; border-radius: 4px; color: #444;">GRIND (25M)</div>
+                        <div style="border: 1px solid white; padding: 10px 20px; border-radius: 4px; box-shadow: 0 0 15px white; color: white; background: rgba(255,255,255,0.1);">DEEP WORK</div>
+                        <div style="border: 1px solid #333; padding: 10px 20px; border-radius: 4px; color: #444;">RESET (5M)</div>
                     </div>
-                 `;
-                throw new Error("Maintenance Mode Active");
+
+                    <div style="margin-top: 50px; color: #444; font-size: 0.9rem;">
+                        SARWAR ALTAF | SYSTEM UPGRADE IN PROGRESS
+                    </div>
+                `;
             }
+
+            document.body.appendChild(container);
+            updateTimer();
+            setInterval(updateTimer, 1000);
+
+            throw new Error("Maintenance Mode Active");
         }
     }
 
@@ -314,3 +355,16 @@ async function handleLogin(e) {
         }, 800);
     }
 }
+// --- ADMIN PANEL RESPONSIVENESS ---
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.classList.toggle('active');
+}
+
+// Event Listener for Burger
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('menu-toggle');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleSidebar);
+    }
+});

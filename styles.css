@@ -1494,6 +1494,78 @@ p {
    Global Responsiveness & Mobile Optimization
    ========================================= */
 
+/* --- ADMIN PANEL RESPONSIVENESS --- */
+@media (max-width: 768px) {
+
+    /* Layout */
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        /* Hide by default */
+        top: 0;
+        height: 100vh;
+        width: 260px;
+        z-index: 1000;
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.active {
+        left: 0;
+        /* Slide in */
+    }
+
+    .main-content {
+        width: 100%;
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    /* Elements */
+    #menu-toggle {
+        display: block !important;
+        /* Show hamburger */
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .header {
+        flex-direction: row;
+        /* Keep row for burger + title */
+        gap: 15px;
+    }
+
+    /* Grids to Single Column */
+    .grid-2,
+    .grid-3 {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Forms */
+    .input-field,
+    .btn-primary,
+    .btn-danger {
+        width: 100%;
+    }
+
+    /* Tables */
+    .table-container,
+    table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Adjust text sizes */
+    .page-title {
+        font-size: 1.5rem;
+    }
+}
+
 /* =========================================
    Mega Footer & Pre-Footer
    ========================================= */
