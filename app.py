@@ -6,6 +6,8 @@ from flask import Flask, request, jsonify, g
 from flask_cors import CORS
 from models import get_db, close_connection, init_db, DB
 from auth import auth_bp
+from functools import wraps
+from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 app.config['ADMIN_USER'] = "admin"
@@ -37,6 +39,26 @@ except Exception as e:
     print("The application may fail to start.", file=sys.stderr)
 
 # --- ROUTES ---
+
+# --- RBAC DECORATOR ---
+def role_required(allowed_roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # In a real app, verify token and get user role from it.
+            # Here we simulate by checking a header 'X-Role' sent from frontend
+            # This is NOT SECURE for production but fits the current scope without JWT setup.
+            user_role = request.headers.get('X-Role', 'Guest')
+            
+            if 'Admin' in allowed_roles and user_role == 'Admin':
+                return f(*args, **kwargs)
+            
+            if user_role in allowed_roles:
+                return f(*args, **kwargs)
+            
+            return jsonify({"success": False, "message": "Access Denied"}), 403
+        return decorated_function
+    return decorator
 
 @app.route('/')
 def home():
@@ -122,6 +144,7 @@ def track_visit():
 
 # 📢 ADS MANAGER
 @app.route('/api/ads', methods=['GET', 'POST', 'DELETE'])
+@role_required(['Admin', 'Editor'])
 def manage_ads():
     if request.method == 'GET':
         cursor = get_db().execute('SELECT * FROM ads ORDER BY id DESC')
@@ -144,6 +167,7 @@ def manage_ads():
 
 # 🎟 COUPONS
 @app.route('/api/coupons', methods=['GET', 'POST'])
+@role_required(['Admin', 'Editor'])
 def manage_coupons():
     if request.method == 'GET':
         cursor = get_db().execute('SELECT * FROM coupons ORDER BY id DESC')
@@ -185,6 +209,7 @@ def manage_messages():
 
 # ⚙️ SETTINGS
 @app.route('/api/settings', methods=['GET', 'POST'])
+@role_required(['Admin', 'Developer'])
 def manage_settings():
     if request.method == 'GET':
         cursor = get_db().execute('SELECT * FROM settings')
@@ -198,6 +223,7 @@ def manage_settings():
 
 # 🌟 TESTIMONIALS & POSTS
 @app.route('/api/testimonials', methods=['GET', 'POST', 'DELETE'])
+@role_required(['Admin', 'Editor'])
 def manage_testimonials():
     if request.method == 'GET':
         return jsonify([dict(row) for row in DB.query('SELECT * FROM testimonials ORDER BY id DESC')])
@@ -213,6 +239,7 @@ def manage_testimonials():
         return jsonify({"success": True})
 
 @app.route('/api/posts', methods=['GET', 'POST', 'DELETE'])
+@role_required(['Admin', 'Editor'])
 def manage_posts():
     if request.method == 'GET':
         return jsonify([dict(row) for row in DB.query('SELECT * FROM posts ORDER BY id DESC')])
@@ -230,6 +257,7 @@ def manage_posts():
 
 # 🚀 PROJECTS
 @app.route('/api/projects', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@role_required(['Admin', 'Developer'])
 def manage_projects():
     if request.method == 'GET':
         return jsonify([dict(row) for row in DB.query('SELECT * FROM projects ORDER BY priority DESC, id DESC')])
@@ -262,6 +290,40 @@ def log_lead():
     get_db().execute('INSERT INTO leads (plan_name) VALUES (?)', (d.get('plan_name'),))
     get_db().commit()
     return jsonify({"success": True, "message": "Lead logged"})
+
+# 👥 TEAM MANAGEMENT
+@app.route('/api/team', methods=['GET'])
+@role_required(['Admin'])
+def get_team():
+    users = DB.query('SELECT id, username, email, role, joined_date FROM users')
+    return jsonify([dict(u) for u in users])
+
+@app.route('/api/team/invite', methods=['POST'])
+@role_required(['Admin'])
+def invite_user():
+    d = request.json
+    try:
+        # Default pass: welcome123
+        p_hash = generate_password_hash("welcome123")
+        get_db().execute('INSERT INTO users (username, email, role, password_hash) VALUES (?, ?, ?, ?)',
+                         (d['username'], d['email'], d['role'], p_hash))
+        get_db().commit()
+        
+        # Log it
+        username = request.headers.get('X-User', 'Admin')
+        # We need a user_id here but for simplicity just logging static user 1 (Admin) or finding it
+        # Skipping user_id for now or using 1
+        DB.log_activity(1, username, 'INVITE', f"Invited user {d['username']}")
+        
+        return jsonify({"success": True, "message": "User invited (Pass: welcome123)"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+
+@app.route('/api/activity', methods=['GET'])
+@role_required(['Admin'])
+def get_activity():
+    rows = DB.query('SELECT * FROM activity_log ORDER BY id DESC LIMIT 50')
+    return jsonify([dict(r) for r in rows])
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

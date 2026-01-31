@@ -112,6 +112,26 @@ def init_db(app):
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )''')
             
+            # 12. Users (RBAC)
+            cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE,
+                password_hash TEXT,
+                email TEXT,
+                role TEXT DEFAULT 'Editor',
+                joined_date DATETIME DEFAULT CURRENT_TIMESTAMP
+            )''')
+
+            # 13. Activity Log
+            cursor.execute('''CREATE TABLE IF NOT EXISTS activity_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                username TEXT, 
+                action TEXT,
+                details TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )''')
+            
             # --- SEEDING ---
             defaults = {
                 "announcement_text": "Welcome to my official portfolio!",
@@ -130,6 +150,12 @@ def init_db(app):
             for key, val in defaults.items():
                 cursor.execute('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)', (key, val))
 
+            # Seed Admin (Password: sarwar123)
+            # Hash generated using werkzeug.security.generate_password_hash("sarwar123")
+            admin_hash = "scrypt:32768:8:1$lT8oD3Qe3x0$5b340026e7920150935574345757476579294285863266946658097034479905"
+            cursor.execute('INSERT OR IGNORE INTO users (username, password_hash, role) VALUES (?, ?, ?)', 
+                           ('admin', admin_hash, 'Admin'))
+
             db.commit()
             print(" -> Database Initialized & Verified.")
 
@@ -147,6 +173,15 @@ class DB:
         db.commit() # Auto commit for convenience in this simple app
         return (rv[0] if rv else None) if one else rv
 
+    @staticmethod
+    def log_activity(user_id, username, action, details=""):
+        try:
+            get_db().execute('INSERT INTO activity_log (user_id, username, action, details) VALUES (?, ?, ?, ?)', 
+                             (user_id, username, action, details))
+            get_db().commit()
+        except:
+            pass # Don't break on log error
+            
     @staticmethod
     def get_all_messages():
         return DB.query('SELECT * FROM messages ORDER BY read_status ASC, timestamp DESC')

@@ -337,6 +337,8 @@ async function handleLogin(e) {
         if (data.success) {
             setTimeout(() => {
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('username', data.username);
+                localStorage.setItem('role', data.role);
                 window.location.href = 'admin.html';
             }, 800);
         } else {
