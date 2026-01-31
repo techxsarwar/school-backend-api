@@ -571,8 +571,9 @@
     </div>
 
     <!-- ADMIN LOGIC -->
+    <script src="utils.js"></script>
     <script>
-        const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? "http://127.0.0.1:5000/api" : "/api";
+        // API handled by utils.js (window.API)
 
         // Navigation
         function nav(id, el) {
@@ -596,47 +597,49 @@
 
         // 1. Dashboard
         async function loadStats() {
-            const res = await fetch(`${API}/stats`);
-            const d = await res.json();
-            document.getElementById('stat-visits').innerText = d.total_visits;
-            document.getElementById('stat-msgs').innerText = d.total_messages;
-            document.getElementById('stat-unread').innerText = `${d.unread_messages} Unread`;
-            document.getElementById('stat-projects').innerText = d.live_projects;
-            document.getElementById('recent-visitors').innerHTML = d.recent_visitors.map(v =>
-                `<div style="padding:10px; border-bottom:1px solid #222;">${v.page} <span style="float:right;color:#666">${new Date(v.timestamp).toLocaleTimeString()}</span></div>`
-            ).join('');
+            try {
+                const d = await API.get('/api/stats');
+                document.getElementById('stat-visits').innerText = d.total_visits;
+                document.getElementById('stat-msgs').innerText = d.total_messages;
+                document.getElementById('stat-unread').innerText = `${d.unread_messages} Unread`;
+                document.getElementById('stat-projects').innerText = d.live_projects;
+                document.getElementById('recent-visitors').innerHTML = d.recent_visitors.map(v =>
+                    `<div style="padding:10px; border-bottom:1px solid #222;">${v.page} <span style="float:right;color:#666">${new Date(v.timestamp).toLocaleTimeString()}</span></div>`
+                ).join('');
 
-            checkHealth();
-            loadNote();
+                checkHealth();
+                loadNote();
+            } catch (e) { console.error(e); }
         }
 
         async function checkHealth() {
-            const res = await fetch(`${API}/system-health`);
-            const d = await res.json();
-            document.getElementById('health-time').innerText = d.time.split(' ')[1]; // show time only
-            const dbEl = document.getElementById('health-db');
-            if (d.db_status === 'OK') {
-                dbEl.innerText = 'OK';
-                dbEl.style.color = 'var(--success)';
-            } else {
-                dbEl.innerText = 'Error';
-                dbEl.style.color = 'var(--danger)';
-            }
+            try {
+                const d = await API.get('/api/system-health');
+                document.getElementById('health-time').innerText = d.time.split(' ')[1]; // show time only
+                const dbEl = document.getElementById('health-db');
+                if (d.db_status === 'OK') {
+                    dbEl.innerText = 'OK';
+                    dbEl.style.color = 'var(--success)';
+                } else {
+                    dbEl.innerText = 'Error';
+                    dbEl.style.color = 'var(--danger)';
+                }
+            } catch (e) { }
         }
 
         let noteTimeout;
         async function loadNote() {
-            const d = await (await fetch(`${API}/settings`)).json();
-            document.getElementById('quick-note').value = d.quick_note || '';
+            try {
+                const d = await API.get('/api/settings');
+                document.getElementById('quick-note').value = d.quick_note || '';
+            } catch (e) { }
         }
         function saveNote() {
             document.getElementById('note-status').innerText = 'Saving...';
             clearTimeout(noteTimeout);
             noteTimeout = setTimeout(async () => {
                 const val = document.getElementById('quick-note').value;
-                await fetch(`${API}/settings`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quick_note: val })
-                });
+                await API.post('/api/settings', { quick_note: val });
                 document.getElementById('note-status').innerText = 'Saved';
                 setTimeout(() => document.getElementById('note-status').innerText = '', 2000);
             }, 1000);
@@ -644,8 +647,7 @@
 
         // 2. Inbox
         async function loadMsgs() {
-            const res = await fetch(`${API}/messages`);
-            const d = await res.json();
+            const d = await API.get('/api/messages');
             document.getElementById('messages-list').innerHTML = d.map(m => {
                 const isRead = m.read_status === 1;
                 const borderStyle = isRead ? 'border-left:4px solid #444' : 'border-left:4px solid var(--accent)';
@@ -668,61 +670,53 @@
         }
 
         async function toggleRead(id, status) {
-            await fetch(`${API}/messages`, {
-                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, read_status: status })
-            });
+            await API.put('/api/messages', { id: id, read_status: status });
             loadMsgs();
             loadStats(); // Update dashboard count
         }
 
         // 3. Marketing
         async function createAd() {
-            await fetch(`${API}/ads`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-                    title: document.getElementById('ad-title').value,
-                    image_url: document.getElementById('ad-img').value,
-                    link_url: document.getElementById('ad-link').value
-                })
+            await API.post('/api/ads', {
+                title: document.getElementById('ad-title').value,
+                image_url: document.getElementById('ad-img').value,
+                link_url: document.getElementById('ad-link').value
             });
             loadAds();
         }
         async function loadAds() {
-            const d = await (await fetch(`${API}/ads`)).json();
+            const d = await API.get('/api/ads');
             document.getElementById('ads-list').innerHTML = d.map(a => `
                 <div style="padding:10px;border:1px solid #333;margin-bottom:10px;">${a.title} <button onclick="del('ads', ${a.id}, loadAds)" style="color:red;float:right;background:none;border:none;">&times;</button></div>
             `).join('');
         }
         async function createCoupon() {
-            const d = await (await fetch(`${API}/coupons`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-                    discount: document.getElementById('coup-val').value
-                })
-            })).json();
+            const d = await API.post('/api/coupons', {
+                discount: document.getElementById('coup-val').value
+            });
             alert(`Code: ${d.code}`);
             loadCoupons();
         }
         async function loadCoupons() {
-            const d = await (await fetch(`${API}/coupons`)).json();
+            const d = await API.get('/api/coupons');
             document.getElementById('coupons-list').innerHTML = d.map(c => `<div>${c.code} - ${c.discount}</div>`).join('');
         }
 
         // 4. Portfolio
         async function createProject() {
-            await fetch(`${API}/projects`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-                    title: document.getElementById('proj-title').value,
-                    image_url: document.getElementById('proj-img').value,
-                    link_url: document.getElementById('proj-link').value,
-                    tags: document.getElementById('proj-tags').value,
-                    description: document.getElementById('proj-desc').value,
-                    status: document.getElementById('proj-status').value,
-                    priority: document.getElementById('proj-priority').value
-                })
+            await API.post('/api/projects', {
+                title: document.getElementById('proj-title').value,
+                image_url: document.getElementById('proj-img').value,
+                link_url: document.getElementById('proj-link').value,
+                tags: document.getElementById('proj-tags').value,
+                description: document.getElementById('proj-desc').value,
+                status: document.getElementById('proj-status').value,
+                priority: document.getElementById('proj-priority').value
             });
             loadProjects();
         }
         async function loadProjects() {
-            const d = await (await fetch(`${API}/projects`)).json();
+            const d = await API.get('/api/projects');
             document.getElementById('projects-list').innerHTML = d.map(p => {
                 let badgeColor = '#27c93f'; // Live (Green)
                 if (p.status === 'Development') badgeColor = '#3b82f6'; // Blue
@@ -755,29 +749,22 @@
         }
 
         async function updateProjectStatus(id, newStatus) {
-            await fetch(`${API}/projects`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: id, status: newStatus })
-            });
-            // Optional: Show toast or simple reload
+            await API.put('/api/projects', { id: id, status: newStatus });
             loadProjects();
         }
 
         // 5. Content
         async function createPost() {
-            await fetch(`${API}/posts`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-                    title: document.getElementById('post-title').value,
-                    content: document.getElementById('post-content').value,
-                    image_url: document.getElementById('post-img').value,
-                    status: document.getElementById('post-status').value
-                })
+            await API.post('/api/posts', {
+                title: document.getElementById('post-title').value,
+                content: document.getElementById('post-content').value,
+                image_url: document.getElementById('post-img').value,
+                status: document.getElementById('post-status').value
             });
             loadPosts();
         }
         async function loadPosts() {
-            const d = await (await fetch(`${API}/posts`)).json();
+            const d = await API.get('/api/posts');
             document.getElementById('posts-list').innerHTML = d.map(p => `
             <div style="padding:10px; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
                 <div>
@@ -788,71 +775,63 @@
             </div>`).join('');
         }
         async function createTestimonial() {
-            await fetch(`${API}/testimonials`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-                    name: document.getElementById('test-name').value,
-                    role: document.getElementById('test-role').value,
-                    rating: document.getElementById('test-rating').value,
-                    review_text: document.getElementById('test-rev').value,
-                    image_url: 'https://ui-avatars.com/api/?name=' + document.getElementById('test-name').value
-                })
+            await API.post('/api/testimonials', {
+                name: document.getElementById('test-name').value,
+                role: document.getElementById('test-role').value,
+                rating: document.getElementById('test-rating').value,
+                review_text: document.getElementById('test-rev').value,
+                image_url: 'https://ui-avatars.com/api/?name=' + document.getElementById('test-name').value
             });
             loadTestimonials();
         }
         async function loadTestimonials() {
-            const d = await (await fetch(`${API}/testimonials`)).json();
+            const d = await API.get('/api/testimonials');
             document.getElementById('testimonials-list').innerHTML = d.map(t => `<div>${t.name} (${t.rating}★) <button onclick="del('testimonials', ${t.id}, loadTestimonials)" style="color:red;float:right;">&times;</button></div>`).join('');
         }
 
         // 6. SEO & Profile
         async function loadProfile() {
-            const d = await (await fetch(`${API}/settings`)).json();
+            const d = await API.get('/api/settings');
             document.getElementById('prof-name').value = d.profile_name || '';
             document.getElementById('prof-head').value = d.profile_headline || '';
             document.getElementById('prof-about').value = d.profile_about || '';
             document.getElementById('prof-resume').value = d.resume_link || '';
-
-            // Socials
             document.getElementById('s-github').value = d.social_github || '';
             document.getElementById('s-linkedin').value = d.social_linkedin || '';
             document.getElementById('s-instagram').value = d.social_instagram || '';
             document.getElementById('s-twitter').value = d.social_twitter || '';
         }
         async function saveProfile() {
-            await fetch(`${API}/settings`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-                    profile_name: document.getElementById('prof-name').value,
-                    profile_headline: document.getElementById('prof-head').value,
-                    profile_about: document.getElementById('prof-about').value,
-                    resume_link: document.getElementById('prof-resume').value,
-                    social_github: document.getElementById('s-github').value,
-                    social_linkedin: document.getElementById('s-linkedin').value,
-                    social_instagram: document.getElementById('s-instagram').value,
-                    social_twitter: document.getElementById('s-twitter').value
-                })
+            await API.post('/api/settings', {
+                profile_name: document.getElementById('prof-name').value,
+                profile_headline: document.getElementById('prof-head').value,
+                profile_about: document.getElementById('prof-about').value,
+                resume_link: document.getElementById('prof-resume').value,
+                social_github: document.getElementById('s-github').value,
+                social_linkedin: document.getElementById('s-linkedin').value,
+                social_instagram: document.getElementById('s-instagram').value,
+                social_twitter: document.getElementById('s-twitter').value
             });
-            alert('Profile Saved');
+            showToast('Profile Saved');
         }
         async function loadSEO() {
-            const d = await (await fetch(`${API}/settings`)).json();
+            const d = await API.get('/api/settings');
             document.getElementById('seo-title').value = d.site_title || '';
             document.getElementById('seo-desc').value = d.meta_description || '';
             document.getElementById('seo-keys').value = d.meta_keywords || '';
         }
         async function saveSEO() {
-            await fetch(`${API}/settings`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-                    site_title: document.getElementById('seo-title').value,
-                    meta_description: document.getElementById('seo-desc').value,
-                    meta_keywords: document.getElementById('seo-keys').value
-                })
+            await API.post('/api/settings', {
+                site_title: document.getElementById('seo-title').value,
+                meta_description: document.getElementById('seo-desc').value,
+                meta_keywords: document.getElementById('seo-keys').value
             });
-            alert('SEO Saved');
+            showToast('SEO Saved');
         }
 
         // 7. Site Control
         async function loadSettings() {
-            const d = await (await fetch(`${API}/settings`)).json();
+            const d = await API.get('/api/settings');
             document.getElementById('ann-active').checked = d.announcement_active === '1' || d.announcement_active === 'true';
             document.getElementById('ann-text').value = d.announcement_text || '';
             document.getElementById('ann-type').value = d.announcement_type || 'bar';
@@ -871,23 +850,21 @@
                 }
             }
 
-            await fetch(`${API}/settings`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-                    announcement_active: document.getElementById('ann-active').checked ? "1" : "0",
-                    announcement_text: document.getElementById('ann-text').value,
-                    announcement_type: document.getElementById('ann-type').value,
-                    announcement_color: document.getElementById('ann-color').value,
-                    maintenance_mode: maint,
-                    maintenance_end_time: endObj
-                })
+            await API.post('/api/settings', {
+                announcement_active: document.getElementById('ann-active').checked ? "1" : "0",
+                announcement_text: document.getElementById('ann-text').value,
+                announcement_type: document.getElementById('ann-type').value,
+                announcement_color: document.getElementById('ann-color').value,
+                maintenance_mode: maint,
+                maintenance_end_time: endObj
             });
-            alert('Settings Saved');
+            showToast('Settings Saved');
         }
 
         async function clearLogs() {
             if (confirm('Are you sure you want to clear all analytics logs? This cannot be undone.')) {
-                await fetch(`${API}/logs`, { method: 'DELETE' });
-                alert('Logs Cleared');
+                await API.delete('/api/logs');
+                showToast('Logs Cleared');
                 loadStats();
             }
         }
@@ -895,7 +872,7 @@
         // Helper
         async function del(ep, id, cb) {
             if (confirm('Delete?')) {
-                await fetch(`${API}/${ep}?id=${id}`, { method: 'DELETE' });
+                await API.delete('/api/' + ep, id);
                 cb();
             }
         }

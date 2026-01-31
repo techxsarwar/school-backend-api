@@ -1,5 +1,5 @@
 // --- 1. CONFIG & LIBRARIES ---
-const API_BASE = "https://school-backend-api-5hkh.onrender.com";
+// API handled by utils.js
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -11,8 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // A. Identity (SEO & Profile)
     async function loadIdentity() {
         try {
-            const res = await fetch(`${API_BASE}/api/settings`);
-            const s = await res.json();
+            const s = await API.get('/api/settings');
 
             // Profile
             if (s.profile_name) safeText('profile-name', s.profile_name);
@@ -38,7 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (s.social_instagram) updateLink('social-instagram', s.social_instagram);
             if (s.social_twitter) updateLink('social-twitter', s.social_twitter);
 
-        } catch (e) { console.error("Identity Error", e); }
+        } catch (e) {
+            console.error("Identity Error", e);
+        }
     }
 
     function updateLink(id, url) {
@@ -52,15 +53,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const grid = document.getElementById('projects-grid');
             if (!grid) return;
 
-            const res = await fetch(`${API_BASE}/api/projects`);
-            const data = await res.json();
+            const data = await API.get('/api/projects');
 
             if (data.length === 0) {
                 grid.innerHTML = '<p style="color:#666;text-align:center;grid-column:1/-1;">Adding cool projects soon...</p>';
                 return;
             }
 
-            grid.innerHTML = data.map((p, i) => `
+            const published = data.filter(p => p.status === 'Published' || p.status === 'Live');
+
+            grid.innerHTML = published.map((p, i) => `
                 <div class="glass-card project-card" data-aos="fade-up" data-aos-delay="${i * 100}">
                     <div class="project-img" style="height:200px; overflow:hidden; border-radius:12px 12px 0 0;">
                         <img src="${p.image_url}" style="width:100%; height:100%; object-fit:cover; transition:0.5s;">
@@ -82,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const container = document.getElementById('testimonials-container');
             if (!container) return;
-            const data = await (await fetch(`${API_BASE}/api/testimonials`)).json();
+            const data = await API.get('/api/testimonials');
 
             if (data.length === 0) return; // Hide if empty
 
@@ -106,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const container = document.getElementById('blog-container');
             if (!container) return;
-            const data = await (await fetch(`${API_BASE}/api/posts`)).json();
+            const data = await API.get('/api/posts');
 
             if (data.length === 0) {
                 container.innerHTML = '<p style="text-align:center;color:#666;grid-column:1/-1;">Writing new thoughts...</p>';
@@ -157,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const now = new Date().getTime();
                 if (now > end) { isTimeUp = true; } // Expired
                 else {
-                    // Simple countdown or just show text for now
                     timeHtml = '<div style="margin-top:20px; color:#27c93f;">Updating system...</div>';
                 }
             }
@@ -171,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${timeHtml}
                     </div>
                  `;
-                throw new Error("Maintenance Mode Active"); // Stop other scripts
+                throw new Error("Maintenance Mode Active");
             }
         }
     }
@@ -205,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. EXECUTE ---
     // Track Visit
-    fetch(`${API_BASE}/api/track-visit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page: document.title }) });
+    API.post('/api/track-visit', { page: document.title });
 
     // Load Modules
     loadIdentity(); // Also checks maintenance
@@ -220,8 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hamburger && navLinks) {
         hamburger.addEventListener('click', () => {
             navLinks.classList.toggle('active');
-
-            // Optional: Toggle icon from bars to times
             const icon = hamburger.querySelector('i');
             if (navLinks.classList.contains('active')) {
                 icon.classList.remove('fa-bars');
@@ -232,7 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Close menu when clicking a link
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 navLinks.classList.remove('active');
@@ -250,19 +248,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const oldText = btn.innerHTML;
         btn.innerHTML = 'Sending...';
 
-        await fetch(`${API_BASE}/api/messages`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+        try {
+            await API.post('/api/messages', {
                 name: document.getElementById('contact-name').value,
                 email: document.getElementById('contact-email').value,
                 message: document.getElementById('contact-message').value
-            })
-        });
+            });
 
-        btn.innerHTML = 'Message Sent!';
-        btn.style.background = '#27c93f';
-        setTimeout(() => { btn.innerHTML = oldText; btn.style.background = ''; e.target.reset(); }, 3000);
+            btn.innerHTML = 'Message Sent!';
+            btn.style.background = '#27c93f';
+            showToast('Message sent successfully!');
+            setTimeout(() => { btn.innerHTML = oldText; btn.style.background = ''; e.target.reset(); }, 3000);
+        } catch (err) {
+            btn.innerHTML = oldText;
+            showToast(err.message || 'Failed to send', 'error');
+        }
     }
 });
 
@@ -287,24 +287,17 @@ async function handleLogin(e) {
     card.classList.remove('shake');
     errorMsg.classList.remove('show');
 
-    const username = usernameInput.value;
-    const password = passwordInput.value;
-
     try {
-        const res = await fetch(`${API_BASE}/api/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+        const data = await API.post('/api/login', {
+            username: usernameInput.value,
+            password: passwordInput.value
         });
 
-        const data = await res.json();
-
         if (data.success) {
-            // Success Animation or Delay
             setTimeout(() => {
                 localStorage.setItem('token', data.token);
                 window.location.href = 'admin.html';
-            }, 800); // Slight delay for effect
+            }, 800);
         } else {
             throw new Error(data.message);
         }
@@ -315,8 +308,6 @@ async function handleLogin(e) {
             card.classList.add('shake');
             errorMsg.querySelector('span').innerText = err.message || "Invalid Credentials";
             errorMsg.classList.add('show');
-
-            // Remove shake class after animation so it can be re-triggered
             setTimeout(() => {
                 card.classList.remove('shake');
             }, 500);
