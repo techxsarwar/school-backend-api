@@ -9,6 +9,7 @@ CORS(app)  # Enable CORS for all routes
 
 # --- CONFIG ---
 DB_FILE = "site_data.db"
+ADMIN_USER = "admin"
 ADMIN_PASS = "sarwar123"
 
 # --- DATABASE SETUP ---
@@ -133,7 +134,7 @@ def init_db():
             "meta_keywords": "Full Stack, Web Developer, Portfolio, Python, React, JavaScript"
         }
         for key, val in defaults.items():
-            cursor.execute('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)', (key, val))
+            cursor.execute('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', (key, val))
 
         db.commit()
 
@@ -156,12 +157,16 @@ def home():
 def login():
     data = request.json
     if not data or 'password' not in data:
-        return jsonify({"success": False, "message": "Password required"}), 400
+        return jsonify({"success": False, "message": "Credentials required"}), 400
 
-    if data['password'] == ADMIN_PASS:
+    username = data.get('username')
+    password = data.get('password')
+
+    # Basic check - in production use a DB and hash passwords!
+    if username == ADMIN_USER and password == ADMIN_PASS:
         return jsonify({"success": True, "token": "access_granted_token_123"})
     else:
-        return jsonify({"success": False, "message": "Invalid password"}), 401
+        return jsonify({"success": False, "message": "Invalid credentials"}), 401
 
 
 # 📊 STATS (DASHBOARD)

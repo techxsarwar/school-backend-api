@@ -4,179 +4,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | Secure System</title>
+    <title>Admin Login | Sarwar's Portfolio</title>
     <link rel='icon' type='image/svg+xml' href='favicon.svg'>
-    <!-- Fonts & Styling -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background: #0d1017;
-            color: #ffffff;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-card {
-            background: #161b27;
-            padding: 40px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-        }
-
-        .login-card h2 {
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #b0b5c1;
-            font-size: 0.9rem;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            color: white;
-            font-size: 1rem;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-color: #673de6;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #673de6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #5b32d1;
-        }
-
-        #error-msg {
-            color: #ff5f56;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            display: none;
-        }
-    </style>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 
-<body>
+<body class="login-body">
 
-    <div class="login-card">
-        <h2>System Access</h2>
-        <div class="input-group">
-            <label>Master Password</label>
-            <input type="password" id="password" placeholder="Enter secure key">
+    <!-- Particles Background -->
+    <div id="particles-canvas"></div>
+
+    <div class="login-card" id="loginCard">
+        <div class="login-header">
+            <h2>Welcome Back</h2>
+            <p>Enter your credentials to access the command center.</p>
         </div>
-        <button onclick="attemptLogin()" id="loginBtn">Unlock</button>
-        <p id="error-msg">Access Denied. Invalid Credentials.</p>
+
+        <form onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Username" required autocomplete="off">
+                <i class="fas fa-user input-icon"></i>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" required>
+                <i class="fas fa-lock input-icon"></i>
+                <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility()"></i>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span>Access Dashboard</span>
+            </button>
+        </form>
+
+        <div id="errorMessage" class="error-message">
+            <i class="fas fa-circle-exclamation"></i>
+            <span>Invalid Credentials. Try Again.</span>
+        </div>
     </div>
 
+    <!-- Main Script -->
+    <script src="script.js"></script>
+
+    <!-- Particles (Optional, assumes existing particles setup or basic script) -->
+    <!-- Ideally, you'd want to reuse your existing particle effects if any -->
+
     <script>
-        async function attemptLogin() {
-            const passwordInput = document.getElementById('password').value;
-            const btn = document.getElementById('loginBtn');
-            const errorMsg = document.getElementById('error-msg');
-
-            // UI Feedback
-            btn.innerText = "Verifying...";
-            btn.disabled = true;
-            errorMsg.style.display = 'none';
-            errorMsg.style.color = "#ff5f56"; // Reset color
-
-            try {
-                // Determine API URL
-                // CHANGE 'YOUR-RENDER-APP-NAME' TO YOUR ACTUAL APP NAME AFTER DEPLOYING
-                const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? "http://127.0.0.1:5000/api/login"
-                    : "https://school-backend-api-5hkh.onrender.com/api/login";
-
-                // CRITICAL SEPARATION OF CONCERNS:
-                // We send the password to the server.
-                // We do NOT check "if (password === '...')" here.
-                // The correct password is NOT visible in this file's source code.
-
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: passwordInput })
-                });
-
-                // Check if server returned a valid JSON response
-                if (!response.ok) {
-                    throw new Error(`Server Error: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Login Successful
-                    // Store the 'Session Key' given by the server
-                    localStorage.setItem('token', data.token);
-
-                    // Redirect to the protected page
-                    window.location.href = 'admin.html';
-                } else {
-                    // Login Failed (Invalid Credentials)
-                    throw new Error(data.message || "Invalid Credentials");
-                }
-
-            } catch (error) {
-                // Handle Fail state
-                btn.innerText = "Unlock";
-                btn.disabled = false;
-                errorMsg.style.display = 'block';
-
-                // Distinguish between Network Error and Wrong Password
-                if (error.message.includes("Failed to fetch")) {
-                    errorMsg.innerText = "Error: Cannot connect to server. Is app.py running?";
-                } else {
-                    errorMsg.innerText = "Access Denied: " + error.message;
-                }
-                // Clear input
-                document.getElementById('password').value = '';
+        // Simple password toggle logic inline for UI, but keeping auth logic in script.js as requested
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('password');
+            const icon = document.querySelector('.toggle-password');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
         }
-
-        // Allow 'Enter' key
-        document.getElementById('password').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') attemptLogin();
-        });
     </script>
 </body>
 

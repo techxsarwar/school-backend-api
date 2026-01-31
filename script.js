@@ -1,6 +1,7 @@
+// --- 1. CONFIG & LIBRARIES ---
+const API_BASE = "https://school-backend-api-5hkh.onrender.com";
+
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. CONFIG & LIBRARIES ---
-    const API_BASE = "https://school-backend-api-5hkh.onrender.com";
 
     // AOS Init
     if (typeof AOS !== 'undefined') AOS.init({ duration: 1000, once: true });
@@ -225,4 +226,56 @@ document.addEventListener('DOMContentLoaded', () => {
 // Mobile Menu
 function toggleMenu() {
     document.querySelector('.nav-links').classList.toggle('active');
+}
+
+/* --- LOGIN LOGIC --- */
+async function handleLogin(e) {
+    e.preventDefault();
+
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const btn = document.getElementById('loginBtn');
+    const card = document.getElementById('loginCard');
+    const errorMsg = document.getElementById('errorMessage');
+
+    // Reset State
+    btn.classList.add('loading');
+    card.classList.remove('shake');
+    errorMsg.classList.remove('show');
+
+    const username = usernameInput.value;
+    const password = passwordInput.value;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            // Success Animation or Delay
+            setTimeout(() => {
+                localStorage.setItem('token', data.token);
+                window.location.href = 'admin.html';
+            }, 800); // Slight delay for effect
+        } else {
+            throw new Error(data.message);
+        }
+
+    } catch (err) {
+        setTimeout(() => {
+            btn.classList.remove('loading');
+            card.classList.add('shake');
+            errorMsg.querySelector('span').innerText = err.message || "Invalid Credentials";
+            errorMsg.classList.add('show');
+
+            // Remove shake class after animation so it can be re-triggered
+            setTimeout(() => {
+                card.classList.remove('shake');
+            }, 500);
+        }, 800);
+    }
 }
