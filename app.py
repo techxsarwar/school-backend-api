@@ -20,7 +20,7 @@ db_url = os.getenv('DATABASE_URL')
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///site.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///site_data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
 
@@ -31,6 +31,87 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 # Register Blueprints
 app.register_blueprint(auth_bp)
+
+# --- EMAIL HELPERS ---
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import ssl
+
+def send_invite_email(to_email, username, role, password):
+    smtp_server = "smtp.zoho.com"
+    smtp_port = 465
+    sender_email = os.getenv('MAIL_USERNAME')
+    sender_password = os.getenv('MAIL_PASSWORD')
+
+    if not sender_email or not sender_password:
+        print("Warning: Email credentials not set. Skipping email.")
+        return
+
+    subject = "Welcome to the Team | Your Creator Access"
+    
+    # Cinematic Dark Theme HTML
+    html_body = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{ background-color: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }}
+            .container {{ max-width: 600px; margin: 40px auto; background: #161b22; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }}
+            .header {{ background: linear-gradient(135deg, #1f6feb 0%, #58a6ff 100%); padding: 30px; text-align: center; }}
+            .header h1 {{ margin: 0; color: white; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; }}
+            .content {{ padding: 40px; text-align: center; }}
+            .welcome-text {{ font-size: 18px; line-height: 1.6; margin-bottom: 30px; }}
+            .credential-box {{ background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 20px; display: inline-block; text-align: left; margin-bottom: 30px; }}
+            .credential-row {{ margin-bottom: 10px; font-family: 'Consolas', monospace; color: #8b949e; }}
+            .credential-val {{ color: #58a6ff; font-weight: bold; }}
+            .btn {{ display: inline-block; background: #238636; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; transition: background 0.2s; }}
+            .btn:hover {{ background: #2ea043; }}
+            .footer {{ padding: 20px; text-align: center; font-size: 12px; color: #8b949e; border-top: 1px solid #30363d; }}
+            .security-note {{ color: #d2a8ff; font-size: 13px; margin-top: 20px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Access Granted</h1>
+            </div>
+            <div class="content">
+                <p class="welcome-text">Hello <strong>{username}</strong>,<br>You have been recruited as an <span style="color:#58a6ff">{role}</span>.</p>
+                
+                <div class="credential-box">
+                    <div class="credential-row">URL: <span class="credential-val">https://school-backend-api-5hkh.onrender.com</span></div>
+                    <div class="credential-row">Username: <span class="credential-val">{username}</span></div>
+                    <div class="credential-row">Password: <span class="credential-val">{password}</span></div>
+                </div>
+
+                <a href="https://school-backend-api-5hkh.onrender.com" class="btn">Access Dashboard</a>
+
+                <p class="security-note">⚠ For security, please update your password immediately after logging in.</p>
+            </div>
+            <div class="footer">
+                &copy; 2026 Sarwar Portfolio System. All rights reserved.
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = to_email
+    msg.attach(MIMEText(html_body, "html"))
+
+    try:
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, to_email, msg.as_string())
+        print("Email sent successfully!")
+        print(f" -> Invite email sent to {to_email}")
+    except Exception as e:
+        print(f" -> Failed to send email: {e}")
 
 # --- DB INIT & SEEDING ---
 with app.app_context():
@@ -420,7 +501,8 @@ def invite_user():
 
     d = request.json
     try:
-        p_hash = generate_password_hash("welcome123")
+        temp_pass = "welcome123"
+        p_hash = generate_password_hash(temp_pass)
         u = User(username=d['username'], email=d['email'], role=d['role'], password_hash=p_hash)
         db.session.add(u)
         db.session.commit()
@@ -428,9 +510,13 @@ def invite_user():
         username = request.headers.get('X-User', 'Admin')
         log_activity(1, username, 'INVITE', f"Invited user {d['username']}")
         
-        return jsonify({"success": True, "message": "User invited (Pass: welcome123)"})
+        # Trigger Email
+        send_invite_email(d['email'], d['username'], d['role'], temp_pass)
+
+        return jsonify({"success": True, "message": "User invited & Email sent"})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 400
+
 
 @app.route('/api/activity', methods=['GET'])
 def get_activity():
