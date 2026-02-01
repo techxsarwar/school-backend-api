@@ -11,7 +11,8 @@ from werkzeug.security import generate_password_hash
 app = Flask(__name__, static_folder='.', static_url_path='')
 app.config['ADMIN_USER'] = "admin"
 app.config['ADMIN_PASS'] = "sarwar123"
-app.config['SECRET_KEY'] = "super-secret-key-change-this"
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key-change-this')
+app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '0') == '1'
 
 # Database Configuration
 # Fallback to sqlite if DATABASE_URL not set (e.g. local)
@@ -21,6 +22,7 @@ if db_url and db_url.startswith("postgres://"):
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
 
 db.init_app(app)
 
@@ -106,6 +108,10 @@ def health_check():
         return jsonify({"status": "healthy", "db": "connected", "time": datetime.now().isoformat()})
     except Exception as e:
         return jsonify({"status": "unhealthy", "error": str(e)}), 500
+
+@app.route('/health', methods=['GET'])
+def health_check_alias():
+    return jsonify({"status": "healthy"})
 
 @app.route('/privacy')
 def privacy_page():
