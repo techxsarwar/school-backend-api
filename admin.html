@@ -408,46 +408,26 @@
                     <div class="form-group"><label>Target Link</label><input id="pop-link" class="input-field"
                             placeholder="https://..."></div>
                     <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-                        <label>Active?</label>
-                        <label class="switch"><input type="checkbox" id="pop-active"><span
-                                class="slider"></span></label>
-                    </div>
-                </div>
-                <button class="btn-primary" onclick="savePopup()">Save & Activate Popup</button>
-            </div>
-        </section>
+                        <!-- 2. TOOLBOX CONTROL (Renamed & Simplified) -->
+                        <section id="tools" class="section">
+                            <h2><i class="fas fa-tools"></i> Tool Access Manager</h2>
+                            <p style="color:#aaa; margin-bottom:20px;">Manage access settings for your developer tools.
+                                Lock premium tools for Enterprise users.</p>
 
-        <!-- 4. PORTFOLIO MANAGER -->
-        <section id="portfolio" class="section">
-            <div class="grid-2">
-                <div class="card">
-                    <h3>Add Project</h3>
-                    <div class="form-group"><label>Project Title</label><input id="proj-title" class="input-field">
+                            <!-- Tool List Container -->
+                            <div class="card">
+                                <div
+                                    style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
+                                    <span style="color:#888; font-size:0.9rem;">TOOL NAME</span>
+                                    <span style="color:#888; font-size:0.9rem;">STATUS</span>
+                                </div>
+                                <div id="tools-list">
+                                    <!-- Populated by JS -->
+                                    <div style="text-align:center; padding:20px; color:#666;">Loading tools...</div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
-                    <div class="grid-2">
-                        <div class="form-group"><label>Priority (10=High)</label><input type="number" id="proj-priority"
-                                class="input-field" value="0"></div>
-                        <div class="form-group"><label>Status</label>
-                            <select id="proj-status" class="input-field">
-                                <option value="Live">Live (Green)</option>
-                                <option value="Development">Development (Blue)</option>
-                                <option value="Maintenance">Maintenance (Yellow)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group"><label>Thumbnail URL</label><input id="proj-img" class="input-field"></div>
-                    <div class="form-group"><label>Live Link</label><input id="proj-link" class="input-field"></div>
-                    <div class="form-group"><label>Tech Stack (Comma sep)</label><input id="proj-tags"
-                            class="input-field"></div>
-                    <div class="form-group"><label>Description</label><textarea id="proj-desc" class="input-field"
-                            rows="3"></textarea></div>
-                    <button class="btn-primary" onclick="createProject()">Add to Portfolio</button>
-                </div>
-                <div class="card" style="max-height:800px;overflow-y:auto;">
-                    <h3>Existing Projects</h3>
-                    <div id="projects-list"></div>
-                </div>
-            </div>
         </section>
 
         <!-- 5. CONTENT (Blog & Testimonials) -->
@@ -870,44 +850,51 @@
             loadPricing();
         }
 
-        // 8. TOOLBOX MANAGER
+        // 8. TOOLBOX MANAGER (Access Control Only)
         async function loadTools() {
-            const data = await API.get('/api/tools');
-            document.getElementById('tools-list').innerHTML = data.map(t => `
-                <div style="background:#222; padding:10px; margin-bottom:10px; border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <img src="${t.icon_url}" style="width:30px; height:30px; object-fit:contain; filter:invert(1);">
-                        <div>
-                            <div>${t.name} <small style="color:#666">(${t.category})</small></div>
-                            <div style="font-size:0.8rem; color:#888;">${t.tool_url}</div>
+            try {
+                const data = await API.get('/api/tools');
+                const list = document.getElementById('tools-list');
+
+                if (!data || data.length === 0) {
+                    list.innerHTML = '<div style="text-align:center; padding:20px;">No tools found. Run migration script first.</div>';
+                    return;
+                }
+
+                list.innerHTML = data.map(t => {
+                    const statusText = t.is_locked ? '<span style="color:#ff4444">🔒 Locked</span>' : '<span style="color:#00C851">🔓 Unlocked</span>';
+                    const opacity = t.is_locked ? '0.5' : '1';
+
+                    return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #333;">
+                        <div style="display:flex; align-items:center; gap:15px;">
+                            <div style="background:#222; width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <i class="${t.icon_url}" style="color:var(--primary-accent); font-size:1.2rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:bold; color:white;">${t.name}</div>
+                                <div style="font-size:0.8rem; color:#666;">${t.category}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display:flex; align-items:center; gap:30px;">
+                            <div style="width:100px; text-align:right;">${statusText}</div>
+                            
+                            <label class="switch" title="Toggle Lock">
+                                <input type="checkbox" class="danger" ${t.is_locked ? 'checked' : ''} onchange="toggleToolLock(${t.id}, this.checked)">
+                                <span class="slider"></span>
+                            </label>
                         </div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <label class="switch" title="Lock/Unlock">
-                            <input type="checkbox" class="danger" ${t.is_locked ? 'checked' : ''} onchange="toggleToolLock(${t.id}, this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                        <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deleteTool(${t.id})">&times;</button>
-                    </div>
-                </div>
-            `).join('');
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error(e);
+                document.getElementById('tools-list').innerHTML = '<div style="color:red; text-align:center;">Error loading tools.</div>';
+            }
         }
 
-        async function createTool() {
-            try {
-                await API.post('/api/tools', {
-                    name: document.getElementById('tool-name').value,
-                    description: document.getElementById('tool-desc').value,
-                    icon_url: document.getElementById('tool-icon').value,
-                    tool_url: document.getElementById('tool-url').value,
-                    category: document.getElementById('tool-cat').value,
-                    is_locked: document.getElementById('tool-lock').checked
-                });
-                showToast('Tool Added');
-                document.getElementById('tool-name').closest('.card').querySelectorAll('input').forEach(i => i.value = '');
-                loadTools();
-            } catch (e) { showToast(e.message, 'error'); }
-        }
+
 
         async function toggleToolLock(id, isLocked) {
             await API.put('/api/tools', { id: id, is_locked: isLocked });

@@ -52,6 +52,38 @@
             box-shadow: 0 10px 30px rgba(103, 61, 230, 0.1);
         }
 
+        /* Locked State */
+        .tool-card.locked {
+            position: relative;
+            pointer-events: none;
+            border-color: #333;
+        }
+
+        .tool-card.locked img,
+        .tool-card.locked .tool-icon,
+        .tool-card.locked h3,
+        .tool-card.locked p,
+        .tool-card.locked .dynamic-logic-container {
+            filter: grayscale(1) blur(4px);
+            opacity: 0.5;
+        }
+
+        .tool-card.locked::before {
+            content: "🔒 ENTERPRISE ONLY";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffd700;
+            color: #000;
+            padding: 8px 15px;
+            font-weight: bold;
+            z-index: 10;
+            border-radius: 4px;
+            white-space: nowrap;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
         .tool-icon {
             font-size: 2rem;
             color: var(--primary-accent);
@@ -138,134 +170,28 @@
             for developers and creators.</p>
     </div>
 
-    <div class="tools-grid">
+    <!-- Dynamic Tools Container -->
+    <div class="tools-grid" id="tools-container">
+        <p style="color:var(--text-muted); text-align:center; grid-column:1/-1;">Loading tools...</p>
+    </div>
 
+    <!-- Hidden Templates or Logic Containers for Inline Tools (Preserved logic, shown via JS) -->
+    <div id="inline-tool-logic" style="display:none;">
 
-        <!-- Tool: Invoice Generator -->
-        <a href="invoice.html" class="tool-card"
-            style="text-decoration: none; display: block; background: linear-gradient(145deg, rgba(103, 61, 230, 0.1), rgba(0,0,0,0.2)); border: 1px solid var(--primary-accent);">
-            <i class="fas fa-file-invoice-dollar tool-icon"></i>
-            <h3 style="color: white;">Invoice Maker <span
-                    style="font-size: 0.8rem; background: var(--primary-accent); padding: 2px 8px; border-radius: 10px; vertical-align: middle; color: white;">NEW</span>
-            </h3>
-            <p style="color: var(--text-muted);">Create professional PDF invoices with automatic calculations.</p>
-        </a>
-
-        <!-- Tool: Code-to-Image -->
-        <a href="codeimage.html" class="tool-card" style="text-decoration: none; display: block;">
-            <i class="fas fa-code tool-icon"></i>
-            <h3>Snippet Studio <span
-                    style="font-size: 0.8rem; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 10px; vertical-align: middle;">NEW</span>
-            </h3>
-            <p style="color: var(--text-muted);">Turn your code into beautiful, shareable screenshots with gradients.
-            </p>
-        </a>
-
-        <!-- Tool: YouTube Thumbnail Previewer -->
-        <a href="thumbnail.html" class="tool-card" style="text-decoration: none; display: block;">
-            <i class="fas fa-image tool-icon"></i>
-            <h3>Thumbnail Preview <span
-                    style="font-size: 0.8rem; background: #ff0000; padding: 2px 8px; border-radius: 10px; vertical-align: middle; color: white;">HOT</span>
-            </h3>
-            <p style="color: var(--text-muted);">Test your YouTube thumbnails against competitors in a simulated feed.
-            </p>
-        </a>
-
-        <!-- Tool: Secret Encryptor -->
-        <a href="encryptor.html" class="tool-card" style="text-decoration: none; display: block;">
-            <i class="fas fa-user-secret tool-icon"></i>
-            <h3>Secret Agent <span
-                    style="font-size: 0.8rem; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 10px; vertical-align: middle;">FUN</span>
-            </h3>
-            <p style="color: var(--text-muted);">Encrypt messages with Base64, Binary, and self-destruct animations.</p>
-        </a>
-
-        <!-- Tool: Bulk Result Generator -->
-        <a href="result-generator.html" class="tool-card" style="text-decoration: none; display: block;">
-            <i class="fas fa-file-excel tool-icon"></i>
-            <h3>Bulk Result Card <span
-                    style="font-size: 0.8rem; background: var(--secondary-accent); padding: 2px 8px; border-radius: 10px; vertical-align: middle;">SCHOOL</span>
-            </h3>
-            <p style="color: var(--text-muted);">Auto-generate thousands of Student Marks Cards from Excel.</p>
-        </a>
-
-        <!-- Tool: Bulk ID Card Generator -->
-        <a href="id-generator.html" class="tool-card" style="text-decoration: none; display: block;">
-            <i class="fas fa-id-card tool-icon"></i>
-            <h3>Bulk ID Cards <span
-                    style="font-size: 0.8rem; background: var(--secondary-accent); padding: 2px 8px; border-radius: 10px; vertical-align: middle;">SCHOOL</span>
-            </h3>
-            <p style="color: var(--text-muted);">Generate Print-Ready Student ID Cards in A4 Batches.</p>
-        </a>
-
-        <!-- Tool: Time-Table Manager -->
-        <a href="timetable.html" class="tool-card" style="text-decoration: none; display: block;">
-            <i class="fas fa-calendar-alt tool-icon"></i>
-            <h3>Time-Table Manager <span
-                    style="font-size: 0.8rem; background: var(--secondary-accent); padding: 2px 8px; border-radius: 10px; vertical-align: middle;">SCHOOL</span>
-            </h3>
-            <p style="color: var(--text-muted);">Weekly scheduler with real-time teacher conflict detection.</p>
-        </a>
-
-        <!-- Tool: Villain Timer -->
-        <a href="timer.html" class="tool-card" style="text-decoration: none; display: block;">
-            <i class="fas fa-stopwatch tool-icon"></i>
-            <h3>Villain Mode <span
-                    style="font-size: 0.8rem; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 10px; vertical-align: middle;">FOCUS</span>
-            </h3>
-            <p style="color: var(--text-muted);">Minimalist Pomodoro timer for deep work sessions.</p>
-        </a>
-
-        <!-- Tool: Screenshot Generator -->
-        <!-- Tool: Screenshot Generator -->
-        <div class="tool-card" style="opacity: 0.7; cursor: not-allowed;">
-            <i class="fas fa-camera tool-icon"></i>
-            <h3>Web Capture <span
-                    style="font-size: 0.8rem; border: 1px solid #ffbd2e; color: #ffbd2e; padding: 2px 8px; border-radius: 10px; vertical-align: middle;">SOON</span>
-            </h3>
-            <p style="color: var(--text-muted);">Generate high-quality thumbnails of any website URL.</p>
-        </div>
-
-        <!-- Tool 1: Video Downloader (Existing) -->
-        <div class="tool-card video-tool-container">
-            <i class="fas fa-play-circle tool-icon"></i>
-            <h3>Ad-Free Player <span
-                    style="font-size: 0.8rem; background: var(--secondary-accent); padding: 2px 8px; border-radius: 10px; vertical-align: middle;">PREMIUM</span>
-            </h3>
-            <p style="margin-bottom: 20px;">Stream YouTube videos without ads and interruptions.</p>
-
-
-
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <!-- Video Player Logic Container -->
+        <div id="logic-video-tool" class="tool-logic-block">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top:20px;">
                 <input type="text" id="videoUrl" class="input-box" style="flex-grow: 1; margin-bottom: 0;"
                     placeholder="Paste YouTube Link...">
                 <button class="primary-btn" onclick="loadVideo()">Play</button>
             </div>
-
             <div id="videoContainer" class="video-wrapper"
                 style="margin-top: 20px; position: relative; padding-bottom: 40%; height: 0; overflow: hidden; background: #000; border-radius: 12px; display: none;">
-                <!-- Iframe -->
             </div>
-            <!-- Download Section Removed due to policy change -->
-            <p id="downloadStatus" style="margin-top: 10px; font-size: 0.9rem; display: none;"></p>
         </div>
 
-        <!-- Tool 2: QR Code Generator -->
-        <a href="qrcode.html" class="tool-card" style="text-decoration: none; display: block;">
-            <i class="fas fa-qrcode tool-icon"></i>
-            <h3>QR Studio <span
-                    style="font-size: 0.8rem; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 10px; vertical-align: middle;">FREE</span>
-            </h3>
-            <p>Advanced QR Generator with colors, logos, and vector (SVG) export.</p>
-        </a>
-
-        <!-- Tool 3: Password Generator -->
-        <div class="tool-card">
-            <i class="fas fa-lock tool-icon"></i>
-            <h3>Secure Passwords <span
-                    style="font-size: 0.8rem; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 10px; vertical-align: middle;">FREE</span>
-            </h3>
-            <p>Generate cryptographically strong passwords instantly.</p>
+        <!-- Password Generator Logic Container -->
+        <div id="logic-password-tool" class="tool-logic-block">
             <div class="tool-content">
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                     <label style="font-size: 0.9rem;"><input type="checkbox" id="includeSymbols" checked>
@@ -279,13 +205,8 @@
             </div>
         </div>
 
-        <!-- Tool 4: Internet Speed Test (Simulated) -->
-        <div class="tool-card">
-            <i class="fas fa-tachometer-alt tool-icon"></i>
-            <h3>Net Speed <span
-                    style="font-size: 0.8rem; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 10px; vertical-align: middle;">FREE</span>
-            </h3>
-            <p>Quickly functionality check of your internet latency.</p>
+        <!-- Speed Test Logic Container -->
+        <div id="logic-speed-tool" class="tool-logic-block">
             <div class="tool-content">
                 <button class="primary-btn" onclick="runSpeedTest()" style="width: 100%;">Run Test</button>
                 <div id="speedOutput" style="margin-top: 20px; text-align: center;">
@@ -296,7 +217,6 @@
         </div>
 
     </div>
-
 
     <!-- Pre-Footer CTA -->
     <section class="pre-footer">
@@ -395,21 +315,92 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="script.js"></script>
     <script>
-        // --- Tool Logic --- //
+        // --- Dynamic Tool Rendering --- //
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('tools-container');
+            // Try local first, then prod for demo, or better: use relative if served from same origin, or just hardcode for this user
+            const apiBase = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
+                ? 'http://127.0.0.1:5000'
+                : 'https://school-backend-api-5hkh.onrender.com';
 
-        // 1. Video Downloader Logic (Merged) - Now Ad-Free Player
-        // Backend check removed as it is no longer needed.
+            try {
+                const res = await fetch(`${apiBase}/api/tools`);
+                const tools = await res.json();
+
+                if (!tools || tools.length === 0) {
+                    container.innerHTML = '<p>No tools found.</p>';
+                    return;
+                }
+
+                container.innerHTML = tools.map(t => {
+                    const isLocked = t.is_locked;
+
+                    let inlineContent = '';
+                    let additionalClass = '';
+                    const href = isLocked ? 'javascript:void(0)' : (t.tool_url.startsWith('#') ? 'javascript:void(0)' : t.tool_url);
+
+                    if (t.name.includes("Ad-Free Player")) {
+                        additionalClass = 'video-tool-container';
+                    }
+
+                    // Map FontAwesome class to full HTML if needed, or just use class
+                    // The DB has "fas fa-..." in icon_url
+                    const iconHtml = `<i class="${t.icon_url} tool-icon"></i>`;
+
+                    let badge = '';
+                    if (t.name.includes('Invoice')) badge = '<span style="font-size:0.8rem; background:var(--primary-accent); padding:2px 8px; border-radius:10px; color:white;">NEW</span>';
+                    // if(t.is_locked) badge = '<span style="font-size:0.8rem; background:#ffd700; color:black; padding:2px 8px; border-radius:10px;">LOCKED</span>';
+
+                    return `
+                    <a href="${href}" class="tool-card ${isLocked ? 'locked' : ''} ${additionalClass}" id="tool-card-${t.id}" style="text-decoration:none; display:block;">
+                        ${iconHtml}
+                        <h3 style="color:white;">${t.name} ${badge}</h3>
+                        <p style="color:var(--text-muted); margin-bottom:15px;">${t.description}</p>
+                        <div class="dynamic-logic-container" id="logic-container-${t.id}"></div>
+                    </a>
+                    `;
+                }).join('');
+
+                // Post-Render: Inject Inline Logic
+                tools.forEach(t => {
+                    if (t.is_locked) return;
+
+                    const cardLogic = document.getElementById(`logic-container-${t.id}`);
+                    if (!cardLogic) return;
+
+                    if (t.tool_url === '#video-tool' || t.name.includes('Player')) {
+                        const logic = document.getElementById('logic-video-tool');
+                        if (logic) {
+                            logic.style.display = 'block'; // Make sure the inner block isn't hidden by default CSS if I didn't set it
+                            cardLogic.appendChild(logic);
+                        }
+                    }
+                    if (t.tool_url === '#password-tool' || t.name.includes('Password')) {
+                        const logic = document.getElementById('logic-password-tool');
+                        if (logic) cardLogic.appendChild(logic);
+                    }
+                    if (t.tool_url === '#speed-tool' || t.name.includes('Net Speed')) {
+                        const logic = document.getElementById('logic-speed-tool');
+                        if (logic) cardLogic.appendChild(logic);
+                    }
+                });
+
+            } catch (e) {
+                console.error("Tools Load Error", e);
+                container.innerHTML = '<p style="text-align:center;">Could not load tools (API Error).</p>';
+            }
+        });
+
+        // --- Tool Logic Functions (Preserved) --- //
 
         function loadVideo() {
             const url = document.getElementById('videoUrl').value;
-            // Robust Regex for Youtube URLs (including m., www., shorts, etc.)
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             const videoId = (match && match[2].length === 11) ? match[2] : null;
 
             if (videoId) {
                 const container = document.getElementById('videoContainer');
-                // Use youtube-nocookie for better privacy/ad-reduction
                 container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0" allowfullscreen style="width:100%; height:100%; border:0;"></iframe>`;
                 container.style.display = 'block';
             } else {
@@ -417,14 +408,11 @@
             }
         }
 
-        // function startDownload(quality) { ... } // Removed or safely ignored
-
         async function startDownload(quality) {
             if (downloadCount >= limit) {
                 document.getElementById('paywallModal').style.display = 'flex';
                 return;
             }
-            // Simple Simulation for now to ensure UI works even without backend
             const btn = event.target;
             const originalText = btn.innerHTML;
             btn.innerHTML = 'Working...';
@@ -440,11 +428,10 @@
             }, 2000);
         }
 
-        // 2. QR Code Generator
         function generateQR() {
             const text = document.getElementById('qrInput').value;
             const container = document.getElementById('qrcode');
-            container.innerHTML = ''; // Clear previous
+            container.innerHTML = '';
             if (text) {
                 new QRCode(container, {
                     text: text,
@@ -457,7 +444,6 @@
             }
         }
 
-        // 3. Password Generator
         function generatePassword() {
             const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
             const numbers = "0123456789";
@@ -476,11 +462,10 @@
             out.style.display = 'block';
         }
 
-        // 4. Speed Test (Simulation)
         function runSpeedTest() {
             const el = document.getElementById('speedValue');
             let speed = 0;
-            const target = Math.floor(Math.random() * 80) + 20; // Random 20-100 Mbps
+            const target = Math.floor(Math.random() * 80) + 20;
 
             const interval = setInterval(() => {
                 speed += Math.random() * 5;
