@@ -332,6 +332,8 @@ def get_stats():
     total_messages = Message.query.count()
     active_ads = Ad.query.filter_by(is_active=1).count()
     live_projects = Project.query.filter_by(status='Live').count()
+    total_tools = Tool.query.count()
+    total_leads = Lead.query.count()
     
     recent_visitors = []
     # Helper to serialize visits
@@ -346,6 +348,8 @@ def get_stats():
         "unread_messages": unread_messages,
         "active_ads": active_ads,
         "live_projects": live_projects,
+        "total_tools": total_tools,
+        "total_leads": total_leads,
         "recent_visitors": recent_visitors
     })
 
@@ -556,13 +560,33 @@ def manage_projects():
         db.session.commit()
         return jsonify({"success": True})
 
+# 🏥 HEALTH CHECK
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    try:
+        # Check simple query
+        db.session.execute(text('SELECT 1'))
+        return jsonify({"status": "healthy", "database": "connected"}), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "database": "disconnected", "error": str(e)}), 500
+
 # 📈 LEADS
-@app.route('/api/leads', methods=['POST'])
-def log_lead():
-    d = request.json
-    db.session.add(Lead(plan_name=d.get('plan_name')))
-    db.session.commit()
-    return jsonify({"success": True, "message": "Lead logged"})
+@app.route('/api/leads', methods=['GET', 'POST'])
+def manage_leads():
+    if request.method == 'GET':
+        # Auth Check
+        user_role = request.headers.get('X-Role', 'Guest')
+        if user_role not in ['Admin', 'Editor']:
+            return jsonify({"success": False, "message": "Access Denied"}), 403
+            
+        leads = Lead.query.order_by(Lead.timestamp.desc()).all()
+        return jsonify([{"id": l.id, "plan_name": l.plan_name, "timestamp": l.timestamp} for l in leads])
+
+    if request.method == 'POST':
+        d = request.json
+        db.session.add(Lead(plan_name=d.get('plan_name')))
+        db.session.commit()
+        return jsonify({"success": True, "message": "Lead logged"})
 
 # 👥 TEAM MANAGEMENT
 @app.route('/api/team', methods=['GET'])
@@ -672,102 +696,23 @@ def update_popup():
     db.session.commit()
     return jsonify({"success": True, "message": "Popup Updated"})
 
-# 💰 PRICING MANAGER
-@app.route('/api/pricing', methods=['GET', 'POST', 'DELETE'])
-def manage_pricing():
-    if request.method == 'GET':
-        plans = PricingPlan.query.all()
-        return jsonify([{
-            "id": p.id,
-            "name": p.name,
-            "price": p.price,
-            "billing_cycle": p.billing_cycle,
-            "border_color": p.border_color,
-            "has_timer": p.has_timer,
-            "countdown_minutes": p.countdown_minutes,
-            "included_features": p.included_features,
-            "excluded_features": p.excluded_features, 
-            "is_featured": p.is_featured
-        } for p in plans])
-
-    # Admin Only for POST/DELETE
-    user_role = request.headers.get('X-Role', 'Guest')
-    if user_role != 'Admin': return jsonify({"success": False, "message": "Access Denied"}), 403
-
-    try:
-        if request.method == 'POST':
-            d = request.json
-            p = PricingPlan(
-                name=d['name'], 
-                price=d['price'], 
-                billing_cycle=d.get('billing_cycle', ''),
-                border_color=d.get('border_color', 'cyan'),
-                has_timer=d.get('has_timer', False),
-                countdown_minutes=int(d.get('countdown_minutes', 0)),
-                included_features=d.get('included_features', '[]'),
-                excluded_features=d.get('excluded_features', '[]'),
-                is_featured=d.get('is_featured', False)
-            )
-            db.session.add(p)
-            db.session.commit()
-            return jsonify({"success": True, "message": "Plan Added"})
-
-        if request.method == 'PUT':
-            d = request.json
-            p = PricingPlan.query.get(d['id'])
-            if not p: return jsonify({"success": False, "message": "Plan not found"}), 404
-            
-            p.name = d['name']
-            p.price = d['price']
-            p.billing_cycle = d.get('billing_cycle', '')
-            p.border_color = d.get('border_color', 'cyan')
-            p.has_timer = d.get('has_timer', False)
-            p.countdown_minutes = int(d.get('countdown_minutes', 0))
-            p.included_features = d.get('included_features', '[]')
-            p.excluded_features = d.get('excluded_features', '[]')
-            p.is_featured = d.get('is_featured', False)
-            
-            db.session.commit()
-            return jsonify({"success": True, "message": "Plan Updated"})
-
-        if request.method == 'DELETE':
-            pid = request.args.get('id')
-            PricingPlan.query.filter_by(id=pid).delete()
-            db.session.commit()
-            return jsonify({"success": True, "message": "Plan Deleted"})
-    except Exception as e:
-        print(f"Pricing API Error: {e}")
-        return jsonify({"success": False, "message": str(e)}), 500
-
-@app.route('/api/pricing/update/<int:id>', methods=['POST'])
-def update_pricing_plan(id):
-    # Admin Only
-    user_role = request.headers.get('X-Role', 'Guest')
-    if user_role != 'Admin': return jsonify({"success": False, "message": "Access Denied"}), 403
-
-    d = request.json
-    p = PricingPlan.query.get(id)
-    if not p:
-        return jsonify({"success": False, "message": "Plan not found"}), 404
-
-    try:
-        p.name = d.get('name', p.name)
-        p.price = d.get('price', p.price)
-        p.billing_cycle = d.get('billing_cycle', p.billing_cycle)
-        p.border_color = d.get('border_color', p.border_color)
-        p.has_timer = bool(d.get('has_timer', p.has_timer))
-        p.countdown_minutes = int(d.get('countdown_minutes', p.countdown_minutes))
-        p.included_features = d.get('included_features', p.included_features)
-        p.excluded_features = d.get('excluded_features', p.excluded_features)
-        
-        # Checkbox handling depending on how frontend sends it (sometimes 'on' or true)
-        if 'is_featured' in d:
-            p.is_featured = bool(d['is_featured'])
-
-        db.session.commit()
-        return jsonify({"success": True, "message": "Plan Updated Successfully"})
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+# 💰 PRICING MANAGER (READ-ONLY)
+@app.route('/api/pricing', methods=['GET'])
+def get_pricing():
+    # Public route for fetching pricing plans
+    plans = PricingPlan.query.all()
+    return jsonify([{
+        "id": p.id,
+        "name": p.name,
+        "price": p.price,
+        "billing_cycle": p.billing_cycle,
+        "border_color": p.border_color,
+        "has_timer": p.has_timer,
+        "countdown_minutes": p.countdown_minutes,
+        "included_features": p.included_features,
+        "excluded_features": p.excluded_features, 
+        "is_featured": p.is_featured
+    } for p in plans])
 
 
 # 🛠 TOOLBOX MANAGER
@@ -821,5 +766,5 @@ def manage_tools():
         return jsonify({"success": True, "message": "Tool Deleted"})
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
