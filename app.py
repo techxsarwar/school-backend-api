@@ -2,7 +2,7 @@ import os
 import sys
 from datetime import datetime
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from models import db, User, Visit, Message, Testimonial, Project, Post, Setting, Ad, Coupon, Lead, ActivityLog, log_activity
 from auth import auth_bp
 from functools import wraps
@@ -514,11 +514,18 @@ def get_team():
     return jsonify([{"id": u.id, "username": u.username, "email": u.email, "role": u.role, "joined_date": u.joined_date} for u in users])
 
 @app.route('/api/team/invite', methods=['POST', 'OPTIONS'])
+@cross_origin()
 @role_required(['Admin'])
 def invite_user():
     # Logging
+    print(f"Headers: {request.headers}")
+    print(f"Data: {request.get_data(as_text=True)}")
+
+    if not request.is_json:
+        return jsonify({"success": False, "message": "Content-Type must be application/json"}), 400
+
     data = request.get_json()
-    print(f"Received Data: {data}")
+    print(f"Received JSON: {data}")
 
     if not data:
         return jsonify({"success": False, "message": "No input data provided"}), 400
