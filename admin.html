@@ -268,7 +268,9 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-        <div class="logo"><i class="fas fa-layer-group"></i> CMS Control </div>
+        <div class="logo">
+            <i class="fas fa-layer-group"></i> CMS Control
+        </div>
 
         <div class="nav-link active" onclick="nav('dashboard', this)">
             <i class="fas fa-chart-pie"></i> Dashboard
@@ -285,9 +287,7 @@
         <div class="nav-link" onclick="nav('content', this)">
             <i class="fas fa-pen-nib"></i> Content
         </div>
-        <div class="nav-link" onclick="nav('pricing', this)">
-            <i class="fas fa-tags"></i> Pricing
-        </div>
+
         <div class="nav-link" onclick="nav('seo-profile', this)">
             <i class="fas fa-search"></i> SEO & Profile
         </div>
@@ -299,328 +299,260 @@
         </div>
     </div>
 
-    <!-- MAIN -->
-    <div class="main-content">
-        <div class="header">
-            <div style="display:flex;align-items:center;gap:15px;">
-                <button id="menu-toggle" class="hamburger" style="display:none;"><i class="fas fa-bars"></i></button>
-                <h1 class="page-title" id="page-title">Dashboard</h1>
+    <!-- 1. DASHBOARD -->
+    <section id="dashboard" class="section active">
+        <div class="grid-3">
+            <div class="card">
+                <h3>Total Visits</h3>
+                <h1 id="stat-visits">0</h1>
             </div>
-            <a href="index.html" target="_blank" class="btn-primary"
-                style="text-decoration:none; font-size:0.9rem;">View Site <i class="fas fa-external-link-alt"></i></a>
+            <div class="card">
+                <h3>Messages</h3>
+                <h1 id="stat-msgs">0</h1>
+                <small id="stat-unread" style="color:var(--danger)">0 Unread</small>
+            </div>
+            <div class="card">
+                <h3>Live Projects</h3>
+                <h1 id="stat-projects" style="color:var(--success)">0</h1>
+            </div>
         </div>
 
-        <!-- 1. DASHBOARD -->
-        <section id="dashboard" class="section active">
-            <div class="grid-3">
-                <div class="card">
-                    <h3>Total Visits</h3>
-                    <h1 id="stat-visits">0</h1>
-                </div>
-                <div class="card">
-                    <h3>Messages</h3>
-                    <h1 id="stat-msgs">0</h1>
-                    <small id="stat-unread" style="color:var(--danger)">0 Unread</small>
-                </div>
-                <div class="card">
-                    <h3>Live Projects</h3>
-                    <h1 id="stat-projects" style="color:var(--success)">0</h1>
-                </div>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Recent Visitors</h3>
+                <div id="recent-visitors">Looking for data...</div>
             </div>
+            <!-- Quick Note & Health -->
+            <div class="card">
+                <h3>Quick Note <small style="font-size:0.7rem; font-weight:400; color:#888;" id="note-status"></small>
+                </h3>
+                <textarea id="quick-note" class="input-field" rows="6" placeholder="Jot down ideas..."
+                    oninput="saveNote()"></textarea>
 
-            <div class="grid-2">
-                <div class="card">
-                    <h3>Recent Visitors</h3>
-                    <div id="recent-visitors">Looking for data...</div>
-                </div>
-                <!-- Quick Note & Health -->
-                <div class="card">
-                    <h3>Quick Note <small style="font-size:0.7rem; font-weight:400; color:#888;"
-                            id="note-status"></small></h3>
-                    <textarea id="quick-note" class="input-field" rows="6" placeholder="Jot down ideas..."
-                        oninput="saveNote()"></textarea>
-
-                    <div style="margin-top:20px; border-top:1px solid #333; padding-top:15px;">
-                        <h3>System Health</h3>
-                        <div
-                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                            <span>Database:</span>
-                            <span id="health-db" class="status-badge"
-                                style="background:#222; color:#888;">Checking...</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span>Server Time:</span>
-                            <span id="health-time"
-                                style="font-family:monospace; color:var(--accent-dim);">--:--:--</span>
-                        </div>
+                <div style="margin-top:20px; border-top:1px solid #333; padding-top:15px;">
+                    <h3>System Health</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <span>Database:</span>
+                        <span id="health-db" class="status-badge"
+                            style="background:#222; color:#888;">Checking...</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>Server Time:</span>
+                        <span id="health-time" style="font-family:monospace; color:var(--accent-dim);">--:--:--</span>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- 2. INBOX -->
-        <section id="inbox" class="section">
+    <!-- 2. INBOX -->
+    <section id="inbox" class="section">
+        <div class="card">
+            <h3>Contact Messages</h3>
+            <div id="messages-list"></div>
+        </div>
+    </section>
+
+    <!-- 3. MARKETING (Ads & Coupons) -->
+    <section id="marketing" class="section">
+        <div class="card" style="margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>Campaign Tools</h3>
+                <button class="btn-primary" onclick="window.location.href='/api/export-contacts'">Export Contacts
+                    (CSV)</button>
+            </div>
+        </div>
+
+        <div class="grid-2">
             <div class="card">
-                <h3>Contact Messages</h3>
-                <div id="messages-list"></div>
+                <h3>Create Ad Campaign</h3>
+                <div class="form-group"><label>Headline</label><input id="ad-title" class="input-field"></div>
+                <div class="form-group"><label>Image URL</label><input id="ad-img" class="input-field"></div>
+                <div class="form-group"><label>Target Link</label><input id="ad-link" class="input-field"></div>
+                <button class="btn-primary" onclick="createAd()">Launch Ad</button>
+                <div style="margin-top:20px;" id="ads-list"></div>
             </div>
-        </section>
-
-        <!-- 3. MARKETING (Ads & Coupons) -->
-        <section id="marketing" class="section">
-            <div class="card" style="margin-bottom:20px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3>Campaign Tools</h3>
-                    <button class="btn-primary" onclick="window.location.href='/api/export-contacts'">Export Contacts
-                        (CSV)</button>
-                </div>
+            <div class="card">
+                <h3>Coupon Generator</h3>
+                <div class="form-group"><label>Discount Value</label><input id="coup-val" class="input-field"
+                        placeholder="e.g. 50% OFF"></div>
+                <button class="btn-primary" onclick="createCoupon()">Generate Code</button>
+                <div style="margin-top:20px;" id="coupons-list"></div>
             </div>
+        </div>
 
+        <!-- Daily Popup Manager -->
+        <div class="card" style="margin-top:20px; border-left:4px solid var(--success);">
+            <h3>Daily Marketing Popup Manager</h3>
             <div class="grid-2">
-                <div class="card">
-                    <h3>Create Ad Campaign</h3>
-                    <div class="form-group"><label>Headline</label><input id="ad-title" class="input-field"></div>
-                    <div class="form-group"><label>Image URL</label><input id="ad-img" class="input-field"></div>
-                    <div class="form-group"><label>Target Link</label><input id="ad-link" class="input-field"></div>
-                    <button class="btn-primary" onclick="createAd()">Launch Ad</button>
-                    <div style="margin-top:20px;" id="ads-list"></div>
-                </div>
-                <div class="card">
-                    <h3>Coupon Generator</h3>
-                    <div class="form-group"><label>Discount Value</label><input id="coup-val" class="input-field"
-                            placeholder="e.g. 50% OFF"></div>
-                    <button class="btn-primary" onclick="createCoupon()">Generate Code</button>
-                    <div style="margin-top:20px;" id="coupons-list"></div>
-                </div>
-            </div>
+                <div class="form-group"><label>Popup Title</label><input id="pop-title" class="input-field"
+                        placeholder="e.g. Special Offer"></div>
+                <div class="form-group"><label>Image URL</label><input id="pop-img" class="input-field"
+                        placeholder="https://..."></div>
+                <div class="form-group"><label>Target Link</label><input id="pop-link" class="input-field"
+                        placeholder="https://..."></div>
+                <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+    </section>
 
-            <!-- Daily Popup Manager -->
-            <div class="card" style="margin-top:20px; border-left:4px solid var(--success);">
-                <h3>Daily Marketing Popup Manager</h3>
+    <!-- 5. CONTENT (Blog & Testimonials) -->
+    <section id="content" class="section">
+        <div class="grid-2">
+            <!-- Blog -->
+            <div class="card">
+                <h3>Write Blog Post</h3>
+                <div class="form-group"><label>Title</label><input id="post-title" class="input-field"></div>
                 <div class="grid-2">
-                    <div class="form-group"><label>Popup Title</label><input id="pop-title" class="input-field"
-                            placeholder="e.g. Special Offer"></div>
-                    <div class="form-group"><label>Image URL</label><input id="pop-img" class="input-field"
-                            placeholder="https://..."></div>
-                    <div class="form-group"><label>Target Link</label><input id="pop-link" class="input-field"
-                            placeholder="https://..."></div>
-                    <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-        </section>
-
-        <!-- 5. CONTENT (Blog & Testimonials) -->
-        <section id="content" class="section">
-            <div class="grid-2">
-                <!-- Blog -->
-                <div class="card">
-                    <h3>Write Blog Post</h3>
-                    <div class="form-group"><label>Title</label><input id="post-title" class="input-field"></div>
-                    <div class="grid-2">
-                        <div class="form-group"><label>Cover Image</label><input id="post-img" class="input-field">
-                        </div>
-                        <div class="form-group"><label>Status</label>
-                            <select id="post-status" class="input-field">
-                                <option value="Published">Published</option>
-                                <option value="Draft">Draft</option>
-                                <option value="Archived">Archived</option>
-                            </select>
-                        </div>
+                    <div class="form-group"><label>Cover Image</label><input id="post-img" class="input-field">
                     </div>
-                    <div class="form-group"><label>Content</label><textarea id="post-content" class="input-field"
-                            rows="6"></textarea></div>
-                    <button class="btn-primary" onclick="createPost()">Publish</button>
-                    <hr style="margin:20px 0; border:0; border-top:1px solid #333;">
-                    <div id="posts-list"></div>
-                </div>
-                <!-- Testimonials -->
-                <div class="card">
-                    <h3>Add Testimonial</h3>
-                    <div class="form-group"><label>Client Name</label><input id="test-name" class="input-field"></div>
-                    <div class="form-group"><label>Role</label><input id="test-role" class="input-field"
-                            placeholder="CEO at X"></div>
-                    <div class="form-group"><label>Rating</label><select id="test-rating" class="input-field">
-                            <option value="5">5 Stars</option>
-                            <option value="4">4 Stars</option>
-                        </select></div>
-                    <div class="form-group"><label>Review</label><textarea id="test-rev" class="input-field"
-                            rows="3"></textarea></div>
-                    <button class="btn-primary" onclick="createTestimonial()">Save Review</button>
-                    <hr style="margin:20px 0; border:0; border-top:1px solid #333;">
-                    <div id="testimonials-list"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 6. SEO & PROFILE -->
-        <section id="seo-profile" class="section">
-            <div class="grid-2">
-                <!-- Profile -->
-                <div class="card">
-                    <h3>Personal Branding</h3>
-                    <div class="form-group"><label>Display Name</label><input id="prof-name" class="input-field"></div>
-                    <div class="form-group"><label>Headline</label><textarea id="prof-head" class="input-field"
-                            rows="3"></textarea></div>
-                    <div class="form-group"><label>About Me (Timeline)</label><textarea id="prof-about"
-                            class="input-field" rows="5"></textarea></div>
-                    <div class="form-group"><label>Resume URL</label><input id="prof-resume" class="input-field"></div>
-
-                    <h4 style="margin-top:20px; color:#888; border-top:1px solid #333; padding-top:10px;">Social Media
-                    </h4>
-                    <div class="grid-2">
-                        <div class="form-group"><label>GitHub</label><input id="s-github" class="input-field"></div>
-                        <div class="form-group"><label>LinkedIn</label><input id="s-linkedin" class="input-field"></div>
-                        <div class="form-group"><label>Instagram</label><input id="s-instagram" class="input-field">
-                        </div>
-                        <div class="form-group"><label>Twitter/X</label><input id="s-twitter" class="input-field"></div>
-                    </div>
-
-                    <button class="btn-primary" onclick="saveProfile()" style="margin-top:10px;">Update Profile</button>
-                </div>
-                <!-- SEO -->
-                <div class="card">
-                    <h3>SEO Configuration</h3>
-                    <div class="form-group"><label>Site Title</label><input id="seo-title" class="input-field"></div>
-                    <div class="form-group"><label>Meta Description</label><textarea id="seo-desc" class="input-field"
-                            rows="3"></textarea></div>
-                    <div class="form-group"><label>Keywords</label><input id="seo-keys" class="input-field"></div>
-                    <button class="btn-primary" onclick="saveSEO()">Update SEO</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- 7. PRICING MANAGER -->
-        <section id="pricing" class="section">
-            <div class="grid-2">
-                <div class="card">
-                    <h3>Add Pricing Plan</h3>
-                    <div class="form-group"><label>Plan Name</label><input id="price-name" class="input-field"></div>
-                    <div class="form-group"><label>Price (e.g. ₹9,999)</label><input id="price-amt" class="input-field">
-                    </div>
-                    <div class="form-group"><label>Billing Cycle (e.g. /project)</label><input id="price-cycle"
-                            class="input-field"></div>
-                    <div class="form-group"><label>Features (JSON Array)</label><textarea id="price-feat"
-                            class="input-field" rows="4" placeholder='["Feature 1", "Feature 2"]'></textarea></div>
-                    <div class="form-group"><label>Excluded Features (JSON)</label><textarea id="price-exc"
-                            class="input-field" rows="2" placeholder='[]'></textarea></div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>Border Color</label>
-                            <select id="price-color" class="input-field">
-                                <option value="cyan">Cyan</option>
-                                <option value="gold">Gold (Pro)</option>
-                                <option value="red">Red (Hot)</option>
-                                <option value="orange">Orange</option>
-                                <option value="purple">Purple</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Timer (Mins)</label>
-                            <input type="number" id="price-minutes" class="input-field" value="0">
-                        </div>
-                    </div>
-
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>Featured?</label>
-                            <label class="switch"><input type="checkbox" id="price-feat-bool"><span
-                                    class="slider"></span></label>
-                        </div>
-                        <div class="form-group">
-                            <label>Has Timer?</label>
-                            <label class="switch"><input type="checkbox" id="price-timer"><span
-                                    class="slider"></span></label>
-                        </div>
-                    </div>
-
-                    <input type="hidden" id="edit-plan-id">
-                    <button class="btn-primary" id="btn-save-plan" onclick="createPubPlan()">Add Plan</button>
-                    <button class="btn-danger" id="btn-cancel-edit" onclick="resetPlanForm()"
-                        style="display:none; margin-left:10px;">Cancel Edit</button>
-                </div>
-                <div class="card">
-                    <h3>Existing Plans</h3>
-                    <div id="pricing-list"></div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- 9. SITE CONTROL -->
-        <section id="site-control" class="section">
-            <div class="card">
-                <h3>Global Announcement</h3>
-                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                    <div>Enable Announcement</div>
-                    <label class="switch"><input type="checkbox" id="ann-active"><span class="slider"></span></label>
-                </div>
-                <div class="form-group"><label>Message</label><input id="ann-text" class="input-field"></div>
-                <div class="grid-2">
-                    <div class="form-group"><label>Type</label><select id="ann-type" class="input-field">
-                            <option value="bar">Bar</option>
-                            <option value="popup">Popup</option>
-                        </select></div>
-                    <div class="form-group"><label>Color</label><input type="color" id="ann-color" class="input-field"
-                            style="height:45px;"></div>
-                </div>
-                <button class="btn-primary" onclick="saveSettings()">Save Configuration</button>
-            </div>
-
-            <div class="card">
-                <h3>Maintenance Mode</h3>
-                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                    <div style="color:var(--danger)">Activate Lockout</div>
-                    <label class="switch"><input type="checkbox" id="maint-active" class="danger"><span
-                            class="slider"></span></label>
-                </div>
-                <div class="form-group"><label>Expected Duration</label>
-                    <select id="maintenance-duration" class="input-field">
-                        <option value="0">Indefinite (Manual)</option>
-                        <option value="15">15 Minutes</option>
-                        <option value="60">1 Hour</option>
-                        <option value="360">6 Hours</option>
-                        <option value="1440">24 Hours</option>
-                    </select>
-                </div>
-                <button class="btn-primary" onclick="saveSettings()">Activate Maintenance</button>
-
-                <div style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
-                    <button onclick="clearLogs()" class="btn-danger" style="width:100%">🗑 Clear All Analytics
-                        Logs</button>
-                    <p style="color:#666; font-size:0.8rem; margin-top:5px; text-align:center;">This action cannot be
-                        undone.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 8. TEAM DASHBOARD -->
-        <section id="team" class="section">
-            <div class="grid-3">
-                <div class="card" style="grid-column: span 2;">
-                    <h3>Team Members</h3>
-                    <div id="team-list"></div>
-                </div>
-                <div class="card">
-                    <h3>Invite Content Creator</h3>
-                    <div class="form-group"><label>Username</label><input id="inv-user" class="input-field"></div>
-                    <div class="form-group"><label>Email</label><input id="inv-email" class="input-field"></div>
-                    <div class="form-group"><label>Role</label>
-                        <select id="inv-role" class="input-field">
-                            <option value="Editor">Editor</option>
-                            <option value="Developer">Developer</option>
-                            <option value="Admin">Admin</option>
+                    <div class="form-group"><label>Status</label>
+                        <select id="post-status" class="input-field">
+                            <option value="Published">Published</option>
+                            <option value="Draft">Draft</option>
+                            <option value="Archived">Archived</option>
                         </select>
                     </div>
-                    <button class="btn-primary" onclick="sendInvite()">Send Invite</button>
-                    <p style="margin-top:10px; font-size:0.8rem; color:#666;">Default password will be <b>welcome123</b>
-                    </p>
                 </div>
+                <div class="form-group"><label>Content</label><textarea id="post-content" class="input-field"
+                        rows="6"></textarea></div>
+                <button class="btn-primary" onclick="createPost()">Publish</button>
+                <hr style="margin:20px 0; border:0; border-top:1px solid #333;">
+                <div id="posts-list"></div>
             </div>
+            <!-- Testimonials -->
+            <div class="card">
+                <h3>Add Testimonial</h3>
+                <div class="form-group"><label>Client Name</label><input id="test-name" class="input-field"></div>
+                <div class="form-group"><label>Role</label><input id="test-role" class="input-field"
+                        placeholder="CEO at X"></div>
+                <div class="form-group"><label>Rating</label><select id="test-rating" class="input-field">
+                        <option value="5">5 Stars</option>
+                        <option value="4">4 Stars</option>
+                    </select></div>
+                <div class="form-group"><label>Review</label><textarea id="test-rev" class="input-field"
+                        rows="3"></textarea></div>
+                <button class="btn-primary" onclick="createTestimonial()">Save Review</button>
+                <hr style="margin:20px 0; border:0; border-top:1px solid #333;">
+                <div id="testimonials-list"></div>
+            </div>
+        </div>
+    </section>
 
-            <div class="card" style="margin-top:20px;">
-                <h3>Activity Log</h3>
-                <div style="max-height:300px; overflow-y:auto;" id="activity-log"></div>
+    <!-- 6. SEO & PROFILE -->
+    <section id="seo-profile" class="section">
+        <div class="grid-2">
+            <!-- Profile -->
+            <div class="card">
+                <h3>Personal Branding</h3>
+                <div class="form-group"><label>Display Name</label><input id="prof-name" class="input-field"></div>
+                <div class="form-group"><label>Headline</label><textarea id="prof-head" class="input-field"
+                        rows="3"></textarea></div>
+                <div class="form-group"><label>About Me (Timeline)</label><textarea id="prof-about" class="input-field"
+                        rows="5"></textarea></div>
+                <div class="form-group"><label>Resume URL</label><input id="prof-resume" class="input-field"></div>
+
+                <h4 style="margin-top:20px; color:#888; border-top:1px solid #333; padding-top:10px;">Social Media
+                </h4>
+                <div class="grid-2">
+                    <div class="form-group"><label>GitHub</label><input id="s-github" class="input-field"></div>
+                    <div class="form-group"><label>LinkedIn</label><input id="s-linkedin" class="input-field"></div>
+                    <div class="form-group"><label>Instagram</label><input id="s-instagram" class="input-field">
+                    </div>
+                    <div class="form-group"><label>Twitter/X</label><input id="s-twitter" class="input-field"></div>
+                </div>
+
+                <button class="btn-primary" onclick="saveProfile()" style="margin-top:10px;">Update Profile</button>
             </div>
-        </section>
+            <!-- SEO -->
+            <div class="card">
+                <h3>SEO Configuration</h3>
+                <div class="form-group"><label>Site Title</label><input id="seo-title" class="input-field"></div>
+                <div class="form-group"><label>Meta Description</label><textarea id="seo-desc" class="input-field"
+                        rows="3"></textarea></div>
+                <div class="form-group"><label>Keywords</label><input id="seo-keys" class="input-field"></div>
+                <button class="btn-primary" onclick="saveSEO()">Update SEO</button>
+            </div>
+        </div>
+    </section>
+
+
+
+
+    <!-- 9. SITE CONTROL -->
+    <section id="site-control" class="section">
+        <div class="card">
+            <h3>Global Announcement</h3>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <div>Enable Announcement</div>
+                <label class="switch"><input type="checkbox" id="ann-active"><span class="slider"></span></label>
+            </div>
+            <div class="form-group"><label>Message</label><input id="ann-text" class="input-field"></div>
+            <div class="grid-2">
+                <div class="form-group"><label>Type</label><select id="ann-type" class="input-field">
+                        <option value="bar">Bar</option>
+                        <option value="popup">Popup</option>
+                    </select></div>
+                <div class="form-group"><label>Color</label><input type="color" id="ann-color" class="input-field"
+                        style="height:45px;"></div>
+            </div>
+            <button class="btn-primary" onclick="saveSettings()">Save Configuration</button>
+        </div>
+
+        <div class="card">
+            <h3>Maintenance Mode</h3>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <div style="color:var(--danger)">Activate Lockout</div>
+                <label class="switch"><input type="checkbox" id="maint-active" class="danger"><span
+                        class="slider"></span></label>
+            </div>
+            <div class="form-group"><label>Expected Duration</label>
+                <select id="maintenance-duration" class="input-field">
+                    <option value="0">Indefinite (Manual)</option>
+                    <option value="15">15 Minutes</option>
+                    <option value="60">1 Hour</option>
+                    <option value="360">6 Hours</option>
+                    <option value="1440">24 Hours</option>
+                </select>
+            </div>
+            <button class="btn-primary" onclick="saveSettings()">Activate Maintenance</button>
+
+            <div style="margin-top:30px; border-top:1px solid #333; padding-top:20px;">
+                <button onclick="clearLogs()" class="btn-danger" style="width:100%">🗑 Clear All Analytics
+                    Logs</button>
+                <p style="color:#666; font-size:0.8rem; margin-top:5px; text-align:center;">This action cannot be
+                    undone.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. TEAM DASHBOARD -->
+    <section id="team" class="section">
+        <div class="grid-3">
+            <div class="card" style="grid-column: span 2;">
+                <h3>Team Members</h3>
+                <div id="team-list"></div>
+            </div>
+            <div class="card">
+                <h3>Invite Content Creator</h3>
+                <div class="form-group"><label>Username</label><input id="inv-user" class="input-field"></div>
+                <div class="form-group"><label>Email</label><input id="inv-email" class="input-field"></div>
+                <div class="form-group"><label>Role</label>
+                    <select id="inv-role" class="input-field">
+                        <option value="Editor">Editor</option>
+                        <option value="Developer">Developer</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <button class="btn-primary" onclick="sendInvite()">Send Invite</button>
+                <p style="margin-top:10px; font-size:0.8rem; color:#666;">Default password will be <b>welcome123</b>
+                </p>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+            <h3>Activity Log</h3>
+            <div style="max-height:300px; overflow-y:auto;" id="activity-log"></div>
+        </div>
+    </section>
     </div>
 
     <!-- ADMIN LOGIC -->
@@ -644,7 +576,6 @@
             if (id === 'marketing') { loadAds(); loadCoupons(); }
             if (id === 'portfolio') loadProjects();
             if (id === 'content') { loadPosts(); loadTestimonials(); }
-            if (id === 'seo-profile') { loadProfile(); loadSEO(); }
             if (id === 'seo-profile') { loadProfile(); loadSEO(); }
             if (id === 'site-control') loadSettings();
             if (id === 'team') { loadTeam(); loadActivity(); }
@@ -687,6 +618,25 @@
                 loadNote();
             } catch (e) { console.error(e); }
         }
+
+        if (!user) window.location.href = 'login.html';
+
+        // UI Hiding based on Role
+        if (role === 'Editor') {
+            document.querySelector("div[onclick=\"nav('site-control', this)\"]").style.display = 'none';
+            document.querySelector("div[onclick=\"nav('seo-profile', this)\"]").style.display = 'none';
+            document.getElementById('nav-team').style.display = 'none';
+        }
+        if (role === 'Developer') {
+            document.querySelector("div[onclick=\"nav('marketing-dash', this)\"]").style.display = 'none';
+            document.getElementById('nav-team').style.display = 'none';
+        }
+
+        // Default load
+        loadExecStats(); 
+        });
+
+
 
         async function checkHealth() {
             try {

@@ -332,8 +332,6 @@ def get_stats():
     total_messages = Message.query.count()
     active_ads = Ad.query.filter_by(is_active=1).count()
     live_projects = Project.query.filter_by(status='Live').count()
-    total_tools = Tool.query.count()
-    total_leads = Lead.query.count()
     
     recent_visitors = []
     # Helper to serialize visits
@@ -348,8 +346,6 @@ def get_stats():
         "unread_messages": unread_messages,
         "active_ads": active_ads,
         "live_projects": live_projects,
-        "total_tools": total_tools,
-        "total_leads": total_leads,
         "recent_visitors": recent_visitors
     })
 
@@ -560,33 +556,13 @@ def manage_projects():
         db.session.commit()
         return jsonify({"success": True})
 
-# 🏥 HEALTH CHECK
-@app.route('/api/health', methods=['GET'])
-def health_check():
-    try:
-        # Check simple query
-        db.session.execute(text('SELECT 1'))
-        return jsonify({"status": "healthy", "database": "connected"}), 200
-    except Exception as e:
-        return jsonify({"status": "unhealthy", "database": "disconnected", "error": str(e)}), 500
-
 # 📈 LEADS
-@app.route('/api/leads', methods=['GET', 'POST'])
-def manage_leads():
-    if request.method == 'GET':
-        # Auth Check
-        user_role = request.headers.get('X-Role', 'Guest')
-        if user_role not in ['Admin', 'Editor']:
-            return jsonify({"success": False, "message": "Access Denied"}), 403
-            
-        leads = Lead.query.order_by(Lead.timestamp.desc()).all()
-        return jsonify([{"id": l.id, "plan_name": l.plan_name, "timestamp": l.timestamp} for l in leads])
-
-    if request.method == 'POST':
-        d = request.json
-        db.session.add(Lead(plan_name=d.get('plan_name')))
-        db.session.commit()
-        return jsonify({"success": True, "message": "Lead logged"})
+@app.route('/api/leads', methods=['POST'])
+def log_lead():
+    d = request.json
+    db.session.add(Lead(plan_name=d.get('plan_name')))
+    db.session.commit()
+    return jsonify({"success": True, "message": "Lead logged"})
 
 # 👥 TEAM MANAGEMENT
 @app.route('/api/team', methods=['GET'])
