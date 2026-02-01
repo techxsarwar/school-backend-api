@@ -54,143 +54,268 @@
             padding: 0 20px;
         }
 
+        <style>
+
+        /* PRO DYNAMIC SYSTEM */
+        :root {
+            --glow-cyan: 0, 243, 255;
+            --glow-gold: 255, 215, 0;
+            --glow-red: 255, 71, 71;
+            --glow-orange: 255, 159, 67;
+            --glow-purple: 165, 94, 234;
+        }
+
+        /* Base Card - Glassmorphism */
         .pricing-card {
-            background: #0d1117;
-            border: 1px solid var(--border-color);
+            background: rgba(22, 27, 34, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
             padding: 40px;
             position: relative;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
+        /* Hover Effect */
         .pricing-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--primary-accent);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
         }
 
-        .pricing-card.featured {
-            background: linear-gradient(145deg, #161b22 0%, #0d1117 100%);
-            border: 1px solid var(--primary-accent);
-            box-shadow: 0 0 30px rgba(103, 61, 230, 0.1);
+        /* Dynamic Border Colors */
+        .border-cyan {
+            border-color: rgb(var(--glow-cyan));
+            box-shadow: 0 0 20px rgba(var(--glow-cyan), 0.1);
         }
 
-        .pricing-card.enterprise {
-            background: linear-gradient(145deg, #1a1600 0%, #000000 100%);
-            border: 1px solid #ffd700;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+        .border-gold {
+            border-color: rgb(var(--glow-gold));
+            box-shadow: 0 0 20px rgba(var(--glow-gold), 0.1);
         }
 
-        .pricing-card.enterprise .plan-name,
-        .pricing-card.enterprise .plan-price {
-            color: #ffd700;
+        .border-red {
+            border-color: rgb(var(--glow-red));
+            box-shadow: 0 0 20px rgba(var(--glow-red), 0.1);
         }
 
-        .pricing-card.enterprise .badge {
-            background: rgba(255, 215, 0, 0.15);
-            color: #ffd700;
-            border-color: rgba(255, 215, 0, 0.3);
+        .border-orange {
+            border-color: rgb(var(--glow-orange));
+            box-shadow: 0 0 20px rgba(var(--glow-orange), 0.1);
         }
 
-        .pricing-card.enterprise .features-list li i {
-            color: #ffd700;
+        .border-purple {
+            border-color: rgb(var(--glow-purple));
+            box-shadow: 0 0 20px rgba(var(--glow-purple), 0.1);
         }
 
+        /* Text Gradients */
+        .text-cyan {
+            color: rgb(var(--glow-cyan));
+        }
+
+        .text-gold {
+            color: rgb(var(--glow-gold));
+        }
+
+        .text-red {
+            color: rgb(var(--glow-red));
+        }
+
+        .text-orange {
+            color: rgb(var(--glow-orange));
+        }
+
+        .text-purple {
+            color: rgb(var(--glow-purple));
+        }
+
+        .pricing-card:hover.border-cyan {
+            box-shadow: 0 0 40px rgba(var(--glow-cyan), 0.3);
+        }
+
+        .pricing-card:hover.border-gold {
+            box-shadow: 0 0 40px rgba(var(--glow-gold), 0.3);
+        }
+
+        .pricing-card:hover.border-red {
+            box-shadow: 0 0 40px rgba(var(--glow-red), 0.3);
+        }
+
+        /* Badge */
         .badge {
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(103, 61, 230, 0.15);
-            color: var(--primary-accent);
             padding: 6px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: 1px solid rgba(103, 61, 230, 0.3);
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
         }
 
+        .badge-cyan {
+            color: rgb(var(--glow-cyan));
+            border: 1px solid rgba(var(--glow-cyan), 0.5);
+            background: rgba(var(--glow-cyan), 0.1);
+        }
+
+        .badge-gold {
+            color: rgb(var(--glow-gold));
+            border: 1px solid rgba(var(--glow-gold), 0.5);
+            background: rgba(var(--glow-gold), 0.1);
+        }
+
+        .badge-red {
+            color: rgb(var(--glow-red));
+            border: 1px solid rgba(var(--glow-red), 0.5);
+            background: rgba(var(--glow-red), 0.1);
+        }
+
+        /* Typography */
         .plan-name {
             font-size: 1.5rem;
-            color: white;
-            margin-bottom: 10px;
             font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
         }
 
         .plan-price {
-            font-size: 2.5rem;
-            color: white;
+            font-size: 3rem;
             font-weight: 800;
+            color: white;
             margin-bottom: 20px;
+            letter-spacing: -1px;
         }
 
         .plan-price span {
             font-size: 1rem;
-            color: var(--text-muted);
+            color: rgba(255, 255, 255, 0.5);
             font-weight: 400;
         }
 
-        .plan-desc {
-            color: var(--text-muted);
-            margin-bottom: 30px;
-            min-height: 50px;
-        }
-
+        /* Features */
         .features-list {
             list-style: none;
             padding: 0;
-            margin: 0 0 40px 0;
+            margin: 20px 0;
             flex-grow: 1;
         }
 
         .features-list li {
-            color: #b0b5c1;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-
-        .features-list li i {
-            color: var(--secondary-accent);
-        }
-
-        .whatsapp-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
             gap: 10px;
-            background: #25D366;
-            color: #ffffff;
-            font-weight: 600;
+            color: #b0b5c1;
+            font-size: 0.95rem;
+        }
+
+        .features-list li.excluded {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        /* Timer */
+        .countdown-timer {
+            margin: -10px 0 20px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ff4747;
+            background: rgba(255, 71, 71, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            width: fit-content;
+        }
+
+        /* Buttons */
+        .cta-btn {
+            width: 100%;
             padding: 16px;
             border-radius: 12px;
-            text-decoration: none;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            border: none;
             transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+            margin-top: auto;
         }
 
-        .whatsapp-btn:hover {
-            background: #20bd5a;
+        .cta-cyan {
+            background: rgb(var(--glow-cyan));
+            color: black;
+            box-shadow: 0 4px 20px rgba(var(--glow-cyan), 0.4);
+        }
+
+        .cta-gold {
+            background: rgb(var(--glow-gold));
+            color: black;
+            box-shadow: 0 4px 20px rgba(var(--glow-gold), 0.4);
+        }
+
+        .cta-red {
+            background: rgb(var(--glow-red));
+            color: white;
+            box-shadow: 0 4px 20px rgba(var(--glow-red), 0.4);
+        }
+
+        .cta-default {
+            background: #333;
+            color: white;
+        }
+
+        .cta-btn:hover {
             transform: scale(1.02);
         }
+    </style>
+    <!-- Kept Essential existing styles -->
 
-        .trust-signal {
-            font-size: 0.85rem;
-            color: #27c93f;
-            margin-top: 15px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+    .whatsapp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #25D366;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s;
+    }
 
-        @media (max-width: 768px) {
-            .pricing-header h1 {
-                font-size: 2.5rem;
-            }
-        }
+    .whatsapp-btn:hover {
+    background: #20bd5a;
+    transform: scale(1.02);
+    }
+
+    .trust-signal {
+    font-size: 0.85rem;
+    color: #27c93f;
+    margin-top: 15px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+    .pricing-header h1 {
+    font-size: 2.5rem;
+    }
+    }
     </style>
 </head>
 

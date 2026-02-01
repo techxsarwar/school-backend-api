@@ -624,7 +624,11 @@ def manage_pricing():
             "name": p.name,
             "price": p.price,
             "billing_cycle": p.billing_cycle,
-            "features": p.features, 
+            "border_color": p.border_color,
+            "has_timer": p.has_timer,
+            "countdown_minutes": p.countdown_minutes,
+            "included_features": p.included_features,
+            "excluded_features": p.excluded_features, 
             "is_featured": p.is_featured
         } for p in plans])
 
@@ -638,7 +642,11 @@ def manage_pricing():
             name=d['name'], 
             price=d['price'], 
             billing_cycle=d.get('billing_cycle', ''),
-            features=d['features'], # Expecting JSON string
+            border_color=d.get('border_color', 'cyan'),
+            has_timer=d.get('has_timer', False),
+            countdown_minutes=int(d.get('countdown_minutes', 0)),
+            included_features=d.get('included_features', '[]'),
+            excluded_features=d.get('excluded_features', '[]'),
             is_featured=d.get('is_featured', False)
         )
         db.session.add(p)

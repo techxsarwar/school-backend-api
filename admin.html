@@ -830,14 +830,19 @@
         async function loadPricing() {
             const data = await API.get('/api/pricing');
             document.getElementById('pricing-list').innerHTML = data.map(p => `
-                <div style="background:#222; padding:10px; margin-bottom:10px; border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="background:#222; padding:10px; margin-bottom:10px; border-radius:4px; border-left: 4px solid ${getColor(p.border_color)}; display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <strong>${p.name}</strong> - ${p.price}${p.billing_cycle}
-                        ${p.is_featured ? '<span class="badge" style="background:var(--primary); margin-left:5px;">Featured</span>' : ''}
+                        <strong>${p.name}</strong> (${JSON.parse(p.included_features || '[]').length} Features)
+                        <div style="font-size:0.8rem; color:#888;">${p.has_timer ? '⏳ Timer: ' + p.countdown_minutes + 'm' : 'No Timer'}</div>
                     </div>
                     <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deletePlan(${p.id})">Delete</button>
                 </div>
             `).join('');
+        }
+
+        function getColor(name) {
+            const colors = { 'cyan': '#00f3ff', 'gold': '#ffd700', 'red': '#ff4747', 'orange': '#ff9f43', 'purple': '#a55eea' };
+            return colors[name] || '#00f3ff';
         }
 
         async function createPlan() {
@@ -846,11 +851,15 @@
                     name: document.getElementById('price-name').value,
                     price: document.getElementById('price-amt').value,
                     billing_cycle: document.getElementById('price-cycle').value,
-                    features: document.getElementById('price-feat').value,
+                    border_color: document.getElementById('price-color').value,
+                    has_timer: document.getElementById('price-timer').checked,
+                    countdown_minutes: document.getElementById('price-minutes').value,
+                    included_features: document.getElementById('price-inc').value,
+                    excluded_features: document.getElementById('price-exc').value,
                     is_featured: document.getElementById('price-feat-bool').checked
                 });
                 showToast('Plan Added');
-                document.getElementById('price-name').closest('.card').querySelectorAll('input, textarea').forEach(i => i.value = '');
+                // document.getElementById('price-name').closest('.card').querySelectorAll('input, textarea').forEach(i => i.value = '');
                 loadPricing();
             } catch (e) { showToast(e.message, 'error'); }
         }
