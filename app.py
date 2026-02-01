@@ -1,10 +1,9 @@
 import os
 import sys
-import sqlite3
 from datetime import datetime
-from flask import Flask, request, jsonify, g
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-from models import get_db, close_connection, init_db, DB
+from models import db, User, Visit, Message, Testimonial, Project, Post, Setting, Ad, Coupon, Lead, ActivityLog, log_activity
 from auth import auth_bp
 from functools import wraps
 from werkzeug.security import generate_password_hash
@@ -14,15 +13,92 @@ app.config['ADMIN_USER'] = "admin"
 app.config['ADMIN_PASS'] = "sarwar123"
 app.config['SECRET_KEY'] = "super-secret-key-change-this"
 
+# Database Configuration
+# Fallback to sqlite if DATABASE_URL not set (e.g. local)
+db_url = os.environ.get('DATABASE_URL')
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///site.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
+
 # Update CORS
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
+# Register Blueprints
+app.register_blueprint(auth_bp)
+
+# --- DB INIT & SEEDING ---
+with app.app_context():
+    try:
+        db.create_all()
+        print("Successfully connected to Database!")
+        
+        # Check Admin
+        if not User.query.filter_by(username='Admin').first():
+            print(" -> Seeding Admin User...")
+            p_hash = generate_password_hash("welcome123")
+            admin = User(username='Admin', password_hash=p_hash, role='Admin', email='admin@example.com')
+            db.session.add(admin)
+            db.session.commit()
+            print(" -> Admin Created (Pass: welcome123)")
+            
+        # Seed Settings if empty
+        if not Setting.query.first():
+             defaults = {
+                "announcement_text": "Welcome to my official portfolio!",
+                "announcement_active": "0",
+                "announcement_type": "bar",
+                "announcement_color": "#000000",
+                "maintenance_mode": "0",
+                "maintenance_end_time": "null",
+                "profile_name": "Sarwar Altaf",
+                "profile_headline": "Building digital empires...",
+                "site_title": "Sarwar Portfolio",
+                "meta_description": "Official Portfolio",
+                "social_github": "#",
+                "quick_note": ""
+            }
+             for k, v in defaults.items():
+                 db.session.add(Setting(key=k, value=v))
+             db.session.commit()
+
+    except Exception as e:
+        print(f"DB Init Error: {e}")
+
+
+# --- HELPERS ---
+def role_required(allowed_roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # Header check
+            user_role = request.headers.get('X-Role', 'Guest')
+            if 'Admin' in allowed_roles and user_role == 'Admin':
+                return f(*args, **kwargs)
+            if user_role in allowed_roles:
+                return f(*args, **kwargs)
+            return jsonify({"success": False, "message": "Access Denied"}), 403
+        return decorated_function
+    return decorator
+
 # --- ROUTES ---
+
+@app.route('/')
+def home():
+    return "Server is Running! 🚀 Sarwar's CMS API is Live (Postgres Ready)."
 
 # 🏥 HEALTH CHECK
 @app.route('/api/health', methods=['GET', 'HEAD'])
 def health_check():
-    return jsonify({"status": "healthy", "time": datetime.now().isoformat()})
+    # Simple explicit DB check
+    try:
+        db.session.execute(db.text('SELECT 1'))
+        return jsonify({"status": "healthy", "db": "connected", "time": datetime.now().isoformat()})
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "error": str(e)}), 500
 
 @app.route('/privacy')
 def privacy_page():
@@ -32,61 +108,11 @@ def privacy_page():
 def terms_page():
     return app.send_static_file('terms.html')
 
-# Register Blueprints
-app.register_blueprint(auth_bp)
-
-# Database Teardown
-@app.teardown_appcontext
-def shutdown_session(exception=None):
-    close_connection(exception)
-
-# Initialize DB
-# Start DB with detailed error handling
-try:
-    if not os.path.exists("site_data.db"):
-        print(" * Database file not found. Initializing...")
-        init_db(app)
-    else:
-        print(" * Database found. Verifying schema...")
-        init_db(app)
-except Exception as e:
-    import traceback
-    print("CRITICAL STARTUP ERROR:", file=sys.stderr)
-    traceback.print_exc()
-    print("The application may fail to start.", file=sys.stderr)
-
-# --- ROUTES ---
-
-# --- RBAC DECORATOR ---
-def role_required(allowed_roles):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            # In a real app, verify token and get user role from it.
-            # Here we simulate by checking a header 'X-Role' sent from frontend
-            # This is NOT SECURE for production but fits the current scope without JWT setup.
-            user_role = request.headers.get('X-Role', 'Guest')
-            
-            if 'Admin' in allowed_roles and user_role == 'Admin':
-                return f(*args, **kwargs)
-            
-            if user_role in allowed_roles:
-                return f(*args, **kwargs)
-            
-            return jsonify({"success": False, "message": "Access Denied"}), 403
-        return decorated_function
-    return decorator
-
-@app.route('/')
-def home():
-    return "Server is Running! 🚀 Sarwar's CMS API is Live."
-
 # 🏥 SYSTEM HEALTH
 @app.route('/api/system-health', methods=['GET'])
 def system_health():
     try:
-        db = get_db()
-        db.execute('SELECT 1')
+        db.session.execute(db.text('SELECT 1'))
         db_status = "OK"
     except:
         db_status = "Error"
@@ -100,19 +126,20 @@ def system_health():
 # 🗑 CLEAR LOGS
 @app.route('/api/logs', methods=['DELETE'])
 def clear_logs():
-    db = get_db()
-    db.execute('DELETE FROM visits')
-    db.commit()
-    return jsonify({"success": True, "message": "Analytics cleared"})
+    try:
+        Visit.query.delete()
+        db.session.commit()
+        return jsonify({"success": True, "message": "Analytics cleared"})
+    except:
+        return jsonify({"success": False}), 500
 
 # 📥 EXPORT CONTACTS
 @app.route('/api/export-contacts', methods=['GET'])
 def export_contacts():
-    rows = DB.query('SELECT name, email, timestamp FROM messages')
-    
+    msgs = Message.query.all()
     output = "Name,Email,Timestamp\n"
-    for row in rows:
-        output += f"{row['name']},{row['email']},{row['timestamp']}\n"
+    for m in msgs:
+        output += f"{m.name},{m.email},{m.timestamp}\n"
     
     from flask import Response
     return Response(
@@ -124,17 +151,20 @@ def export_contacts():
 # 📊 STATS
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
-    # Using Generic Query Helper for cleanliness, though raw SQL is fine
-    total_visits = DB.query('SELECT COUNT(*) FROM visits', one=True)[0]
-    mobile_visits = DB.query('SELECT COUNT(*) FROM visits WHERE device_type = "mobile"', one=True)[0]
+    total_visits = Visit.query.count()
+    mobile_visits = Visit.query.filter_by(device_type='mobile').count()
     desktop_visits = total_visits - mobile_visits
     
-    unread_messages = DB.query('SELECT COUNT(*) FROM messages WHERE read_status = 0', one=True)[0]
-    total_messages = DB.query('SELECT COUNT(*) FROM messages', one=True)[0]
-    active_ads = DB.query('SELECT COUNT(*) FROM ads WHERE is_active = 1', one=True)[0]
-    live_projects = DB.query('SELECT COUNT(*) FROM projects WHERE status = "Live"', one=True)[0]
+    unread_messages = Message.query.filter_by(read_status=0).count()
+    total_messages = Message.query.count()
+    active_ads = Ad.query.filter_by(is_active=1).count()
+    live_projects = Project.query.filter_by(status='Live').count()
     
-    recent_visitors = [dict(row) for row in DB.query('SELECT * FROM visits ORDER BY timestamp DESC LIMIT 10')]
+    recent_visitors = []
+    # Helper to serialize visits
+    visits = Visit.query.order_by(Visit.timestamp.desc()).limit(10).all()
+    for v in visits:
+        recent_visitors.append({"page": v.page, "time": v.timestamp, "device": v.device_type})
 
     return jsonify({
         "total_visits": total_visits,
@@ -154,17 +184,17 @@ def track_visit():
     user_agent = request.headers.get('User-Agent', '').lower()
     device_type = 'mobile' if 'mobile' in user_agent else 'desktop'
 
-    db = get_db()
-    db.execute('INSERT INTO visits (page, device_type) VALUES (?, ?)', (page, device_type))
-    db.commit()
+    v = Visit(page=page, device_type=device_type)
+    db.session.add(v)
+    db.session.commit()
     return jsonify({"success": True})
 
 # 📢 ADS MANAGER
 @app.route('/api/ads', methods=['GET', 'POST', 'DELETE'])
 def manage_ads():
     if request.method == 'GET':
-        cursor = get_db().execute('SELECT * FROM ads ORDER BY id DESC')
-        return jsonify([dict(row) for row in cursor.fetchall()])
+        ads = Ad.query.order_by(Ad.id.desc()).all()
+        return jsonify([{"id": a.id, "title": a.title, "image_url": a.image_url, "link_url": a.link_url} for a in ads])
 
     # Auth Check
     user_role = request.headers.get('X-Role', 'Guest')
@@ -177,63 +207,71 @@ def manage_ads():
         image_url = data.get('image_url') or data.get('image') or ''
         link_url = data.get('link_url') or data.get('link') or '#'
         
-        get_db().execute('INSERT INTO ads (title, image_url, link_url) VALUES (?, ?, ?)', (title, image_url, link_url))
-        get_db().commit()
+        new_ad = Ad(title=title, image_url=image_url, link_url=link_url)
+        db.session.add(new_ad)
+        db.session.commit()
         return jsonify({"success": True, "message": "Ad Created"})
 
     if request.method == 'DELETE':
-        get_db().execute('DELETE FROM ads WHERE id = ?', (request.args.get('id'),))
-        get_db().commit()
+        Ad.query.filter_by(id=request.args.get('id')).delete()
+        db.session.commit()
         return jsonify({"success": True, "message": "Ad Deleted"})
 
 # 🎟 COUPONS
 @app.route('/api/coupons', methods=['GET', 'POST'])
-@role_required(['Admin', 'Editor'])
 def manage_coupons():
+    # Only Admin/Editor can view/create coupons
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role not in ['Admin', 'Editor']:
+        return jsonify({"success": False, "message": "Access Denied"}), 403
+
     if request.method == 'GET':
-        cursor = get_db().execute('SELECT * FROM coupons ORDER BY id DESC')
-        return jsonify([dict(row) for row in cursor.fetchall()])
+        coupons = Coupon.query.order_by(Coupon.id.desc()).all()
+        return jsonify([{"id": c.id, "code": c.code, "discount": c.discount} for c in coupons])
 
     if request.method == 'POST':
         import random, string
         code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         discount = request.json.get('discount', '10% OFF')
-
-        get_db().execute('INSERT INTO coupons (code, discount) VALUES (?, ?)', (code, discount))
-        get_db().commit()
+        
+        c = Coupon(code=code, discount=discount)
+        db.session.add(c)
+        db.session.commit()
         return jsonify({"success": True, "code": code, "discount": discount})
 
 # 💬 MESSAGES
 @app.route('/api/messages', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def manage_messages():
     if request.method == 'GET':
-        rows = DB.get_all_messages()
-        return jsonify([dict(row) for row in rows])
+        msgs = Message.query.order_by(Message.read_status.asc(), Message.timestamp.desc()).all()
+        return jsonify([{"id": m.id, "name": m.name, "email": m.email, "message": m.message, "read_status": m.read_status, "timestamp": m.timestamp} for m in msgs])
 
     if request.method == 'POST':
         data = request.json
-        get_db().execute('INSERT INTO messages (name, email, message) VALUES (?, ?, ?)', 
-                         (data.get('name'), data.get('email'), data.get('message')))
-        get_db().commit()
+        m = Message(name=data.get('name'), email=data.get('email'), message=data.get('message'))
+        db.session.add(m)
+        db.session.commit()
         return jsonify({"success": True, "message": "Message sent!"})
 
     if request.method == 'PUT':
         data = request.json
-        get_db().execute('UPDATE messages SET read_status = ? WHERE id = ?', (data.get('read_status', 1), data.get('id')))
-        get_db().commit()
+        m = Message.query.get(data.get('id'))
+        if m:
+            m.read_status = data.get('read_status', 1)
+            db.session.commit()
         return jsonify({"success": True})
 
     if request.method == 'DELETE':
-        get_db().execute('DELETE FROM messages WHERE id = ?', (request.args.get('id'),))
-        get_db().commit()
+        Message.query.filter_by(id=request.args.get('id')).delete()
+        db.session.commit()
         return jsonify({"success": True})
 
 # ⚙️ SETTINGS
 @app.route('/api/settings', methods=['GET', 'POST'])
 def manage_settings():
     if request.method == 'GET':
-        cursor = get_db().execute('SELECT * FROM settings')
-        return jsonify({row['key']: row['value'] for row in cursor.fetchall()})
+        settings = Setting.query.all()
+        return jsonify({s.key: s.value for s in settings})
 
     if request.method == 'POST':
         # Auth Check
@@ -244,24 +282,26 @@ def manage_settings():
         data = request.json
         user_name = request.headers.get('X-User', 'Admin')
         
-        # Log Maintenance trigger
         if 'maintenance_mode' in data:
             new_mode = data['maintenance_mode']
-            # DB returns string '0' or '1' usually, or boolean if json
-            # Simplify log message
             log_detail = "Enabled Maintenance" if str(new_mode) in ['1', 'true', 'True'] else "Disabled Maintenance"
-            DB.log_activity(1, user_name, 'SETTINGS', log_detail)
+            log_activity(1, user_name, 'SETTINGS', log_detail)
 
         for key, val in data.items():
-            get_db().execute('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', (key, str(val)))
-        get_db().commit()
+            s = Setting.query.get(key)
+            if s:
+                s.value = str(val)
+            else:
+                db.session.add(Setting(key=key, value=str(val)))
+        db.session.commit()
         return jsonify({"success": True, "message": "Settings updated"})
 
 # 🌟 TESTIMONIALS & POSTS
 @app.route('/api/testimonials', methods=['GET', 'POST', 'DELETE'])
 def manage_testimonials():
     if request.method == 'GET':
-        return jsonify([dict(row) for row in DB.query('SELECT * FROM testimonials ORDER BY id DESC')])
+        ts = Testimonial.query.order_by(Testimonial.id.desc()).all()
+        return jsonify([{"id": t.id, "name": t.name, "role": t.role, "review_text": t.review_text, "rating": t.rating, "image_url": t.image_url} for t in ts])
     
     # Auth Check
     user_role = request.headers.get('X-Role', 'Guest')
@@ -270,19 +310,20 @@ def manage_testimonials():
 
     if request.method == 'POST':
         d = request.json
-        get_db().execute('INSERT INTO testimonials (name, role, review_text, rating, image_url) VALUES (?,?,?,?,?)',
-                   (d.get('name'), d.get('role'), d.get('review_text'), d.get('rating'), d.get('image_url')))
-        get_db().commit()
+        t = Testimonial(name=d.get('name'), role=d.get('role'), review_text=d.get('review_text'), rating=d.get('rating'), image_url=d.get('image_url'))
+        db.session.add(t)
+        db.session.commit()
         return jsonify({"success": True})
     if request.method == 'DELETE':
-        get_db().execute('DELETE FROM testimonials WHERE id = ?', (request.args.get('id'),))
-        get_db().commit()
+        Testimonial.query.filter_by(id=request.args.get('id')).delete()
+        db.session.commit()
         return jsonify({"success": True})
 
 @app.route('/api/posts', methods=['GET', 'POST', 'DELETE'])
 def manage_posts():
     if request.method == 'GET':
-        return jsonify([dict(row) for row in DB.query('SELECT * FROM posts ORDER BY id DESC')])
+        posts = Post.query.order_by(Post.id.desc()).all()
+        return jsonify([{"id": p.id, "title": p.title, "content": p.content, "image_url": p.image_url, "date_posted": p.date_posted} for p in posts])
     
     # Auth Check
     user_role = request.headers.get('X-Role', 'Guest')
@@ -292,29 +333,28 @@ def manage_posts():
     if request.method == 'POST':
         d = request.json
         date_posted = d.get('date_posted') or datetime.now().strftime("%Y-%m-%d")
-        get_db().execute('INSERT INTO posts (title, content, image_url, date_posted, status) VALUES (?,?,?,?,?)',
-                         (d.get('title'), d.get('content'), d.get('image_url'), date_posted, d.get('status', 'Published')))
-        get_db().commit()
+        p = Post(title=d.get('title'), content=d.get('content'), image_url=d.get('image_url'), date_posted=date_posted, status=d.get('status', 'Published'))
+        db.session.add(p)
+        db.session.commit()
         
-        # Log Activity
         user_name = request.headers.get('X-User', 'Editor')
-        DB.log_activity(1, user_name, 'BLOG', f"Posted: {d['title']}")
+        log_activity(1, user_name, 'BLOG', f"Posted: {d['title']}")
         
         return jsonify({"success": True})
     if request.method == 'DELETE':
-        # Log before delete
         user_name = request.headers.get('X-User', 'Admin')
-        DB.log_activity(1, user_name, 'BLOG', f"Deleted Post ID: {request.args.get('id')}")
+        log_activity(1, user_name, 'BLOG', f"Deleted Post ID: {request.args.get('id')}")
 
-        get_db().execute('DELETE FROM posts WHERE id = ?', (request.args.get('id'),))
-        get_db().commit()
+        Post.query.filter_by(id=request.args.get('id')).delete()
+        db.session.commit()
         return jsonify({"success": True})
 
 # 🚀 PROJECTS
 @app.route('/api/projects', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def manage_projects():
     if request.method == 'GET':
-        return jsonify([dict(row) for row in DB.query('SELECT * FROM projects ORDER BY priority DESC, id DESC')])
+        projects = Project.query.order_by(Project.priority.desc(), Project.id.desc()).all()
+        return jsonify([{"id": p.id, "title": p.title, "image_url": p.image_url, "link_url": p.link_url, "tags": p.tags, "description": p.description, "status": p.status, "priority": p.priority} for p in projects])
     
     # Auth Check
     user_role = request.headers.get('X-Role', 'Guest')
@@ -323,66 +363,69 @@ def manage_projects():
 
     if request.method == 'POST':
         d = request.json
-        get_db().execute('INSERT INTO projects (title, image_url, link_url, tags, description, status, priority) VALUES (?,?,?,?,?,?,?)',
-                   (d.get('title'), d.get('image_url'), d.get('link_url'), d.get('tags'), d.get('description'), d.get('status', 'Live'), d.get('priority', 0)))
-        get_db().commit()
+        p = Project(title=d.get('title'), image_url=d.get('image_url'), link_url=d.get('link_url'), tags=d.get('tags'), description=d.get('description'), status=d.get('status', 'Live'), priority=d.get('priority', 0))
+        db.session.add(p)
+        db.session.commit()
         return jsonify({"success": True})
     
     if request.method == 'PUT':
         d = request.json
-        if 'status' in d:
-             get_db().execute('UPDATE projects SET status = ?, last_checked = CURRENT_TIMESTAMP WHERE id = ?', (d['status'], d['id']))
-        if 'priority' in d:
-             get_db().execute('UPDATE projects SET priority = ? WHERE id = ?', (d['priority'], d['id']))
-        get_db().commit()
+        p = Project.query.get(d['id'])
+        if p:
+            if 'status' in d: p.status = d['status']
+            if 'priority' in d: p.priority = d['priority']
+            p.last_checked = datetime.utcnow()
+            db.session.commit()
         return jsonify({"success": True})
 
     if request.method == 'DELETE':
-        get_db().execute('DELETE FROM projects WHERE id=?', (request.args.get('id'),))
-        get_db().commit()
+        Project.query.filter_by(id=request.args.get('id')).delete()
+        db.session.commit()
         return jsonify({"success": True})
 
 # 📈 LEADS
 @app.route('/api/leads', methods=['POST'])
 def log_lead():
     d = request.json
-    get_db().execute('INSERT INTO leads (plan_name) VALUES (?)', (d.get('plan_name'),))
-    get_db().commit()
+    db.session.add(Lead(plan_name=d.get('plan_name')))
+    db.session.commit()
     return jsonify({"success": True, "message": "Lead logged"})
 
 # 👥 TEAM MANAGEMENT
 @app.route('/api/team', methods=['GET'])
-@role_required(['Admin'])
 def get_team():
-    users = DB.query('SELECT id, username, email, role, joined_date FROM users')
-    return jsonify([dict(u) for u in users])
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role != 'Admin': return jsonify([]), 403
+    
+    users = User.query.all()
+    return jsonify([{"id": u.id, "username": u.username, "email": u.email, "role": u.role, "joined_date": u.joined_date} for u in users])
 
 @app.route('/api/team/invite', methods=['POST'])
-@role_required(['Admin'])
 def invite_user():
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role != 'Admin': return jsonify([]), 403
+
     d = request.json
     try:
-        # Default pass: welcome123
         p_hash = generate_password_hash("welcome123")
-        get_db().execute('INSERT INTO users (username, email, role, password_hash) VALUES (?, ?, ?, ?)',
-                         (d['username'], d['email'], d['role'], p_hash))
-        get_db().commit()
+        u = User(username=d['username'], email=d['email'], role=d['role'], password_hash=p_hash)
+        db.session.add(u)
+        db.session.commit()
         
-        # Log it
         username = request.headers.get('X-User', 'Admin')
-        # We need a user_id here but for simplicity just logging static user 1 (Admin) or finding it
-        # Skipping user_id for now or using 1
-        DB.log_activity(1, username, 'INVITE', f"Invited user {d['username']}")
+        log_activity(1, username, 'INVITE', f"Invited user {d['username']}")
         
         return jsonify({"success": True, "message": "User invited (Pass: welcome123)"})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 400
 
 @app.route('/api/activity', methods=['GET'])
-@role_required(['Admin'])
 def get_activity():
-    rows = DB.query('SELECT * FROM activity_log ORDER BY id DESC LIMIT 50')
-    return jsonify([dict(r) for r in rows])
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role != 'Admin': return jsonify([]), 403
+
+    logs = ActivityLog.query.order_by(ActivityLog.id.desc()).limit(50).all()
+    return jsonify([{"id": l.id, "username": l.username, "action": l.action, "details": l.details, "timestamp": l.timestamp} for l in logs])
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
