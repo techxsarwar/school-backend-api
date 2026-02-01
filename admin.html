@@ -288,9 +288,6 @@
         <div class="nav-link" onclick="nav('pricing', this)">
             <i class="fas fa-tags"></i> Pricing
         </div>
-        <div class="nav-link" onclick="nav('tools', this)">
-            <i class="fas fa-toolbox"></i> Tools
-        </div>
         <div class="nav-link" onclick="nav('seo-profile', this)">
             <i class="fas fa-search"></i> SEO & Profile
         </div>
@@ -408,26 +405,6 @@
                     <div class="form-group"><label>Target Link</label><input id="pop-link" class="input-field"
                             placeholder="https://..."></div>
                     <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-                        <!-- 2. TOOLBOX CONTROL (Renamed & Simplified) -->
-                        <section id="tools" class="section">
-                            <h2><i class="fas fa-tools"></i> Tool Access Manager</h2>
-                            <p style="color:#aaa; margin-bottom:20px;">Manage access settings for your developer tools.
-                                Lock premium tools for Enterprise users.</p>
-
-                            <!-- Tool List Container -->
-                            <div class="card">
-                                <div
-                                    style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">
-                                    <span style="color:#888; font-size:0.9rem;">TOOL NAME</span>
-                                    <span style="color:#888; font-size:0.9rem;">STATUS</span>
-                                </div>
-                                <div id="admin-tools-list">
-                                    <!-- Populated by JS -->
-                                    <div style="text-align:center; padding:20px; color:#666;">Loading tools...</div>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
         </section>
 
         <!-- 5. CONTENT (Blog & Testimonials) -->
@@ -536,31 +513,6 @@
             </div>
         </section>
 
-        <!-- 8. TOOLBOX CONTROL -->
-        <section id="tools" class="section">
-            <div class="grid-2">
-                <div class="card">
-                    <h3>Add New Tool</h3>
-                    <div class="form-group"><label>Tool Name</label><input id="tool-name" class="input-field"></div>
-                    <div class="form-group"><label>Description</label><input id="tool-desc" class="input-field"></div>
-                    <div class="form-group"><label>Icon URL (e.g. FontAwesome class or img)</label><input id="tool-icon"
-                            class="input-field"></div>
-                    <div class="form-group"><label>Tool URL</label><input id="tool-url" class="input-field"></div>
-                    <div class="form-group"><label>Category</label><input id="tool-cat" class="input-field"
-                            value="General"></div>
-                    <div class="form-group">
-                        <label>Locked?</label>
-                        <label class="switch"><input type="checkbox" id="tool-lock" class="danger"><span
-                                class="slider"></span></label>
-                    </div>
-                    <button class="btn-primary" onclick="createTool()">Add Tool</button>
-                </div>
-                <div class="card">
-                    <h3>Toolbox Inventory</h3>
-                    <div id="tools-list"></div>
-                </div>
-            </div>
-        </section>
 
         <!-- 9. SITE CONTROL -->
         <section id="site-control" class="section">
@@ -850,70 +802,6 @@
             loadPricing();
         }
 
-        // 8. TOOLBOX MANAGER (Access Control Only)
-        async function loadAdminTools() {
-            try {
-                const data = await API.get('/api/tools');
-                console.log("Admin Tools Data:", data);
-
-                const container = document.getElementById('admin-tools-list');
-
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">No tools found in database.</div>';
-                    return;
-                }
-
-                container.innerHTML = data.map(t => {
-                    // Status Badge Logic
-                    const statusText = t.is_locked
-                        ? '<span style="color:#ff4444; font-weight:bold;">🔒 Locked</span>'
-                        : '<span style="color:#00C851; font-weight:bold;">🔓 Unlocked</span>';
-
-                    return `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #333; background:rgba(255,255,255,0.02);">
-                        <div style="display:flex; align-items:center; gap:15px;">
-                            <div style="background:#222; width:45px; height:45px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-                                <i class="${t.icon_url}" style="color:var(--primary-accent); font-size:1.4rem;"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight:bold; color:white; font-size:1.1rem;">${t.name}</div>
-                                <div style="font-size:0.8rem; color:#888;">${t.category}</div>
-                            </div>
-                        </div>
-                        
-                        <div style="display:flex; align-items:center; gap:20px;">
-                            <div style="min-width:100px; text-align:right;">${statusText}</div>
-                            
-                            <label class="switch" title="Toggle Lock">
-                                <input type="checkbox" class="danger" ${t.is_locked ? 'checked' : ''} onchange="toggleToolLock(${t.id}, this.checked)">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                    `;
-                }).join('');
-            } catch (e) {
-                console.error("Tool Load Error:", e);
-                const c = document.getElementById('admin-tools-list');
-                if (c) c.innerHTML = '<div style="color:red; text-align:center;">Error loading tools. Check console.</div>';
-            }
-        }
-
-        async function toggleToolLock(id, isLocked) {
-            try {
-                await API.put('/api/tools', { id: id, is_locked: isLocked });
-                showToast(isLocked ? 'Tool Locked' : 'Tool Unlocked');
-                loadAdminTools(); // Refresh list to ensure sync
-            } catch (e) {
-                showToast('Error updating tool', 'error');
-            }
-        }
-
-        async function deleteTool(id) {
-            if (!confirm('Delete this tool?')) return;
-            await API.delete('/api/tools?id=' + id);
-            loadAdminTools();
-        }
 
         // 4. Portfolio
         async function createProject() {
