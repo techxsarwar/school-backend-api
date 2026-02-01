@@ -14,10 +14,17 @@ def login():
     password = data.get('password')
 
     # RBAC Check
-    user = DB.query('SELECT * FROM users WHERE username = ?', (username,), one=True)
+    # RBAC Check
+    try:
+        user = DB.query('SELECT * FROM users WHERE username = ?', (username,), one=True)
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Database Error: {str(e)}"}), 500
 
-    if user and check_password_hash(user['password_hash'], password):
-        # Generate Token (Mock for now, JWT recommended for production)
+    if not user:
+         return jsonify({"success": False, "message": "User not found"}), 404
+
+    if check_password_hash(user['password_hash'], password):
+        # Generate Token
         import secrets
         token = secrets.token_hex(16)
         
@@ -31,4 +38,4 @@ def login():
             "role": user['role']
         })
     else:
-        return jsonify({"success": False, "message": "Invalid credentials"}), 401
+        return jsonify({"success": False, "message": "Incorrect Password"}), 401

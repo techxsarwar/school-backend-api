@@ -9,12 +9,28 @@ from auth import auth_bp
 from functools import wraps
 from werkzeug.security import generate_password_hash
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
 app.config['ADMIN_USER'] = "admin"
 app.config['ADMIN_PASS'] = "sarwar123"
+app.config['SECRET_KEY'] = "super-secret-key-change-this"
 
-# Update CORS to allow specific headers and origins
-CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True, allow_headers=["Content-Type", "Authorization", "X-Role", "X-User"])
+# Update CORS
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
+# --- ROUTES ---
+
+# 🏥 HEALTH CHECK
+@app.route('/api/health', methods=['GET', 'HEAD'])
+def health_check():
+    return jsonify({"status": "healthy", "time": datetime.now().isoformat()})
+
+@app.route('/privacy')
+def privacy_page():
+    return app.send_static_file('privacy.html')
+
+@app.route('/terms')
+def terms_page():
+    return app.send_static_file('terms.html')
 
 # Register Blueprints
 app.register_blueprint(auth_bp)

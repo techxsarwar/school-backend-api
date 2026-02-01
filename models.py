@@ -118,7 +118,7 @@ def init_db(app):
                 username TEXT UNIQUE,
                 password_hash TEXT,
                 email TEXT,
-                role TEXT DEFAULT 'Editor',
+                role TEXT DEFAULT 'Admin',
                 joined_date DATETIME DEFAULT CURRENT_TIMESTAMP
             )''')
 

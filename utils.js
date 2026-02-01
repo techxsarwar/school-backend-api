@@ -24,6 +24,8 @@
         async get(endpoint) {
             try {
                 const res = await fetch(`${BASE_URL}${endpoint}`, {
+                    method: 'GET',
+                    mode: 'cors',
                     headers: this._headers()
                 });
                 if (!res.ok) throw new Error(`API Error: ${res.status}`);
@@ -39,6 +41,7 @@
             try {
                 const res = await fetch(`${BASE_URL}${endpoint}`, {
                     method: 'POST',
+                    mode: 'cors',
                     headers: this._headers(),
                     body: JSON.stringify(data)
                 });
