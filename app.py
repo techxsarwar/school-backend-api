@@ -15,7 +15,7 @@ app.config['SECRET_KEY'] = "super-secret-key-change-this"
 
 # Database Configuration
 # Fallback to sqlite if DATABASE_URL not set (e.g. local)
-db_url = os.environ.get('DATABASE_URL')
+db_url = os.getenv('DATABASE_URL')
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
