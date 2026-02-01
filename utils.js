@@ -28,7 +28,11 @@
                     mode: 'cors',
                     headers: this._headers()
                 });
-                if (!res.ok) throw new Error(`API Error: ${res.status}`);
+                if (!res.ok) {
+                    const text = await res.text();
+                    try { return JSON.parse(text); }
+                    catch { throw new Error(`API Error: ${res.status}`); }
+                }
                 return await res.json();
             } catch (err) {
                 console.error(err);
@@ -45,9 +49,18 @@
                     headers: this._headers(),
                     body: JSON.stringify(data)
                 });
-                const d = await res.json();
-                if (!d.success && !d.token && !res.ok) throw new Error(d.message || 'Request failed');
-                // Note: login returns success=True but token provided.
+
+                const text = await res.text();
+                let d;
+                try {
+                    d = JSON.parse(text);
+                } catch (e) {
+                    throw new Error(`Server Error: ${res.status}`);
+                }
+
+                if (!res.ok || (d && d.success === false)) {
+                    throw new Error(d.message || `Request failed (${res.status})`);
+                }
                 return d;
             } catch (err) {
                 console.error(err);
@@ -63,7 +76,9 @@
                     headers: this._headers(),
                     body: JSON.stringify(data)
                 });
-                return await res.json();
+                const text = await res.text();
+                try { return JSON.parse(text); }
+                catch { throw new Error(`Server Error: ${res.status}`); }
             } catch (err) {
                 console.error(err);
                 throw err;
