@@ -579,10 +579,22 @@ def get_activity():
 # 📢 MARKETING POPUP (Daily Ad)
 @app.route('/api/marketing/active', methods=['GET'])
 def get_active_popup():
-    ad = MarketingAd.query.filter_by(is_active=1).first()
-    if ad:
-        return jsonify({"id": ad.id, "title": ad.title, "image_url": ad.image_url, "link_url": ad.link_url, "active": True})
-    return jsonify({"active": False})
+    try:
+        # Query for the latest active ad
+        ad = MarketingAd.query.filter_by(is_active=1).first()
+        if not ad:
+            return jsonify({"message": "No active ad", "active": False}), 200
+        
+        return jsonify({
+            "id": ad.id,
+            "title": ad.title,
+            "image_url": ad.image_url,
+            "link_url": ad.link_url,
+            "active": True
+        }), 200
+    except Exception as e:
+        print(f"Marketing API Error: {e}")
+        return jsonify({"active": False, "error": str(e)}), 500
 
 @app.route('/api/marketing/update', methods=['POST'])
 def update_popup():
