@@ -3,7 +3,8 @@
 (function () {
     // 1. API CONFIG
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-    const BASE_URL = isLocal ? "http://127.0.0.1:5000" : "https://school-backend-api-5hkh.onrender.com";
+    // Use relative path so it works everywhere (assuming frontend is served by backend or proxied)
+    const BASE_URL = "";
 
     // 2. API OBJECT
     window.API = {
