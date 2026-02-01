@@ -653,6 +653,24 @@ def manage_pricing():
         db.session.commit()
         return jsonify({"success": True, "message": "Plan Added"})
 
+    if request.method == 'PUT':
+        d = request.json
+        p = PricingPlan.query.get(d['id'])
+        if not p: return jsonify({"success": False, "message": "Plan not found"}), 404
+        
+        p.name = d['name']
+        p.price = d['price']
+        p.billing_cycle = d.get('billing_cycle', '')
+        p.border_color = d.get('border_color', 'cyan')
+        p.has_timer = d.get('has_timer', False)
+        p.countdown_minutes = int(d.get('countdown_minutes', 0))
+        p.included_features = d.get('included_features', '[]')
+        p.excluded_features = d.get('excluded_features', '[]')
+        p.is_featured = d.get('is_featured', False)
+        
+        db.session.commit()
+        return jsonify({"success": True, "message": "Plan Updated"})
+
     if request.method == 'DELETE':
         pid = request.args.get('id')
         PricingPlan.query.filter_by(id=pid).delete()
