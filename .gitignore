@@ -1,5 +1,5 @@
-*.db
-__pycache__/
-instance/
 .env
-venv/
+__pycache__/
+*.pyc
+instance/
+*.db

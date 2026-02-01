@@ -1,5 +1,8 @@
 import os
 import sys
+from dotenv import load_dotenv
+
+load_dotenv()
 from datetime import datetime
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS, cross_origin
