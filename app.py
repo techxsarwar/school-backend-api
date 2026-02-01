@@ -12,6 +12,7 @@ from email.mime.multipart import MIMEMultipart
 import ssl
 
 from models import db, User, Visit, Message, Testimonial, Project, Post, Setting, Ad, Coupon, Lead, ActivityLog, MarketingAd, PricingPlan, Tool, log_activity
+from sqlalchemy import text
 from auth import auth_bp
 
 # 1. App Initialization
@@ -129,10 +130,39 @@ def send_invite_email(to_email, username, role, password):
     """
 
     # Send in background thread
+    # Send in background thread
     thread = threading.Thread(target=send_async_email, args=(app, subject, to_email, html_body))
     thread.start()
 
-# --- DB INIT & SEEDING ---
+# --- DB INIT & SCHEMA SYNC ---
+from sqlalchemy import text
+
+def sync_database():
+    with app.app_context():
+        try:
+            # Identifies missing columns and adds them
+            commands = [
+                "ALTER TABLE pricing_plans ADD COLUMN border_color VARCHAR(50) DEFAULT 'cyan';",
+                "ALTER TABLE pricing_plans ADD COLUMN has_timer BOOLEAN DEFAULT FALSE;",
+                "ALTER TABLE pricing_plans ADD COLUMN countdown_minutes INTEGER DEFAULT 24;",
+                "ALTER TABLE pricing_plans ADD COLUMN excluded_features TEXT;"
+            ]
+            for cmd in commands:
+                try:
+                     db.session.execute(text(cmd))
+                except Exception as e:
+                     # Ignore error if column exists (for SQLite/Postgres compatibility without IF NOT EXISTS)
+                     print(f"Schema Info: {e}")
+                     pass
+            
+            db.session.commit()
+            print("[SYNC] DATABASE SYNC: Verified pricing_plan columns.")
+        except Exception as e:
+            db.session.rollback()
+            print(f"[SYNC] DATABASE SYNC ERROR: {e}")
+
+# Run sync immediately
+sync_database()
 with app.app_context():
     try:
         db.create_all()
