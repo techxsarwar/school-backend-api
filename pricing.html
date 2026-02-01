@@ -217,76 +217,8 @@
             Sector.</p>
     </div>
 
-    <div class="pricing-grid">
-        <!-- Tier 1: Starter -->
-        <div class="pricing-card">
-            <h3 class="plan-name">Starter</h3>
-            <div class="plan-price">₹14,999 <span>/ one-time</span></div>
-            <p class="plan-desc">Perfect for individuals needing a strong digital presence. Quick, beautiful, and
-                functional.</p>
-
-            <ul class="features-list">
-                <li><i class="fas fa-check-circle"></i> Single Page Portfolio</li>
-                <li><i class="fas fa-check-circle"></i> Basic SEO Setup</li>
-                <li><i class="fas fa-check-circle"></i> Mobile Responsive</li>
-                <li><i class="fas fa-check-circle"></i> 1 Month Support</li>
-                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No Team Panel</li>
-                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No CMS Access</li>
-            </ul>
-
-            <button onclick="selectPlan('Starter', '14,999')" class="whatsapp-btn"
-                style="border:none; width:100%; cursor:pointer; font-size:1rem;">
-                <i class="fab fa-whatsapp"></i> Get Started
-            </button>
-        </div>
-
-        <!-- Tier 2: Professional -->
-        <div class="pricing-card featured">
-            <div class="badge">MOST POPULAR</div>
-            <h3 class="plan-name">Professional</h3>
-            <div class="plan-price">₹39,999 <span>/ one-time</span></div>
-            <p class="plan-desc">For growing businesses and professionals requiring more pages and control.</p>
-
-            <ul class="features-list">
-                <li><i class="fas fa-check-circle"></i> Multi-page (Up to 5)</li>
-                <li><i class="fas fa-check-circle"></i> Advanced SEO</li>
-                <li><i class="fas fa-check-circle"></i> Contact Forms</li>
-                <li><i class="fas fa-check-circle"></i> Admin Panel (Basic)</li>
-                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No Activity Logs</li>
-                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No Team Management
-                </li>
-            </ul>
-
-            <button onclick="selectPlan('Professional', '39,999')" class="whatsapp-btn"
-                style="border:none; width:100%; cursor:pointer; font-size:1rem;">
-                <i class="fab fa-whatsapp"></i> Go Professional
-            </button>
-        </div>
-
-        <!-- Tier 3: Enterprise -->
-        <div class="pricing-card enterprise">
-            <div class="badge">PREMIUM</div>
-            <h3 class="plan-name">Enterprise</h3>
-            <div class="plan-price">₹99,999+ <span>/ one-time</span></div>
-            <p class="plan-desc">The ultimate solution. Full control, zero limitations, and premium support.</p>
-
-            <ul class="features-list">
-                <li><i class="fas fa-check-circle"></i> Unlimited Pages</li>
-                <li><i class="fas fa-check-circle"></i> Full Modular CMS</li>
-                <li><i class="fas fa-check-circle"></i> <strong>Team Panel with RBAC</strong></li>
-                <li><i class="fas fa-check-circle"></i> <strong>Activity Logs</strong></li>
-                <li><i class="fas fa-check-circle"></i> Priority Support & Integrations</li>
-            </ul>
-
-            <button onclick="selectPlan('Enterprise', '99,999+')" class="whatsapp-btn"
-                style="border:none; width:100%; cursor:pointer; font-size:1rem; background: #ffd700; color: black;">
-                <i class="fab fa-whatsapp"></i> Contact Sales
-            </button>
-
-            <div class="trust-signal" style="color: #ffd700;">
-                <i class="fas fa-shield-alt"></i> Reserved for High-Scale Clients
-            </div>
-        </div>
+    <div class="pricing-grid" id="pricing-container">
+        <p style="text-align:center; width:100%; color:#888;">Loading Plans...</p>
     </div>
 
     <!-- School Tools Integration CTA -->
@@ -448,7 +380,63 @@
         </div>
     </footer>
     <script src="script.js"></script>
-    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+    <!-- Dynamic Pricing Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('pricing-container');
+            const apiBase = window.location.hostname === 'localhost' ? 'http://127.0.0.1:5000' : 'https://school-backend-api-5hkh.onrender.com';
+
+            try {
+                // We use the global API object from script.js inside the load function if available, 
+                // but since this is inline, we do a direct fetch for speed/independence or rely on script.js loaded above.
+                // Safest to wait for script.js or just fetch.
+                const res = await fetch(`${apiBase}/api/pricing`);
+                const plans = await res.json();
+
+                if (!plans || plans.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; width:100%; grid-column:1/-1;">No plans currently available.</p>';
+                    return;
+                }
+
+                container.innerHTML = plans.map((p, i) => {
+                    let feats = [];
+                    // Handle JSON parse safe
+                    try {
+                        feats = typeof p.features === 'string' ? JSON.parse(p.features) : p.features;
+                    } catch (e) { feats = [p.features]; }
+
+                    const isEnterprise = p.name === 'Enterprise';
+                    const isFeatured = p.is_featured;
+
+                    return `
+                    <div class="pricing-card ${isFeatured ? 'featured' : ''} ${isEnterprise ? 'enterprise' : ''}" 
+                         style="animation-delay: ${i * 100}ms">
+                        ${isFeatured ? '<div class="badge">MOST POPULAR</div>' : ''}
+                        ${isEnterprise ? '<div class="badge">PREMIUM</div>' : ''}
+                        
+                        <h3 class="plan-name">${p.name}</h3>
+                        <div class="plan-price">${p.price} <span>${p.billing_cycle || ''}</span></div>
+                        <p class="plan-desc">Dynamic pricing plan.</p>
+
+                        <ul class="features-list">
+                            ${feats.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('')}
+                        </ul>
+
+                        <button onclick="selectPlan('${p.name}', '${p.price}')" class="whatsapp-btn"
+                            style="border:none; width:100%; cursor:pointer; font-size:1rem; ${isEnterprise ? 'background:#ffd700; color:black;' : ''}">
+                            <i class="fab fa-whatsapp"></i> ${isEnterprise ? 'Contact Sales' : 'Get Started'}
+                        </button>
+                    </div>
+                    `;
+                }).join('');
+
+            } catch (e) {
+                console.error("Pricing Load Error", e);
+                // Fallback or leave as loading
+                container.innerHTML = '<p style="text-align:center; color:red; grid-column:1/-1;">Could not load plans.</p>';
+            }
+        });
+    </script>
 </body>
 
 </html>

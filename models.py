@@ -101,6 +101,25 @@ class MarketingAd(db.Model):
     link_url = db.Column(db.String(255))
     is_active = db.Column(db.Integer, default=0)
 
+class PricingPlan(db.Model):
+    __tablename__ = 'pricing_plans'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    price = db.Column(db.String(50), nullable=False)
+    billing_cycle = db.Column(db.String(50)) 
+    features = db.Column(db.Text) # JSON string
+    is_featured = db.Column(db.Boolean, default=False)
+
+class Tool(db.Model):
+    __tablename__ = 'tools'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(255))
+    icon_url = db.Column(db.String(255))
+    tool_url = db.Column(db.String(255))
+    category = db.Column(db.String(100))
+    is_locked = db.Column(db.Boolean, default=False)
+
 # Helper for logging
 def log_activity(user_id, username, action, details=""):
     try:

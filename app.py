@@ -3,7 +3,100 @@ import sys
 from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
-from models import db, User, Visit, Message, Testimonial, Project, Post, Setting, Ad, Coupon, Lead, ActivityLog, MarketingAd, log_activity
+from models import db, User, Visit, Message, Testimonial, Project, Post, Setting, Ad, Coupon, Lead, ActivityLog, MarketingAd, PricingPlan, Tool, log_activity
+
+# ... (Previous code)
+
+# 💰 PRICING MANAGER
+@app.route('/api/pricing', methods=['GET', 'POST', 'DELETE'])
+def manage_pricing():
+    if request.method == 'GET':
+        plans = PricingPlan.query.all()
+        return jsonify([{
+            "id": p.id,
+            "name": p.name,
+            "price": p.price,
+            "billing_cycle": p.billing_cycle,
+            "features": p.features, 
+            "is_featured": p.is_featured
+        } for p in plans])
+
+    # Admin Only for POST/DELETE
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role != 'Admin': return jsonify({"success": False, "message": "Access Denied"}), 403
+
+    if request.method == 'POST':
+        d = request.json
+        p = PricingPlan(
+            name=d['name'], 
+            price=d['price'], 
+            billing_cycle=d.get('billing_cycle', ''),
+            features=d['features'], # Expecting JSON string
+            is_featured=d.get('is_featured', False)
+        )
+        db.session.add(p)
+        db.session.commit()
+        return jsonify({"success": True, "message": "Plan Added"})
+
+    if request.method == 'DELETE':
+        pid = request.args.get('id')
+        PricingPlan.query.filter_by(id=pid).delete()
+        db.session.commit()
+        return jsonify({"success": True, "message": "Plan Deleted"})
+
+# 🛠 TOOLBOX MANAGER
+@app.route('/api/tools', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def manage_tools():
+    if request.method == 'GET':
+        tools = Tool.query.all()
+        return jsonify([{
+            "id": t.id,
+            "name": t.name,
+            "description": t.description,
+            "icon_url": t.icon_url,
+            "tool_url": t.tool_url,
+            "category": t.category,
+            "is_locked": t.is_locked
+        } for t in tools])
+
+    # Admin Only
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role != 'Admin': return jsonify({"success": False, "message": "Access Denied"}), 403
+
+    if request.method == 'POST':
+        d = request.json
+        t = Tool(
+            name=d['name'],
+            description=d['description'],
+            icon_url=d['icon_url'],
+            tool_url=d['tool_url'],
+            category=d.get('category', 'General'),
+            is_locked=d.get('is_locked', False)
+        )
+        db.session.add(t)
+        db.session.commit()
+        return jsonify({"success": True, "message": "Tool Added"})
+
+    if request.method == 'PUT':
+        d = request.json
+        t = Tool.query.get(d['id'])
+        if t:
+            if 'is_locked' in d: t.is_locked = d['is_locked']
+            if 'name' in d: t.name = d['name']
+            if 'tool_url' in d: t.tool_url = d['tool_url']
+            db.session.commit()
+            return jsonify({"success": True, "message": "Tool Updated"})
+        return jsonify({"success": False, "message": "Tool not found"}), 404
+
+    if request.method == 'DELETE':
+        tid = request.args.get('id')
+        Tool.query.filter_by(id=tid).delete()
+        db.session.commit()
+        return jsonify({"success": True, "message": "Tool Deleted"})
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
 
 from auth import auth_bp
@@ -617,6 +710,93 @@ def update_popup():
     
     db.session.commit()
     return jsonify({"success": True, "message": "Popup Updated"})
+
+# 💰 PRICING MANAGER
+@app.route('/api/pricing', methods=['GET', 'POST', 'DELETE'])
+def manage_pricing():
+    if request.method == 'GET':
+        plans = PricingPlan.query.all()
+        return jsonify([{
+            "id": p.id,
+            "name": p.name,
+            "price": p.price,
+            "billing_cycle": p.billing_cycle,
+            "features": p.features, 
+            "is_featured": p.is_featured
+        } for p in plans])
+
+    # Admin Only for POST/DELETE
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role != 'Admin': return jsonify({"success": False, "message": "Access Denied"}), 403
+
+    if request.method == 'POST':
+        d = request.json
+        p = PricingPlan(
+            name=d['name'], 
+            price=d['price'], 
+            billing_cycle=d.get('billing_cycle', ''),
+            features=d['features'], # Expecting JSON string
+            is_featured=d.get('is_featured', False)
+        )
+        db.session.add(p)
+        db.session.commit()
+        return jsonify({"success": True, "message": "Plan Added"})
+
+    if request.method == 'DELETE':
+        pid = request.args.get('id')
+        PricingPlan.query.filter_by(id=pid).delete()
+        db.session.commit()
+        return jsonify({"success": True, "message": "Plan Deleted"})
+
+# 🛠 TOOLBOX MANAGER
+@app.route('/api/tools', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def manage_tools():
+    if request.method == 'GET':
+        tools = Tool.query.all()
+        return jsonify([{
+            "id": t.id,
+            "name": t.name,
+            "description": t.description,
+            "icon_url": t.icon_url,
+            "tool_url": t.tool_url,
+            "category": t.category,
+            "is_locked": t.is_locked
+        } for t in tools])
+
+    # Admin Only
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role != 'Admin': return jsonify({"success": False, "message": "Access Denied"}), 403
+
+    if request.method == 'POST':
+        d = request.json
+        t = Tool(
+            name=d['name'],
+            description=d['description'],
+            icon_url=d['icon_url'],
+            tool_url=d['tool_url'],
+            category=d.get('category', 'General'),
+            is_locked=d.get('is_locked', False)
+        )
+        db.session.add(t)
+        db.session.commit()
+        return jsonify({"success": True, "message": "Tool Added"})
+
+    if request.method == 'PUT':
+        d = request.json
+        t = Tool.query.get(d['id'])
+        if t:
+            if 'is_locked' in d: t.is_locked = d['is_locked']
+            if 'name' in d: t.name = d['name']
+            if 'tool_url' in d: t.tool_url = d['tool_url']
+            db.session.commit()
+            return jsonify({"success": True, "message": "Tool Updated"})
+        return jsonify({"success": False, "message": "Tool not found"}), 404
+
+    if request.method == 'DELETE':
+        tid = request.args.get('id')
+        Tool.query.filter_by(id=tid).delete()
+        db.session.commit()
+        return jsonify({"success": True, "message": "Tool Deleted"})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

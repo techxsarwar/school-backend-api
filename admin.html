@@ -285,6 +285,12 @@
         <div class="nav-link" onclick="nav('content', this)">
             <i class="fas fa-pen-nib"></i> Content
         </div>
+        <div class="nav-link" onclick="nav('pricing', this)">
+            <i class="fas fa-tags"></i> Pricing
+        </div>
+        <div class="nav-link" onclick="nav('tools', this)">
+            <i class="fas fa-toolbox"></i> Tools
+        </div>
         <div class="nav-link" onclick="nav('seo-profile', this)">
             <i class="fas fa-search"></i> SEO & Profile
         </div>
@@ -524,7 +530,59 @@
             </div>
         </section>
 
-        <!-- 7. SITE CONTROL -->
+        <!-- 7. PRICING MANAGER -->
+        <section id="pricing" class="section">
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Add Pricing Plan</h3>
+                    <div class="form-group"><label>Plan Name</label><input id="price-name" class="input-field"></div>
+                    <div class="form-group"><label>Price (e.g. ₹9,999)</label><input id="price-amt" class="input-field">
+                    </div>
+                    <div class="form-group"><label>Billing Cycle (e.g. /project)</label><input id="price-cycle"
+                            class="input-field"></div>
+                    <div class="form-group"><label>Features (JSON Array)</label><textarea id="price-feat"
+                            class="input-field" rows="4" placeholder='["Feature 1", "Feature 2"]'></textarea></div>
+                    <div class="form-group">
+                        <label>Featured?</label>
+                        <label class="switch"><input type="checkbox" id="price-feat-bool"><span
+                                class="slider"></span></label>
+                    </div>
+                    <button class="btn-primary" onclick="createPlan()">Add Plan</button>
+                </div>
+                <div class="card">
+                    <h3>Existing Plans</h3>
+                    <div id="pricing-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. TOOLBOX CONTROL -->
+        <section id="tools" class="section">
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Add New Tool</h3>
+                    <div class="form-group"><label>Tool Name</label><input id="tool-name" class="input-field"></div>
+                    <div class="form-group"><label>Description</label><input id="tool-desc" class="input-field"></div>
+                    <div class="form-group"><label>Icon URL (e.g. FontAwesome class or img)</label><input id="tool-icon"
+                            class="input-field"></div>
+                    <div class="form-group"><label>Tool URL</label><input id="tool-url" class="input-field"></div>
+                    <div class="form-group"><label>Category</label><input id="tool-cat" class="input-field"
+                            value="General"></div>
+                    <div class="form-group">
+                        <label>Locked?</label>
+                        <label class="switch"><input type="checkbox" id="tool-lock" class="danger"><span
+                                class="slider"></span></label>
+                    </div>
+                    <button class="btn-primary" onclick="createTool()">Add Tool</button>
+                </div>
+                <div class="card">
+                    <h3>Toolbox Inventory</h3>
+                    <div id="tools-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. SITE CONTROL -->
         <section id="site-control" class="section">
             <div class="card">
                 <h3>Global Announcement</h3>
@@ -766,6 +824,91 @@
                 is_active: document.getElementById('pop-active').checked ? 1 : 0
             });
             showToast('Popup Updated');
+        }
+
+        // 7. PRICING MANAGER
+        async function loadPricing() {
+            const data = await API.get('/api/pricing');
+            document.getElementById('pricing-list').innerHTML = data.map(p => `
+                <div style="background:#222; padding:10px; margin-bottom:10px; border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong>${p.name}</strong> - ${p.price}${p.billing_cycle}
+                        ${p.is_featured ? '<span class="badge" style="background:var(--primary); margin-left:5px;">Featured</span>' : ''}
+                    </div>
+                    <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deletePlan(${p.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        async function createPlan() {
+            try {
+                await API.post('/api/pricing', {
+                    name: document.getElementById('price-name').value,
+                    price: document.getElementById('price-amt').value,
+                    billing_cycle: document.getElementById('price-cycle').value,
+                    features: document.getElementById('price-feat').value,
+                    is_featured: document.getElementById('price-feat-bool').checked
+                });
+                showToast('Plan Added');
+                document.getElementById('price-name').closest('.card').querySelectorAll('input, textarea').forEach(i => i.value = '');
+                loadPricing();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function deletePlan(id) {
+            if (!confirm('Delete this plan?')) return;
+            await API.delete('/api/pricing?id=' + id);
+            loadPricing();
+        }
+
+        // 8. TOOLBOX MANAGER
+        async function loadTools() {
+            const data = await API.get('/api/tools');
+            document.getElementById('tools-list').innerHTML = data.map(t => `
+                <div style="background:#222; padding:10px; margin-bottom:10px; border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${t.icon_url}" style="width:30px; height:30px; object-fit:contain; filter:invert(1);">
+                        <div>
+                            <div>${t.name} <small style="color:#666">(${t.category})</small></div>
+                            <div style="font-size:0.8rem; color:#888;">${t.tool_url}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <label class="switch" title="Lock/Unlock">
+                            <input type="checkbox" class="danger" ${t.is_locked ? 'checked' : ''} onchange="toggleToolLock(${t.id}, this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                        <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deleteTool(${t.id})">&times;</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function createTool() {
+            try {
+                await API.post('/api/tools', {
+                    name: document.getElementById('tool-name').value,
+                    description: document.getElementById('tool-desc').value,
+                    icon_url: document.getElementById('tool-icon').value,
+                    tool_url: document.getElementById('tool-url').value,
+                    category: document.getElementById('tool-cat').value,
+                    is_locked: document.getElementById('tool-lock').checked
+                });
+                showToast('Tool Added');
+                document.getElementById('tool-name').closest('.card').querySelectorAll('input').forEach(i => i.value = '');
+                loadTools();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function toggleToolLock(id, isLocked) {
+            await API.put('/api/tools', { id: id, is_locked: isLocked });
+            showToast(isLocked ? 'Tool Locked' : 'Tool Unlocked');
+        }
+
+        async function deleteTool(id) {
+            if (!confirm('Delete this tool?')) return;
+            await API.delete('/api/tools?id=' + id);
+            loadTools();
         }
 
         // 4. Portfolio
