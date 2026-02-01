@@ -27,7 +27,7 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
 db.init_app(app)
 
 # Update CORS
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app, resources={r"/api/*": {"origins": "https://sarwaraltaf.in"}}, supports_credentials=True)
 
 # Register Blueprints
 app.register_blueprint(auth_bp)
@@ -183,6 +183,10 @@ def role_required(allowed_roles):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
+            # Allow OPTIONS pre-flight
+            if request.method == 'OPTIONS':
+                return f(*args, **kwargs)
+
             # Header check
             user_role = request.headers.get('X-Role', 'Guest')
             if 'Admin' in allowed_roles and user_role == 'Admin':
@@ -517,6 +521,9 @@ def get_team():
 @cross_origin()
 @role_required(['Admin'])
 def invite_user():
+    if request.method == 'OPTIONS':
+        return '', 204
+
     # Logging
     print(f"Headers: {request.headers}")
     print(f"Data: {request.get_data(as_text=True)}")
