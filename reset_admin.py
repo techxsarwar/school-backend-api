@@ -15,7 +15,7 @@ def reset_admin():
         print(" - Deleted existing 'Admin' user(s).")
         
         # 2. Create new Admin
-        password = "welcome123"
+        password = "sarwar123"
         p_hash = generate_password_hash(password)
         
         cursor.execute('''
