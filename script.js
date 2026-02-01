@@ -245,6 +245,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function checkMarketingPopup() {
+        try {
+            const lastSeen = localStorage.getItem('last_ad_seen_date');
+            const today = new Date().toDateString();
+
+            if (lastSeen === today) return;
+
+            const res = await API.get('/api/marketing/active');
+            if (res.active) {
+                // Create Modal
+                const modal = document.createElement('div');
+                modal.id = 'marketing-modal';
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
+                    display: flex; justify-content: center; align-items: center;
+                    z-index: 10000; opacity: 0; transition: opacity 0.5s ease;
+                `;
+
+                modal.innerHTML = `
+                    <div style="position: relative; max-width: 500px; width: 90%; background: transparent;">
+                        <button onclick="closeMarketingPopup()" 
+                            style="position: absolute; top: -15px; right: -15px; background: #ff4747; color: white; 
+                            border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold;
+                            box-shadow: 0 4px 10px rgba(0,0,0,0.5);">&times;</button>
+                        
+                        <a href="${res.link_url}" target="_blank" onclick="closeMarketingPopup()">
+                            <img src="${res.image_url}" style="width: 100%; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);">
+                        </a>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <h3 style="color: white; margin-bottom: 5px;">${res.title}</h3>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
+                // Fade In
+                setTimeout(() => modal.style.opacity = '1', 10);
+
+                window.closeMarketingPopup = function () {
+                    localStorage.setItem('last_ad_seen_date', today);
+                    modal.style.opacity = '0';
+                    setTimeout(() => modal.remove(), 500);
+                }
+            }
+        } catch (e) {
+            console.error("Marketing Popup Error", e);
+        }
+    }
+
     // --- 4. EXECUTE ---
     // Track Visit
     API.post('/api/track-visit', { page: document.title });
@@ -254,6 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProjects();
     loadTestimonials();
     loadBlog();
+    checkMarketingPopup();
 
     // Mobile Menu Logic
     const hamburger = document.querySelector('.hamburger');

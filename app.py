@@ -3,7 +3,43 @@ import sys
 from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
-from models import db, User, Visit, Message, Testimonial, Project, Post, Setting, Ad, Coupon, Lead, ActivityLog, log_activity
+from models import db, User, Visit, Message, Testimonial, Project, Post, Setting, Ad, Coupon, Lead, ActivityLog, MarketingAd, log_activity
+
+# ... (Previous code)
+
+# 📢 MARKETING POPUP (Daily Ad)
+@app.route('/api/marketing/active', methods=['GET'])
+def get_active_popup():
+    ad = MarketingAd.query.filter_by(is_active=1).first()
+    if ad:
+        return jsonify({"id": ad.id, "title": ad.title, "image_url": ad.image_url, "link_url": ad.link_url, "active": True})
+    return jsonify({"active": False})
+
+@app.route('/api/marketing/update', methods=['POST'])
+def update_popup():
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role not in ['Admin', 'Editor']:
+        return jsonify({"success": False, "message": "Access Denied"}), 403
+
+    d = request.json
+    
+    # We only keep ONE row for simplicity in this "Daily Ad" feature
+    ad = MarketingAd.query.first()
+    if not ad:
+        ad = MarketingAd()
+        db.session.add(ad)
+    
+    ad.title = d.get('title', 'Daily Ad')
+    ad.image_url = d.get('image_url', '')
+    ad.link_url = d.get('link_url', '#')
+    ad.is_active = int(d.get('is_active', 0))
+    
+    db.session.commit()
+    return jsonify({"success": True, "message": "Popup Updated"})
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 from auth import auth_bp
 from functools import wraps
 from werkzeug.security import generate_password_hash
@@ -573,6 +609,36 @@ def get_activity():
 
     logs = ActivityLog.query.order_by(ActivityLog.id.desc()).limit(50).all()
     return jsonify([{"id": l.id, "username": l.username, "action": l.action, "details": l.details, "timestamp": l.timestamp} for l in logs])
+
+# 📢 MARKETING POPUP (Daily Ad)
+@app.route('/api/marketing/active', methods=['GET'])
+def get_active_popup():
+    ad = MarketingAd.query.filter_by(is_active=1).first()
+    if ad:
+        return jsonify({"id": ad.id, "title": ad.title, "image_url": ad.image_url, "link_url": ad.link_url, "active": True})
+    return jsonify({"active": False})
+
+@app.route('/api/marketing/update', methods=['POST'])
+def update_popup():
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role not in ['Admin', 'Editor']:
+        return jsonify({"success": False, "message": "Access Denied"}), 403
+
+    d = request.json
+    
+    # We only keep ONE row for simplicity in this "Daily Ad" feature
+    ad = MarketingAd.query.first()
+    if not ad:
+        ad = MarketingAd()
+        db.session.add(ad)
+    
+    ad.title = d.get('title', 'Daily Ad')
+    ad.image_url = d.get('image_url', '')
+    ad.link_url = d.get('link_url', '#')
+    ad.is_active = int(d.get('is_active', 0))
+    
+    db.session.commit()
+    return jsonify({"success": True, "message": "Popup Updated"})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

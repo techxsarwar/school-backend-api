@@ -390,6 +390,25 @@
                     <div style="margin-top:20px;" id="coupons-list"></div>
                 </div>
             </div>
+
+            <!-- Daily Popup Manager -->
+            <div class="card" style="margin-top:20px; border-left:4px solid var(--success);">
+                <h3>Daily Marketing Popup Manager</h3>
+                <div class="grid-2">
+                    <div class="form-group"><label>Popup Title</label><input id="pop-title" class="input-field"
+                            placeholder="e.g. Special Offer"></div>
+                    <div class="form-group"><label>Image URL</label><input id="pop-img" class="input-field"
+                            placeholder="https://..."></div>
+                    <div class="form-group"><label>Target Link</label><input id="pop-link" class="input-field"
+                            placeholder="https://..."></div>
+                    <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+                        <label>Active?</label>
+                        <label class="switch"><input type="checkbox" id="pop-active"><span
+                                class="slider"></span></label>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="savePopup()">Save & Activate Popup</button>
+            </div>
         </section>
 
         <!-- 4. PORTFOLIO MANAGER -->
@@ -736,6 +755,17 @@
         async function loadCoupons() {
             const d = await API.get('/api/coupons');
             document.getElementById('coupons-list').innerHTML = d.map(c => `<div>${c.code} - ${c.discount}</div>`).join('');
+        }
+
+        // Popup Manager
+        async function savePopup() {
+            await API.post('/api/marketing/update', {
+                title: document.getElementById('pop-title').value,
+                image_url: document.getElementById('pop-img').value,
+                link_url: document.getElementById('pop-link').value,
+                is_active: document.getElementById('pop-active').checked ? 1 : 0
+            });
+            showToast('Popup Updated');
         }
 
         // 4. Portfolio

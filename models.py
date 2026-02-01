@@ -93,6 +93,14 @@ class ActivityLog(db.Model):
     details = db.Column(db.String(255))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+class MarketingAd(db.Model):
+    __tablename__ = 'marketing_ads'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200))
+    image_url = db.Column(db.String(255))
+    link_url = db.Column(db.String(255))
+    is_active = db.Column(db.Integer, default=0)
+
 # Helper for logging
 def log_activity(user_id, username, action, details=""):
     try:
