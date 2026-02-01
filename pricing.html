@@ -54,7 +54,6 @@
             padding: 0 20px;
         }
 
-        <style>
 
         /* PRO DYNAMIC SYSTEM */
         :root {
@@ -527,29 +526,34 @@
                     let feats = [];
                     // Handle JSON parse safe
                     try {
-                        feats = typeof p.features === 'string' ? JSON.parse(p.features) : p.features;
-                    } catch (e) { feats = [p.features]; }
+                        feats = typeof p.included_features === 'string' ? JSON.parse(p.included_features) : p.included_features;
+                    } catch (e) { feats = []; }
+
+                    let excluded = [];
+                    try {
+                        excluded = typeof p.excluded_features === 'string' ? JSON.parse(p.excluded_features) : p.excluded_features;
+                    } catch (e) { excluded = []; }
 
                     const isEnterprise = p.name === 'Enterprise';
                     const isFeatured = p.is_featured;
 
                     return `
-                    <div class="pricing-card ${isFeatured ? 'featured' : ''} ${isEnterprise ? 'enterprise' : ''}" 
+                    <div class="pricing-card ${isFeatured ? 'featured' : ''} ${isEnterprise ? 'enterprise' : ''} border-${p.border_color || 'cyan'}" 
                          style="animation-delay: ${i * 100}ms">
-                        ${isFeatured ? '<div class="badge">MOST POPULAR</div>' : ''}
-                        ${isEnterprise ? '<div class="badge">PREMIUM</div>' : ''}
+                        ${isFeatured ? '<div class="badge badge-gold">MOST POPULAR</div>' : ''}
                         
-                        <h3 class="plan-name">${p.name}</h3>
+                        <h3 class="plan-name text-${p.border_color || 'cyan'}">${p.name}</h3>
                         <div class="plan-price">${p.price} <span>${p.billing_cycle || ''}</span></div>
-                        <p class="plan-desc">Dynamic pricing plan.</p>
+                        
+                        ${p.has_timer ? `<div class="countdown-timer">⏳ Offer ends in ${p.countdown_minutes || 15}:00</div>` : ''}
 
                         <ul class="features-list">
-                            ${feats.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('')}
+                            ${feats.map(f => `<li><i class="fas fa-check-circle text-${p.border_color || 'cyan'}"></i> ${f}</li>`).join('')}
+                            ${excluded.map(ex => `<li class="excluded"><i class="fas fa-times-circle" style="color:#555"></i> ${ex}</li>`).join('')}
                         </ul>
 
-                        <button onclick="selectPlan('${p.name}', '${p.price}')" class="whatsapp-btn"
-                            style="border:none; width:100%; cursor:pointer; font-size:1rem; ${isEnterprise ? 'background:#ffd700; color:black;' : ''}">
-                            <i class="fab fa-whatsapp"></i> ${isEnterprise ? 'Contact Sales' : 'Get Started'}
+                        <button onclick="selectPlan('${p.name}', '${p.price}')" class="cta-btn cta-${p.border_color || 'cyan'}">
+                            ${isEnterprise ? 'Contact Sales' : 'Get Started'}
                         </button>
                     </div>
                     `;

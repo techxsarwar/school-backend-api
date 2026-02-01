@@ -499,12 +499,43 @@
                             class="input-field"></div>
                     <div class="form-group"><label>Features (JSON Array)</label><textarea id="price-feat"
                             class="input-field" rows="4" placeholder='["Feature 1", "Feature 2"]'></textarea></div>
-                    <div class="form-group">
-                        <label>Featured?</label>
-                        <label class="switch"><input type="checkbox" id="price-feat-bool"><span
-                                class="slider"></span></label>
+                    <div class="form-group"><label>Excluded Features (JSON)</label><textarea id="price-exc"
+                            class="input-field" rows="2" placeholder='[]'></textarea></div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Border Color</label>
+                            <select id="price-color" class="input-field">
+                                <option value="cyan">Cyan</option>
+                                <option value="gold">Gold (Pro)</option>
+                                <option value="red">Red (Hot)</option>
+                                <option value="orange">Orange</option>
+                                <option value="purple">Purple</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Timer (Mins)</label>
+                            <input type="number" id="price-minutes" class="input-field" value="0">
+                        </div>
                     </div>
-                    <button class="btn-primary" onclick="createPlan()">Add Plan</button>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Featured?</label>
+                            <label class="switch"><input type="checkbox" id="price-feat-bool"><span
+                                    class="slider"></span></label>
+                        </div>
+                        <div class="form-group">
+                            <label>Has Timer?</label>
+                            <label class="switch"><input type="checkbox" id="price-timer"><span
+                                    class="slider"></span></label>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="edit-plan-id">
+                    <button class="btn-primary" id="btn-save-plan" onclick="createPubPlan()">Add Plan</button>
+                    <button class="btn-danger" id="btn-cancel-edit" onclick="resetPlanForm()"
+                        style="display:none; margin-left:10px;">Cancel Edit</button>
                 </div>
                 <div class="card">
                     <h3>Existing Plans</h3>
@@ -761,15 +792,20 @@
         // 7. PRICING MANAGER
         async function loadPricing() {
             const data = await API.get('/api/pricing');
-            document.getElementById('pricing-list').innerHTML = data.map(p => `
+            document.getElementById('pricing-list').innerHTML = data.map(p => {
+                const feats = typeof p.included_features === 'string' ? JSON.parse(p.included_features || '[]') : p.included_features;
+                return `
                 <div style="background:#222; padding:10px; margin-bottom:10px; border-radius:4px; border-left: 4px solid ${getColor(p.border_color)}; display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <strong>${p.name}</strong> (${JSON.parse(p.included_features || '[]').length} Features)
-                        <div style="font-size:0.8rem; color:#888;">${p.has_timer ? '⏳ Timer: ' + p.countdown_minutes + 'm' : 'No Timer'}</div>
+                        <strong>${p.name}</strong> (${feats.length} Feat)
+                        <div style="font-size:0.8rem; color:#888;">${p.has_timer ? '⏳ ' + p.countdown_minutes + 'm' : 'No Timer'} | ${p.price}</div>
                     </div>
-                    <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deletePlan(${p.id})">Delete</button>
+                    <div>
+                        <button class="btn-primary" style="padding:4px 8px; font-size:0.8rem; margin-right:5px; background:#444; border:1px solid #555; color:white;" onclick='editPlan(${JSON.stringify(p).replace(/'/g, "&#39;")})'>Edit</button>
+                        <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deletePlan(${p.id})">Delete</button>
+                    </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function getColor(name) {
@@ -777,23 +813,69 @@
             return colors[name] || '#00f3ff';
         }
 
-        async function createPlan() {
+        async function createPubPlan() {
+            const id = document.getElementById('edit-plan-id').value;
+            const payload = {
+                name: document.getElementById('price-name').value,
+                price: document.getElementById('price-amt').value,
+                billing_cycle: document.getElementById('price-cycle').value,
+                border_color: document.getElementById('price-color').value,
+                has_timer: document.getElementById('price-timer').checked,
+                countdown_minutes: document.getElementById('price-minutes').value,
+                included_features: document.getElementById('price-feat').value,
+                excluded_features: document.getElementById('price-exc').value,
+                is_featured: document.getElementById('price-feat-bool').checked
+            };
+
             try {
-                await API.post('/api/pricing', {
-                    name: document.getElementById('price-name').value,
-                    price: document.getElementById('price-amt').value,
-                    billing_cycle: document.getElementById('price-cycle').value,
-                    border_color: document.getElementById('price-color').value,
-                    has_timer: document.getElementById('price-timer').checked,
-                    countdown_minutes: document.getElementById('price-minutes').value,
-                    included_features: document.getElementById('price-inc').value,
-                    excluded_features: document.getElementById('price-exc').value,
-                    is_featured: document.getElementById('price-feat-bool').checked
-                });
-                showToast('Plan Added');
-                // document.getElementById('price-name').closest('.card').querySelectorAll('input, textarea').forEach(i => i.value = '');
+                if (id) {
+                    // Update
+                    await API.post('/api/pricing/update/' + id, payload);
+                    showToast('Plan Updated');
+                } else {
+                    // Create
+                    await API.post('/api/pricing', payload);
+                    showToast('Plan Added');
+                }
+                resetPlanForm();
                 loadPricing();
             } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        function editPlan(p) {
+            document.getElementById('edit-plan-id').value = p.id;
+            document.getElementById('price-name').value = p.name;
+            document.getElementById('price-amt').value = p.price;
+            document.getElementById('price-cycle').value = p.billing_cycle;
+            document.getElementById('price-color').value = p.border_color || 'cyan';
+            document.getElementById('price-minutes').value = p.countdown_minutes || 0;
+
+            // Handle potentially parsed or string JSON
+            document.getElementById('price-feat').value = typeof p.included_features === 'object' ? JSON.stringify(p.included_features) : p.included_features;
+            document.getElementById('price-exc').value = typeof p.excluded_features === 'object' ? JSON.stringify(p.excluded_features) : p.excluded_features;
+
+            document.getElementById('price-feat-bool').checked = p.is_featured;
+            document.getElementById('price-timer').checked = p.has_timer;
+
+            document.getElementById('btn-save-plan').innerText = "Update Plan";
+            document.getElementById('btn-cancel-edit').style.display = 'inline-block';
+
+            // Scroll to form
+            document.getElementById('price-name').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetPlanForm() {
+            document.getElementById('edit-plan-id').value = '';
+            document.querySelectorAll('#pricing input:not([type=checkbox]), #pricing textarea').forEach(i => i.value = '');
+            // defaults
+            document.getElementById('price-feat').value = '[]';
+            document.getElementById('price-exc').value = '[]';
+            document.getElementById('price-minutes').value = '0';
+            document.getElementById('price-feat-bool').checked = false;
+            document.getElementById('price-timer').checked = false;
+
+            document.getElementById('btn-save-plan').innerText = "Add Plan";
+            document.getElementById('btn-cancel-edit').style.display = 'none';
         }
 
         async function deletePlan(id) {

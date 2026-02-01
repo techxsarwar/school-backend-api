@@ -177,6 +177,57 @@ with app.app_context():
     except Exception as e:
         print(f"DB Init Error: {e}")
 
+    # Seed Pricing Plans
+    try:
+        # Check if table has columns by querying (cheap check)
+        # Or better, just count. If it fails due to column missing, we might need manual handling or trust 'create_all'
+        
+        # 3. Permanent Pricing Seeding
+        if PricingPlan.query.count() == 0:
+            print(" -> Seeding Pricing Plans...")
+            plans = [
+                PricingPlan(
+                    name="Starter",
+                    price="₹14,999",
+                    billing_cycle="/project",
+                    border_color="cyan",
+                    has_timer=False,
+                    countdown_minutes=0,
+                    included_features='["Custom Design", "Mobile Responsive", "Contact Form", "Basic SEO", "1 Month Support"]',
+                    excluded_features='["CMS Panel", "Database", "User Login", "Advanced Tools"]',
+                    is_featured=False
+                ),
+                PricingPlan(
+                    name="Gold Producer",
+                    price="₹39,999",
+                    billing_cycle="/project",
+                    border_color="gold",
+                    has_timer=True,
+                    countdown_minutes=15,
+                    included_features='["Everything in Starter", "Full Admin Panel", "Blog & Projects", "Testimonials", "3 Months Support"]',
+                    excluded_features='["Custom API", "Mobile App", "SAAS Logic"]',
+                    is_featured=True
+                ),
+                PricingPlan(
+                    name="Platinum",
+                    price="₹99,999+",
+                    billing_cycle="/feature",
+                    border_color="red",
+                    has_timer=False,
+                    countdown_minutes=0,
+                    included_features='["Everything in Gold", "Custom Web App", "User Auth System", "Payment Gateway", "6 Months Support"]',
+                    excluded_features='[]',
+                    is_featured=False
+                )
+            ]
+            for p in plans:
+                db.session.add(p)
+            db.session.commit()
+            print(" -> Pricing Plans Seeded Successfully")
+            
+    except Exception as e:
+        print(f"Pricing Seed Warning: {e}")
+
 # --- HELPERS ---
 def role_required(allowed_roles):
     def decorator(f):
@@ -676,6 +727,37 @@ def manage_pricing():
         PricingPlan.query.filter_by(id=pid).delete()
         db.session.commit()
         return jsonify({"success": True, "message": "Plan Deleted"})
+
+@app.route('/api/pricing/update/<int:id>', methods=['POST'])
+def update_pricing_plan(id):
+    # Admin Only
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role != 'Admin': return jsonify({"success": False, "message": "Access Denied"}), 403
+
+    d = request.json
+    p = PricingPlan.query.get(id)
+    if not p:
+        return jsonify({"success": False, "message": "Plan not found"}), 404
+
+    try:
+        p.name = d.get('name', p.name)
+        p.price = d.get('price', p.price)
+        p.billing_cycle = d.get('billing_cycle', p.billing_cycle)
+        p.border_color = d.get('border_color', p.border_color)
+        p.has_timer = bool(d.get('has_timer', p.has_timer))
+        p.countdown_minutes = int(d.get('countdown_minutes', p.countdown_minutes))
+        p.included_features = d.get('included_features', p.included_features)
+        p.excluded_features = d.get('excluded_features', p.excluded_features)
+        
+        # Checkbox handling depending on how frontend sends it (sometimes 'on' or true)
+        if 'is_featured' in d:
+            p.is_featured = bool(d['is_featured'])
+
+        db.session.commit()
+        return jsonify({"success": True, "message": "Plan Updated Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 # 🛠 TOOLBOX MANAGER
 @app.route('/api/tools', methods=['GET', 'POST', 'PUT', 'DELETE'])

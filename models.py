@@ -107,7 +107,11 @@ class PricingPlan(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.String(50), nullable=False)
     billing_cycle = db.Column(db.String(50)) 
-    features = db.Column(db.Text) # JSON string
+    border_color = db.Column(db.String(20), default='cyan')
+    has_timer = db.Column(db.Boolean, default=False)
+    countdown_minutes = db.Column(db.Integer, default=0)
+    included_features = db.Column(db.Text, default='[]')
+    excluded_features = db.Column(db.Text, default='[]')
     is_featured = db.Column(db.Boolean, default=False)
 
 class Tool(db.Model):
