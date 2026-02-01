@@ -34,17 +34,48 @@ app.register_blueprint(auth_bp)
 
 # --- EMAIL HELPERS ---
 import smtplib
+import threading
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import ssl
 
-def send_invite_email(to_email, username, role, password):
-    smtp_server = "smtp.zoho.com"
-    smtp_port = 465
-    sender_email = os.getenv('MAIL_USERNAME')
-    sender_password = os.getenv('MAIL_PASSWORD')
+# Mail Config
+app.config['MAIL_SERVER'] = 'smtp.zoho.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_ASCII_ATTACHMENTS'] = False
+app.config['MAIL_DEBUG'] = True
 
-    if not sender_email or not sender_password:
+def send_async_email(app, subject, to_email, html_body):
+    with app.app_context():
+        smtp_server = app.config['MAIL_SERVER']
+        smtp_port = app.config['MAIL_PORT']
+        sender_email = app.config['MAIL_USERNAME']
+        sender_password = app.config['MAIL_PASSWORD']
+        
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = sender_email
+        msg["To"] = to_email
+        msg.attach(MIMEText(html_body, "html"))
+
+        try:
+            context = ssl.create_default_context()
+            # Set timeout to 10 seconds
+            with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context, timeout=10) as server:
+                if app.config['MAIL_DEBUG']:
+                    server.set_debuglevel(1)
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, to_email, msg.as_string())
+            print("Email sent successfully!")
+            print(f" -> Invite email sent to {to_email}")
+        except Exception as e:
+            print(f" -> Failed to send email: {e}")
+
+def send_invite_email(to_email, username, role, password):
+    if not app.config['MAIL_USERNAME'] or not app.config['MAIL_PASSWORD']:
         print("Warning: Email credentials not set. Skipping email.")
         return
 
@@ -97,21 +128,9 @@ def send_invite_email(to_email, username, role, password):
     </html>
     """
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = sender_email
-    msg["To"] = to_email
-    msg.attach(MIMEText(html_body, "html"))
-
-    try:
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, to_email, msg.as_string())
-        print("Email sent successfully!")
-        print(f" -> Invite email sent to {to_email}")
-    except Exception as e:
-        print(f" -> Failed to send email: {e}")
+    # Send in background thread
+    thread = threading.Thread(target=send_async_email, args=(app, subject, to_email, html_body))
+    thread.start()
 
 # --- DB INIT & SEEDING ---
 with app.app_context():
@@ -494,28 +513,43 @@ def get_team():
     users = User.query.all()
     return jsonify([{"id": u.id, "username": u.username, "email": u.email, "role": u.role, "joined_date": u.joined_date} for u in users])
 
-@app.route('/api/team/invite', methods=['POST'])
+@app.route('/api/team/invite', methods=['POST', 'OPTIONS'])
+@role_required(['Admin'])
 def invite_user():
-    user_role = request.headers.get('X-Role', 'Guest')
-    if user_role != 'Admin': return jsonify([]), 403
+    # Logging
+    data = request.get_json()
+    print(f"Received Data: {data}")
 
-    d = request.json
+    if not data:
+        return jsonify({"success": False, "message": "No input data provided"}), 400
+
+    # Validation
+    required = ['username', 'email', 'role']
+    for field in required:
+        if field not in data or not data[field]:
+            return jsonify({"success": False, "message": f"Missing field: {field}"}), 400
+
     try:
+        # Check existing
+        if User.query.filter((User.username == data['username']) | (User.email == data['email'])).first():
+             return jsonify({"success": False, "message": "User or Email already exists"}), 400
+
         temp_pass = "welcome123"
         p_hash = generate_password_hash(temp_pass)
-        u = User(username=d['username'], email=d['email'], role=d['role'], password_hash=p_hash)
+        u = User(username=data['username'], email=data['email'], role=data['role'], password_hash=p_hash)
         db.session.add(u)
         db.session.commit()
         
         username = request.headers.get('X-User', 'Admin')
-        log_activity(1, username, 'INVITE', f"Invited user {d['username']}")
+        log_activity(1, username, 'INVITE', f"Invited user {data['username']}")
         
         # Trigger Email
-        send_invite_email(d['email'], d['username'], d['role'], temp_pass)
+        send_invite_email(data['email'], data['username'], data['role'], temp_pass)
 
         return jsonify({"success": True, "message": "User invited & Email sent"})
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 400
+        print(f"Invite Error: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @app.route('/api/activity', methods=['GET'])
