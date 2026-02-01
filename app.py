@@ -37,13 +37,20 @@ with app.app_context():
         print("Successfully connected to Database!")
         
         # Check Admin
-        if not User.query.filter_by(username='Admin').first():
+        admin = User.query.filter_by(username='Admin').first()
+        if not admin:
             print(" -> Seeding Admin User...")
-            p_hash = generate_password_hash("welcome123")
+            p_hash = generate_password_hash("sarwar123")
             admin = User(username='Admin', password_hash=p_hash, role='Admin', email='admin@example.com')
             db.session.add(admin)
-            db.session.commit()
-            print(" -> Admin Created (Pass: welcome123)")
+            print(" -> Admin Created (Pass: sarwar123)")
+        else:
+            # Force update password to ensure access
+            print(" -> Updating Admin Password...")
+            admin.password_hash = generate_password_hash("sarwar123")
+            print(" -> Admin Password Reset to: sarwar123")
+        
+        db.session.commit()
             
         # Seed Settings if empty
         if not Setting.query.first():
