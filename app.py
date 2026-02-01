@@ -1,108 +1,20 @@
 import os
 import sys
 from datetime import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS, cross_origin
-from models import db, User, Visit, Message, Testimonial, Project, Post, Setting, Ad, Coupon, Lead, ActivityLog, MarketingAd, PricingPlan, Tool, log_activity
-
-# ... (Previous code)
-
-# 💰 PRICING MANAGER
-@app.route('/api/pricing', methods=['GET', 'POST', 'DELETE'])
-def manage_pricing():
-    if request.method == 'GET':
-        plans = PricingPlan.query.all()
-        return jsonify([{
-            "id": p.id,
-            "name": p.name,
-            "price": p.price,
-            "billing_cycle": p.billing_cycle,
-            "features": p.features, 
-            "is_featured": p.is_featured
-        } for p in plans])
-
-    # Admin Only for POST/DELETE
-    user_role = request.headers.get('X-Role', 'Guest')
-    if user_role != 'Admin': return jsonify({"success": False, "message": "Access Denied"}), 403
-
-    if request.method == 'POST':
-        d = request.json
-        p = PricingPlan(
-            name=d['name'], 
-            price=d['price'], 
-            billing_cycle=d.get('billing_cycle', ''),
-            features=d['features'], # Expecting JSON string
-            is_featured=d.get('is_featured', False)
-        )
-        db.session.add(p)
-        db.session.commit()
-        return jsonify({"success": True, "message": "Plan Added"})
-
-    if request.method == 'DELETE':
-        pid = request.args.get('id')
-        PricingPlan.query.filter_by(id=pid).delete()
-        db.session.commit()
-        return jsonify({"success": True, "message": "Plan Deleted"})
-
-# 🛠 TOOLBOX MANAGER
-@app.route('/api/tools', methods=['GET', 'POST', 'PUT', 'DELETE'])
-def manage_tools():
-    if request.method == 'GET':
-        tools = Tool.query.all()
-        return jsonify([{
-            "id": t.id,
-            "name": t.name,
-            "description": t.description,
-            "icon_url": t.icon_url,
-            "tool_url": t.tool_url,
-            "category": t.category,
-            "is_locked": t.is_locked
-        } for t in tools])
-
-    # Admin Only
-    user_role = request.headers.get('X-Role', 'Guest')
-    if user_role != 'Admin': return jsonify({"success": False, "message": "Access Denied"}), 403
-
-    if request.method == 'POST':
-        d = request.json
-        t = Tool(
-            name=d['name'],
-            description=d['description'],
-            icon_url=d['icon_url'],
-            tool_url=d['tool_url'],
-            category=d.get('category', 'General'),
-            is_locked=d.get('is_locked', False)
-        )
-        db.session.add(t)
-        db.session.commit()
-        return jsonify({"success": True, "message": "Tool Added"})
-
-    if request.method == 'PUT':
-        d = request.json
-        t = Tool.query.get(d['id'])
-        if t:
-            if 'is_locked' in d: t.is_locked = d['is_locked']
-            if 'name' in d: t.name = d['name']
-            if 'tool_url' in d: t.tool_url = d['tool_url']
-            db.session.commit()
-            return jsonify({"success": True, "message": "Tool Updated"})
-        return jsonify({"success": False, "message": "Tool not found"}), 404
-
-    if request.method == 'DELETE':
-        tid = request.args.get('id')
-        Tool.query.filter_by(id=tid).delete()
-        db.session.commit()
-        return jsonify({"success": True, "message": "Tool Deleted"})
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
-
-
-from auth import auth_bp
 from functools import wraps
 from werkzeug.security import generate_password_hash
+import smtplib
+import threading
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import ssl
 
+from models import db, User, Visit, Message, Testimonial, Project, Post, Setting, Ad, Coupon, Lead, ActivityLog, MarketingAd, PricingPlan, Tool, log_activity
+from auth import auth_bp
+
+# 1. App Initialization
 app = Flask(__name__, static_folder='.', static_url_path='')
 app.config['ADMIN_USER'] = "admin"
 app.config['ADMIN_PASS'] = "sarwar123"
@@ -110,7 +22,6 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key-change-this
 app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '0') == '1'
 
 # Database Configuration
-# Fallback to sqlite if DATABASE_URL not set (e.g. local)
 db_url = os.getenv('DATABASE_URL')
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
@@ -121,19 +32,6 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
 
 db.init_app(app)
 
-# Update CORS
-CORS(app, resources={r"/api/*": {"origins": "https://sarwaraltaf.in"}}, supports_credentials=True)
-
-# Register Blueprints
-app.register_blueprint(auth_bp)
-
-# --- EMAIL HELPERS ---
-import smtplib
-import threading
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import ssl
-
 # Mail Config
 app.config['MAIL_SERVER'] = 'smtp.zoho.com'
 app.config['MAIL_PORT'] = 465
@@ -143,6 +41,13 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_ASCII_ATTACHMENTS'] = False
 app.config['MAIL_DEBUG'] = True
 
+# CORS
+CORS(app, resources={r"/api/*": {"origins": "https://sarwaraltaf.in"}}, supports_credentials=True)
+
+# Register Blueprints
+app.register_blueprint(auth_bp)
+
+# --- EMAIL HELPERS ---
 def send_async_email(app, subject, to_email, html_body):
     with app.app_context():
         smtp_server = app.config['MAIL_SERVER']
@@ -272,7 +177,6 @@ with app.app_context():
     except Exception as e:
         print(f"DB Init Error: {e}")
 
-
 # --- HELPERS ---
 def role_required(allowed_roles):
     def decorator(f):
@@ -353,7 +257,6 @@ def export_contacts():
     for m in msgs:
         output += f"{m.name},{m.email},{m.timestamp}\n"
     
-    from flask import Response
     return Response(
         output,
         mimetype="text/csv",
