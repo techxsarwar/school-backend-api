@@ -854,31 +854,34 @@
         async function loadTools() {
             try {
                 const data = await API.get('/api/tools');
+                console.log("Admin Tools Data:", data); // Debug Log
+
                 const list = document.getElementById('tools-list');
 
                 if (!data || data.length === 0) {
-                    list.innerHTML = '<div style="text-align:center; padding:20px;">No tools found. Run migration script first.</div>';
+                    list.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">No tools found in database.</div>';
                     return;
                 }
 
                 list.innerHTML = data.map(t => {
-                    const statusText = t.is_locked ? '<span style="color:#ff4444">🔒 Locked</span>' : '<span style="color:#00C851">🔓 Unlocked</span>';
-                    const opacity = t.is_locked ? '0.5' : '1';
+                    const statusText = t.is_locked
+                        ? '<span style="color:#ff4444"><i class="fas fa-lock"></i> Locked</span>'
+                        : '<span style="color:#00C851"><i class="fas fa-unlock"></i> Unlocked</span>';
 
                     return `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid #333;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #333; background:rgba(255,255,255,0.02);">
                         <div style="display:flex; align-items:center; gap:15px;">
-                            <div style="background:#222; width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-                                <i class="${t.icon_url}" style="color:var(--primary-accent); font-size:1.2rem;"></i>
+                            <div style="background:#222; width:45px; height:45px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <i class="${t.icon_url}" style="color:var(--primary-accent); font-size:1.4rem;"></i>
                             </div>
                             <div>
-                                <div style="font-weight:bold; color:white;">${t.name}</div>
-                                <div style="font-size:0.8rem; color:#666;">${t.category}</div>
+                                <div style="font-weight:bold; color:white; font-size:1.1rem;">${t.name}</div>
+                                <div style="font-size:0.8rem; color:#888;">${t.category}</div>
                             </div>
                         </div>
                         
                         <div style="display:flex; align-items:center; gap:30px;">
-                            <div style="width:100px; text-align:right;">${statusText}</div>
+                            <div style="width:100px; text-align:right; font-weight:600;">${statusText}</div>
                             
                             <label class="switch" title="Toggle Lock">
                                 <input type="checkbox" class="danger" ${t.is_locked ? 'checked' : ''} onchange="toggleToolLock(${t.id}, this.checked)">
@@ -889,8 +892,8 @@
                     `;
                 }).join('');
             } catch (e) {
-                console.error(e);
-                document.getElementById('tools-list').innerHTML = '<div style="color:red; text-align:center;">Error loading tools.</div>';
+                console.error("Tool Load Error:", e);
+                document.getElementById('tools-list').innerHTML = '<div style="color:red; text-align:center;">Error loading tools. Check console.</div>';
             }
         }
 
