@@ -145,11 +145,15 @@ def track_visit():
 
 # 📢 ADS MANAGER
 @app.route('/api/ads', methods=['GET', 'POST', 'DELETE'])
-@role_required(['Admin', 'Editor'])
 def manage_ads():
     if request.method == 'GET':
         cursor = get_db().execute('SELECT * FROM ads ORDER BY id DESC')
         return jsonify([dict(row) for row in cursor.fetchall()])
+
+    # Auth Check
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role not in ['Admin', 'Editor']:
+        return jsonify({"success": False, "message": "Access Denied"}), 403
 
     if request.method == 'POST':
         data = request.json
@@ -210,13 +214,17 @@ def manage_messages():
 
 # ⚙️ SETTINGS
 @app.route('/api/settings', methods=['GET', 'POST'])
-@role_required(['Admin', 'Developer'])
 def manage_settings():
     if request.method == 'GET':
         cursor = get_db().execute('SELECT * FROM settings')
         return jsonify({row['key']: row['value'] for row in cursor.fetchall()})
 
     if request.method == 'POST':
+        # Auth Check
+        user_role = request.headers.get('X-Role', 'Guest')
+        if user_role not in ['Admin', 'Developer']:
+            return jsonify({"success": False, "message": "Access Denied"}), 403
+
         data = request.json
         user_name = request.headers.get('X-User', 'Admin')
         
@@ -235,10 +243,15 @@ def manage_settings():
 
 # 🌟 TESTIMONIALS & POSTS
 @app.route('/api/testimonials', methods=['GET', 'POST', 'DELETE'])
-@role_required(['Admin', 'Editor'])
 def manage_testimonials():
     if request.method == 'GET':
         return jsonify([dict(row) for row in DB.query('SELECT * FROM testimonials ORDER BY id DESC')])
+    
+    # Auth Check
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role not in ['Admin', 'Editor']:
+        return jsonify({"success": False, "message": "Access Denied"}), 403
+
     if request.method == 'POST':
         d = request.json
         get_db().execute('INSERT INTO testimonials (name, role, review_text, rating, image_url) VALUES (?,?,?,?,?)',
@@ -251,10 +264,15 @@ def manage_testimonials():
         return jsonify({"success": True})
 
 @app.route('/api/posts', methods=['GET', 'POST', 'DELETE'])
-@role_required(['Admin', 'Editor'])
 def manage_posts():
     if request.method == 'GET':
         return jsonify([dict(row) for row in DB.query('SELECT * FROM posts ORDER BY id DESC')])
+    
+    # Auth Check
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role not in ['Admin', 'Editor']:
+        return jsonify({"success": False, "message": "Access Denied"}), 403
+
     if request.method == 'POST':
         d = request.json
         date_posted = d.get('date_posted') or datetime.now().strftime("%Y-%m-%d")
@@ -278,11 +296,15 @@ def manage_posts():
 
 # 🚀 PROJECTS
 @app.route('/api/projects', methods=['GET', 'POST', 'PUT', 'DELETE'])
-@role_required(['Admin', 'Developer'])
 def manage_projects():
     if request.method == 'GET':
         return jsonify([dict(row) for row in DB.query('SELECT * FROM projects ORDER BY priority DESC, id DESC')])
     
+    # Auth Check
+    user_role = request.headers.get('X-Role', 'Guest')
+    if user_role not in ['Admin', 'Developer']:
+        return jsonify({"success": False, "message": "Access Denied"}), 403
+
     if request.method == 'POST':
         d = request.json
         get_db().execute('INSERT INTO projects (title, image_url, link_url, tags, description, status, priority) VALUES (?,?,?,?,?,?,?)',

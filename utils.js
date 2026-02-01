@@ -2,7 +2,7 @@
 
 (function () {
     // 1. API CONFIG
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
     const BASE_URL = isLocal ? "http://127.0.0.1:5000" : "https://school-backend-api-5hkh.onrender.com";
 
     // 2. API OBJECT
