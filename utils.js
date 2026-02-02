@@ -4,7 +4,7 @@
     // 1. API CONFIG
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
     // Use relative path so it works everywhere (assuming frontend is served by backend or proxied)
-    const BASE_URL = "";
+    const BASE_URL = "https://school-backend-api-5hkh.onrender.com";
 
     // 2. API OBJECT
     window.API = {

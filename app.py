@@ -205,7 +205,7 @@ with app.app_context():
                     is_featured=False
                 ),
                 PricingPlan(
-                    name="Gold Producer",
+                    name="Professional",
                     price="₹39,999",
                     billing_cycle="/project",
                     border_color="gold",

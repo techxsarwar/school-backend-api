@@ -4,7 +4,7 @@
 <head>
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4450198813209397"
-     crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXY4W1Z5TD"></script>
@@ -58,267 +58,143 @@
             padding: 0 20px;
         }
 
-
-        /* PRO DYNAMIC SYSTEM */
-        :root {
-            --glow-cyan: 0, 243, 255;
-            --glow-gold: 255, 215, 0;
-            --glow-red: 255, 71, 71;
-            --glow-orange: 255, 159, 67;
-            --glow-purple: 165, 94, 234;
-        }
-
-        /* Base Card - Glassmorphism */
         .pricing-card {
-            background: rgba(22, 27, 34, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #0d1117;
+            border: 1px solid var(--border-color);
             border-radius: 24px;
             padding: 40px;
             position: relative;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
-        /* Hover Effect */
         .pricing-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            transform: translateY(-10px);
+            border-color: var(--primary-accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
-        /* Dynamic Border Colors */
-        .border-cyan {
-            border-color: rgb(var(--glow-cyan));
-            box-shadow: 0 0 20px rgba(var(--glow-cyan), 0.1);
+        .pricing-card.featured {
+            background: linear-gradient(145deg, #161b22 0%, #0d1117 100%);
+            border: 1px solid var(--primary-accent);
+            box-shadow: 0 0 30px rgba(103, 61, 230, 0.1);
         }
 
-        .border-gold {
-            border-color: rgb(var(--glow-gold));
-            box-shadow: 0 0 20px rgba(var(--glow-gold), 0.1);
+        .pricing-card.enterprise {
+            background: linear-gradient(145deg, #1a1600 0%, #000000 100%);
+            border: 1px solid #ffd700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
         }
 
-        .border-red {
-            border-color: rgb(var(--glow-red));
-            box-shadow: 0 0 20px rgba(var(--glow-red), 0.1);
+        .pricing-card.enterprise .plan-name,
+        .pricing-card.enterprise .plan-price {
+            color: #ffd700;
         }
 
-        .border-orange {
-            border-color: rgb(var(--glow-orange));
-            box-shadow: 0 0 20px rgba(var(--glow-orange), 0.1);
+        .pricing-card.enterprise .badge {
+            background: rgba(255, 215, 0, 0.15);
+            color: #ffd700;
+            border-color: rgba(255, 215, 0, 0.3);
         }
 
-        .border-purple {
-            border-color: rgb(var(--glow-purple));
-            box-shadow: 0 0 20px rgba(var(--glow-purple), 0.1);
+        .pricing-card.enterprise .features-list li i {
+            color: #ffd700;
         }
 
-        /* Text Gradients */
-        .text-cyan {
-            color: rgb(var(--glow-cyan));
-        }
-
-        .text-gold {
-            color: rgb(var(--glow-gold));
-        }
-
-        .text-red {
-            color: rgb(var(--glow-red));
-        }
-
-        .text-orange {
-            color: rgb(var(--glow-orange));
-        }
-
-        .text-purple {
-            color: rgb(var(--glow-purple));
-        }
-
-        .pricing-card:hover.border-cyan {
-            box-shadow: 0 0 40px rgba(var(--glow-cyan), 0.3);
-        }
-
-        .pricing-card:hover.border-gold {
-            box-shadow: 0 0 40px rgba(var(--glow-gold), 0.3);
-        }
-
-        .pricing-card:hover.border-red {
-            box-shadow: 0 0 40px rgba(var(--glow-red), 0.3);
-        }
-
-        /* Badge */
         .badge {
             position: absolute;
             top: 20px;
             right: 20px;
+            background: rgba(103, 61, 230, 0.15);
+            color: var(--primary-accent);
             padding: 6px 12px;
             border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(103, 61, 230, 0.3);
         }
 
-        .badge-cyan {
-            color: rgb(var(--glow-cyan));
-            border: 1px solid rgba(var(--glow-cyan), 0.5);
-            background: rgba(var(--glow-cyan), 0.1);
-        }
-
-        .badge-gold {
-            color: rgb(var(--glow-gold));
-            border: 1px solid rgba(var(--glow-gold), 0.5);
-            background: rgba(var(--glow-gold), 0.1);
-        }
-
-        .badge-red {
-            color: rgb(var(--glow-red));
-            border: 1px solid rgba(var(--glow-red), 0.5);
-            background: rgba(var(--glow-red), 0.1);
-        }
-
-        /* Typography */
         .plan-name {
             font-size: 1.5rem;
-            font-weight: 700;
             color: white;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            font-weight: 700;
         }
 
         .plan-price {
-            font-size: 3rem;
-            font-weight: 800;
+            font-size: 2.5rem;
             color: white;
+            font-weight: 800;
             margin-bottom: 20px;
-            letter-spacing: -1px;
         }
 
         .plan-price span {
             font-size: 1rem;
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--text-muted);
             font-weight: 400;
         }
 
-        /* Features */
+        .plan-desc {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            min-height: 50px;
+        }
+
         .features-list {
             list-style: none;
             padding: 0;
-            margin: 20px 0;
+            margin: 0 0 40px 0;
             flex-grow: 1;
         }
 
         .features-list li {
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
             color: #b0b5c1;
-            font-size: 0.95rem;
-        }
-
-        .features-list li.excluded {
-            opacity: 0.5;
-            text-decoration: line-through;
-        }
-
-        /* Timer */
-        .countdown-timer {
-            margin: -10px 0 20px;
-            font-family: monospace;
-            font-size: 0.9rem;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: #ff4747;
-            background: rgba(255, 71, 71, 0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
-            width: fit-content;
+            gap: 12px;
         }
 
-        /* Buttons */
-        .cta-btn {
-            width: 100%;
+        .features-list li i {
+            color: var(--secondary-accent);
+        }
+
+        .whatsapp-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #25D366;
+            color: #ffffff;
+            font-weight: 600;
             padding: 16px;
             border-radius: 12px;
-            font-weight: 700;
-            text-align: center;
-            cursor: pointer;
-            border: none;
+            text-decoration: none;
             transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9rem;
-            margin-top: auto;
         }
 
-        .cta-cyan {
-            background: rgb(var(--glow-cyan));
-            color: black;
-            box-shadow: 0 4px 20px rgba(var(--glow-cyan), 0.4);
-        }
-
-        .cta-gold {
-            background: rgb(var(--glow-gold));
-            color: black;
-            box-shadow: 0 4px 20px rgba(var(--glow-gold), 0.4);
-        }
-
-        .cta-red {
-            background: rgb(var(--glow-red));
-            color: white;
-            box-shadow: 0 4px 20px rgba(var(--glow-red), 0.4);
-        }
-
-        .cta-default {
-            background: #333;
-            color: white;
-        }
-
-        .cta-btn:hover {
+        .whatsapp-btn:hover {
+            background: #20bd5a;
             transform: scale(1.02);
         }
-    </style>
-    <!-- Kept Essential existing styles -->
 
-    .whatsapp-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: #25D366;
-    color: #ffffff;
-    font-weight: 600;
-    padding: 16px;
-    border-radius: 12px;
-    text-decoration: none;
-    transition: all 0.2s;
-    }
+        .trust-signal {
+            font-size: 0.85rem;
+            color: #27c93f;
+            margin-top: 15px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
-    .whatsapp-btn:hover {
-    background: #20bd5a;
-    transform: scale(1.02);
-    }
-
-    .trust-signal {
-    font-size: 0.85rem;
-    color: #27c93f;
-    margin-top: 15px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    }
-
-    @media (max-width: 768px) {
-    .pricing-header h1 {
-    font-size: 2.5rem;
-    }
-    }
+        @media (max-width: 768px) {
+            .pricing-header h1 {
+                font-size: 2.5rem;
+            }
+        }
     </style>
 </head>
 
@@ -345,8 +221,76 @@
             Sector.</p>
     </div>
 
-    <div class="pricing-grid" id="pricing-container">
-        <p style="text-align:center; width:100%; color:#888;">Loading Plans...</p>
+    <div class="pricing-grid">
+        <!-- Tier 1: Starter -->
+        <div class="pricing-card">
+            <h3 class="plan-name">Starter</h3>
+            <div class="plan-price">₹14,999 <span>/ one-time</span></div>
+            <p class="plan-desc">Perfect for individuals needing a strong digital presence. Quick, beautiful, and
+                functional.</p>
+
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> Single Page Portfolio</li>
+                <li><i class="fas fa-check-circle"></i> Basic SEO Setup</li>
+                <li><i class="fas fa-check-circle"></i> Mobile Responsive</li>
+                <li><i class="fas fa-check-circle"></i> 1 Month Support</li>
+                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No Team Panel</li>
+                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No CMS Access</li>
+            </ul>
+
+            <button onclick="selectPlan('Starter', '14,999')" class="whatsapp-btn"
+                style="border:none; width:100%; cursor:pointer; font-size:1rem;">
+                <i class="fab fa-whatsapp"></i> Get Started
+            </button>
+        </div>
+
+        <!-- Tier 2: Professional -->
+        <div class="pricing-card featured">
+            <div class="badge">MOST POPULAR</div>
+            <h3 class="plan-name">Professional</h3>
+            <div class="plan-price">₹39,999 <span>/ one-time</span></div>
+            <p class="plan-desc">For growing businesses and professionals requiring more pages and control.</p>
+
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> Multi-page (Up to 5)</li>
+                <li><i class="fas fa-check-circle"></i> Advanced SEO</li>
+                <li><i class="fas fa-check-circle"></i> Contact Forms</li>
+                <li><i class="fas fa-check-circle"></i> Admin Panel (Basic)</li>
+                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No Activity Logs</li>
+                <li style="color: #666;"><i class="fas fa-times-circle" style="color: #444;"></i> No Team Management
+                </li>
+            </ul>
+
+            <button onclick="selectPlan('Professional', '39,999')" class="whatsapp-btn"
+                style="border:none; width:100%; cursor:pointer; font-size:1rem;">
+                <i class="fab fa-whatsapp"></i> Go Professional
+            </button>
+        </div>
+
+        <!-- Tier 3: Enterprise -->
+        <div class="pricing-card enterprise">
+            <div class="badge">PREMIUM</div>
+            <h3 class="plan-name">Enterprise</h3>
+            <div class="plan-price">₹99,999+ <span>/ one-time</span></div>
+            <p class="plan-desc">The ultimate solution. Full control, zero limitations, and premium support.</p>
+
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> Unlimited Pages</li>
+                <li><i class="fas fa-check-circle"></i> Full Modular CMS</li>
+                <li><i class="fas fa-check-circle"></i> <strong>Team Panel with RBAC</strong></li>
+                <li><i class="fas fa-check-circle"></i> <strong>Activity Logs</strong></li>
+                <li><i class="fas fa-check-circle"></i> Priority Support & Integrations</li>
+            </ul>
+
+            <button onclick="selectPlan('Enterprise', '99,999+')" class="whatsapp-btn"
+                style="border:none; width:100%; cursor:pointer; font-size:1rem; background: #ffd700; color: black;">
+                <i class="fab fa-whatsapp"></i> Contact Sales
+            </button>
+
+            <div class="trust-signal" style="color: #ffd700;">
+                <i class="fas fa-shield-alt"></i> Reserved for High-Scale Clients
+            </div>
+        </div>
     </div>
 
     <!-- School Tools Integration CTA -->
@@ -460,22 +404,18 @@
     </section>
 
     <!-- Mega Footer -->
-    
-<!-- Google AdSense Unit -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4450198813209397"
-     crossorigin="anonymous"></script>
-<!-- Sarwar -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-4450198813209397"
-     data-ad-slot="6703099864"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
 
-<footer class="mega-footer">
+    <!-- Google AdSense Unit -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4450198813209397"
+        crossorigin="anonymous"></script>
+    <!-- Sarwar -->
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-4450198813209397" data-ad-slot="6703099864"
+        data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+
+    <footer class="mega-footer">
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col footer-brand">
@@ -523,68 +463,7 @@
         </div>
     </footer>
     <script src="script.js"></script>
-    <!-- Dynamic Pricing Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const container = document.getElementById('pricing-container');
-            const apiBase = "";
-
-            try {
-                // We use the global API object from script.js inside the load function if available, 
-                // but since this is inline, we do a direct fetch for speed/independence or rely on script.js loaded above.
-                // Safest to wait for script.js or just fetch.
-                const res = await fetch(`${apiBase}/api/pricing`);
-                const plans = await res.json();
-
-                if (!plans || plans.length === 0) {
-                    container.innerHTML = '<p style="text-align:center; width:100%; grid-column:1/-1;">No plans currently available.</p>';
-                    return;
-                }
-
-                container.innerHTML = plans.map((p, i) => {
-                    let feats = [];
-                    // Handle JSON parse safe
-                    try {
-                        feats = typeof p.included_features === 'string' ? JSON.parse(p.included_features) : p.included_features;
-                    } catch (e) { feats = []; }
-
-                    let excluded = [];
-                    try {
-                        excluded = typeof p.excluded_features === 'string' ? JSON.parse(p.excluded_features) : p.excluded_features;
-                    } catch (e) { excluded = []; }
-
-                    const isEnterprise = p.name === 'Enterprise';
-                    const isFeatured = p.is_featured;
-
-                    return `
-                    <div class="pricing-card ${isFeatured ? 'featured' : ''} ${isEnterprise ? 'enterprise' : ''} border-${p.border_color || 'cyan'}" 
-                         style="animation-delay: ${i * 100}ms">
-                        ${isFeatured ? '<div class="badge badge-gold">MOST POPULAR</div>' : ''}
-                        
-                        <h3 class="plan-name text-${p.border_color || 'cyan'}">${p.name}</h3>
-                        <div class="plan-price">${p.price} <span>${p.billing_cycle || ''}</span></div>
-                        
-                        ${p.has_timer ? `<div class="countdown-timer">⏳ Offer ends in ${p.countdown_minutes || 15}:00</div>` : ''}
-
-                        <ul class="features-list">
-                            ${feats.map(f => `<li><i class="fas fa-check-circle text-${p.border_color || 'cyan'}"></i> ${f}</li>`).join('')}
-                            ${excluded.map(ex => `<li class="excluded"><i class="fas fa-times-circle" style="color:#555"></i> ${ex}</li>`).join('')}
-                        </ul>
-
-                        <button onclick="selectPlan('${p.name}', '${p.price}')" class="cta-btn cta-${p.border_color || 'cyan'}">
-                            ${isEnterprise ? 'Contact Sales' : 'Get Started'}
-                        </button>
-                    </div>
-                    `;
-                }).join('');
-
-            } catch (e) {
-                console.error("Pricing Load Error", e);
-                // Fallback or leave as loading
-                container.innerHTML = '<p style="text-align:center; color:red; grid-column:1/-1;">Could not load plans.</p>';
-            }
-        });
-    </script>
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
 </body>
 
 </html>
