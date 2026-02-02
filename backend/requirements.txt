@@ -1,6 +1,7 @@
 flask
 flask-cors
-yt-dlp
+flask-sqlalchemy
 python-dotenv
 psycopg2-binary
 gunicorn
+yt-dlp
