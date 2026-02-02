@@ -27,8 +27,15 @@ app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '0') == '1'
 
 # Database Configuration
 db_url = os.getenv('DATABASE_URL')
-if db_url and db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+if db_url:
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    # Ensure SSL Mode
+    if "?sslmode=require" not in db_url:
+        if "?" in db_url:
+            db_url += "&sslmode=require"
+        else:
+            db_url += "?sslmode=require"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///site_data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -46,7 +53,7 @@ app.config['MAIL_ASCII_ATTACHMENTS'] = False
 app.config['MAIL_DEBUG'] = True
 
 # CORS
-CORS(app, resources={r"/api/*": {"origins": "https://sarwaraltaf.in"}}, supports_credentials=True)
+CORS(app, resources={r"/api/*": {"origins": ["https://sarwaraltaf.in", "https://www.sarwaraltaf.in"]}}, supports_credentials=True)
 
 # Register Blueprints
 app.register_blueprint(auth_bp)
